@@ -11,4 +11,4 @@ async function hash(password) {
   return hashedPassword;
 }
 
-export default hash;
+module.exports = hash;

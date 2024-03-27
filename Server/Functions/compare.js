@@ -7,4 +7,4 @@ async function compare(hashedPassword, password) {
 
 }
 
-export default compare
+module.exports = compare
