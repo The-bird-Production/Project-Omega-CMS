@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient(undefined, { log: ["query"] });
 
-import compare from "../../Functions/compare";
-import jwt from "jsonwebtoken";
+const compare = require("../../Functions/compare");
+const jwt = require("jsonwebtoken");
 const config = require("../../config/session");
 
 exports.Login = async (req, res) => {
