@@ -1,0 +1,1 @@
+exports.bcrypt_salt = 10 
