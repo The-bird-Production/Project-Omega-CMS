@@ -33,5 +33,5 @@ const AuthenticateSession = async (req,res,next) => {
 
 
 }
-exports.AuthenticateSession=AuthenticateSession
+module.exports=AuthenticateSession
 
