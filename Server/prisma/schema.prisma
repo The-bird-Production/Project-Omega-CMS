@@ -15,25 +15,41 @@ datasource db {
 
 // Modèle de données pour les rôles
 
-
 model Role {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   permissions Json?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   // Relation many-to-many avec les utilisateurs
   users       User[]
 }
 
 // Modèle de données pour les utilisateurs
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  email     String    @unique
-  password  String    // Notez que vous devriez utiliser un cryptage approprié pour le mot de passe en production
-  role      Role      @relation(fields: [roleId], references: [id])
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String // Notez que vous devriez utiliser un cryptage approprié pour le mot de passe en production
+  role      Role     @relation(fields: [roleId], references: [id])
   roleId    Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model File {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  filename String @unique
+  slug     String @unique
+  createdAt DateTime @default(now())
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  title     String
+  alt       String
+  file      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
 }
