@@ -15,7 +15,6 @@ const CreateFile = async (req, res) => {
   let extension = originalFileName.split(".").pop(); // getting the file extension
 
   try {
-    console.log(req.file);
     await fs.rename(
       `${process.cwd()}/Public/tmp/Files/${req.file.filename}`,
       `${process.cwd()}/Public/Files/${req.file.filename}.${extension}`
@@ -28,7 +27,9 @@ const CreateFile = async (req, res) => {
       },
     });
 
-    return res.status(201).send("Created Successfully!");
+    return res
+      .status(201)
+      .json({ code: 201, message: "Created Successfully!" });
   } catch (e) {
     return res
       .status(500)
