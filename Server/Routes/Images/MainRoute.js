@@ -18,7 +18,7 @@ router.post(
   "/create",
   VerifyToken,
   AuthenticateSession,
-  upload.single("file"),
+  upload.single("image"),
   CreateImage
 );
 router.put("/update/:id", VerifyToken, AuthenticateSession, UpdateImage);
