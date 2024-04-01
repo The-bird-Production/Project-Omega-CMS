@@ -11,5 +11,16 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "prisma": "^5.11.0"
-  }
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js  "
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend For project Omega",
+  "main": "server.js",
+  "devDependencies": {},
+  "author": "Faynix - The bird production",
+  "license": "ISC"
 }
