@@ -1,20 +1,24 @@
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
+const fs = require("fs/promises");
 
 const CreateImage = async (req, res) => {
   try {
-    if (!req.file || !req.body.slug || !req.body.title || !req.body.alt) {
-      return res.status(400).json({ code: 400, message: "Missing fields" });
+    console.log(req.file);
+    if (!req.body.slug || !req.body.title || !req.body.alt) {
+      return res.status(400).json({
+        code: 400,
+        message: "Missing fields current fields : " + JSON.stringify(req.body),
+      });
     }
     //get file extension
-    let fileName = req.file.originalname;
-    let extension = fileName.split(".").pop();
-    await fs.renameSync(
-      `${process.cwd()}/Public/tmp/Images/${req.file.fileName}`,
+    let orignalFileName = req.file.originalname;
+    let extension = orignalFileName.split(".").pop();
+    await fs.rename(
+      `${process.cwd()}/Public/tmp/Images/${req.file.filename}`,
       `${process.cwd()}/Public/Images/${req.file.filename}.${extension}`
     );
-    await fs.unlink(`${process.cwd()}/Public/tmp/Images/${req.file.fileName}`);
 
     await prisma.image.create({
       data: {
