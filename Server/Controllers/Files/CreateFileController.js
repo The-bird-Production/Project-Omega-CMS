@@ -21,7 +21,7 @@ const CreateFile = async (req, res) => {
     );
     await prisma.file.create({
       data: {
-        filename: req.file.filename + extension,
+        filename: req.file.filename + "." + extension,
         slug: req.body.slug,
         name: req.body.name,
       },

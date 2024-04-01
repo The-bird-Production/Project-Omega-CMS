@@ -24,7 +24,7 @@ const CreateImage = async (req, res) => {
       data: {
         title: req.body.title,
         alt: req.body.alt,
-        file: req.file.filename + extension,
+        file: req.file.filename + "." + extension,
         slug: req.body.slug,
       },
     });
