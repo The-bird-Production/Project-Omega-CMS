@@ -7,6 +7,7 @@ require("dotenv").config();
 const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
+const { urlencoded } = require("express");
 
 if (process.env.NODE_ENV == "development") {
   console.log("Backend running in dev mod");
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV == "development") {
 app.use(helmet());
 app.use(compression());
 app.use(cors(config.CORS));
+app.use(urlencoded({ extended: true }));
 
 app.listen(config.app_port, () => {
   console.log("Backend Start on http://localhost:" + config.app_port);
