@@ -6,23 +6,20 @@ const prisma = new PrismaClient(undefined, { log: ["query"] });
 const CreateFile = async (req, res) => {
   let format = req.file.mimetype; //getting the file type
   if (!format == "image/jpeg" || !format == "image/png") {
-    return res
-      .status(400)
-      .json({
-        code: 400,
-        message:
-          "Bad request please select other method  to upload your image.",
-      });
+    return res.status(400).json({
+      code: 400,
+      message: "Bad request please select other method  to upload your image.",
+    });
   }
-  let fileName = req.file.originalname;
-  let extension = fileName.split(".").pop(); // getting the file extension
+  let originalFileName = req.file.originalname;
+  let extension = originalFileName.split(".").pop(); // getting the file extension
 
   try {
-    await fs.renameSync(
-      `${process.cwd()}/Public/tmp/Files/${req.file.fileName}`,
+    console.log(req.file);
+    await fs.rename(
+      `${process.cwd()}/Public/tmp/Files/${req.file.filename}`,
       `${process.cwd()}/Public/Files/${req.file.filename}.${extension}`
     );
-    await fs.unlink(`${process.cwd()}/Public/tmp/Files/${req.file.fileName}`);
     await prisma.file.create({
       data: {
         filename: req.file.filename + extension,
@@ -39,4 +36,4 @@ const CreateFile = async (req, res) => {
   }
 };
 
-module.exports = CreateFile
+module.exports = CreateFile;
