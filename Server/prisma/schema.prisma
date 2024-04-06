@@ -38,10 +38,10 @@ model User {
 }
 
 model File {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  filename String @unique
-  slug     String @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  filename  String   @unique
+  slug      String   @unique
   createdAt DateTime @default(now())
 }
 
@@ -52,4 +52,12 @@ model Image {
   file      String   @unique
   slug      String   @unique
   createdAt DateTime @default(now())
+}
+
+model Log {
+  id     Int      @id @default(autoincrement())
+  action String
+  color  String
+  user   String
+  date   DateTime @default(now())
 }
