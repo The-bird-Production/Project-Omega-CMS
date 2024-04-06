@@ -7,10 +7,12 @@ app.use(express.urlencoded({ extended: true }));
 const AuthRoute = require("./Routes/Auth/MainRoute");
 const FileRoute = require("./Routes/Files/MainRoute");
 const ImageRoute = require("./Routes/Images/MainRoute");
+const LogRoute = require("./Routes/LogRoute/MainRoute");
 
 app.use("/auth", AuthRoute);
 app.use("/file", FileRoute);
 app.use("/image", ImageRoute);
+app.use("/logs", LogRoute);
 
 app.get("/test", (req, res) => {
   res.send("Testing Server");
