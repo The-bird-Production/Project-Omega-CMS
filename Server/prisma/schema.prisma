@@ -61,3 +61,20 @@ model Log {
   user   String
   date   DateTime @default(now())
 }
+
+model Stats_web {
+  id    Int      @id @default(autoincrement())
+  count Int
+  page  String
+  date  DateTime @default(now())
+}
+
+model Stats_Api {
+  id                  Int      @id @default(autoincrement())
+  timestamp           DateTime @default(now())
+  totalRequests       Int
+  averageResponseTime Float
+  statusCodeCounts    Json
+  averageResponseSize Float
+  date                DateTime @default(now())
+}
