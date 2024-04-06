@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient(undefined, { log: ["query"] });
+const Addlogs = require("../../Functions/AddLogs");
 
 const UpdateFile = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ const UpdateFile = async (req, res) => {
         name: req.body.name,
       },
     });
+    await Addlogs("Update an image", "Anonymous", "primary");
   } catch (e) {
     return res
       .status(503)
