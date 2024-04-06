@@ -2,6 +2,7 @@ const fs = require("fs/promises");
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient(undefined, { log: ["query"] });
+const Addlogs = require("../../Functions/AddLogs");
 
 const CreateFile = async (req, res) => {
   let format = req.file.mimetype; //getting the file type
@@ -26,6 +27,7 @@ const CreateFile = async (req, res) => {
         name: req.body.name,
       },
     });
+    await Addlogs("Create an image", "Anonymous", "sucess");
 
     return res
       .status(201)
