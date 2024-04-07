@@ -30,17 +30,25 @@ exports.Login = async (req, res) => {
       return;
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, username: user.username }, config.token_key, {
-      expiresIn: "30d",
-    });
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.roleId,
+      },
+      config.token_key,
+      {
+        expiresIn: "30d",
+      }
+    );
 
     let data = {
       id: user.id,
       username: user.username,
       roleId: user.roleId,
-      email: user.email
-    }
-
+      email: user.email,
+    };
 
     res.status(200).json({
       code: "200",
