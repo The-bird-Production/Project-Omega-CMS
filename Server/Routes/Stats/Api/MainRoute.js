@@ -3,6 +3,7 @@ const router = express.Router();
 
 const autenticateSession = require("../../../Middleware/AuthenticateSession");
 const verifyToken = require("../../../Middleware/VerifyToken");
+const VerifyPermissions = require("../../../Middleware/VerifyPermissions");
 
 const {
   requestStats,
@@ -24,7 +25,19 @@ router.use(averageResponseSize);
 router.use(saveMetrics);
 // @route   GET api/stats/
 
-router.get("/stats/all", verifyToken, autenticateSession, GetAllStats);
-router.get("/stats/date", verifyToken, autenticateSession, GetStatsByDate);
+router.get(
+  "/stats/all",
+  verifyToken,
+  autenticateSession,
+  VerifyPermissions("canViewStats"),
+  GetAllStats
+);
+router.get(
+  "/stats/date",
+  verifyToken,
+  autenticateSession,
+  VerifyPermissions("canViewStats"),
+  GetStatsByDate
+);
 
 module.exports = router;
