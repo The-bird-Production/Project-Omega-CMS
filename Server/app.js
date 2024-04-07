@@ -9,11 +9,14 @@ const FileRoute = require("./Routes/Files/MainRoute");
 const ImageRoute = require("./Routes/Images/MainRoute");
 const LogRoute = require("./Routes/LogRoute/MainRoute");
 const Stats = require("./Routes/Stats/Api/MainRoute");
+const web_stats = require("./Routes/Stats/Web/MainRoute");
 
 app.use("/auth", AuthRoute);
 app.use("/file", FileRoute);
 app.use("/image", ImageRoute);
 app.use("/logs", LogRoute);
+app.use("/web_stats", web_stats);
+
 app.use(Stats);
 
 app.get("/test", (req, res) => {
