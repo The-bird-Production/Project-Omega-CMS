@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 const fs = require("fs/promises");
+const AddLog = require("../../Functions/AddLogs");
 
 const CreateImage = async (req, res) => {
   try {
@@ -28,6 +29,7 @@ const CreateImage = async (req, res) => {
         slug: req.body.slug,
       },
     });
+    AddLog("Create an image", "Annonymouss", "sucess");
     return res
       .status(201)
       .json({ code: "201", message: "Image created sucessfully " });

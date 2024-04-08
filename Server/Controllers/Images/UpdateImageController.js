@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient(undefined, { log: ["query"] });
+const AddLog = require("../../Functions/AddLogs");
 
 const UpdateImage = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ const UpdateImage = async (req, res) => {
         title: req.body.title,
       },
     });
+    AddLog("UPDATE an image", "Anonymouss", "info");
     return res
       .status(201)
       .json({ code: 201, message: "Image sucessfully updated " });
