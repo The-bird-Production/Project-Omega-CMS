@@ -7,7 +7,7 @@ const upload = multer({ dest: process.cwd() + "/Public/tmp/Images/" });
 //Security MiddleWare
 const VerifyToken = require("../../Middleware/VerifyToken");
 const AuthenticateSession = require("../../Middleware/AuthenticateSession");
-const VerifyPermissions = require("../../../Middleware/VerifyPermissions");
+const VerifyPermissions = require("../../Middleware/VerifyPermissions");
 
 //Controller
 const UpdateImage = require("../../Controllers/Images/UpdateImageController");

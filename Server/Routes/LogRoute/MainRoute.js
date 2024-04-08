@@ -4,7 +4,7 @@ const router = express.Router();
 //Security MiddleWare
 const VerifyToken = require("../../Middleware/VerifyToken");
 const AuthenticateSession = require("../../Middleware/AuthenticateSession");
-const VerifyPermissions = require("../../../Middleware/VerifyPermissions");
+const VerifyPermissions = require("../../Middleware/VerifyPermissions");
 
 //Controller
 const DeleteLogs = require("../../Controllers/LogController/DeleteLogsController");
