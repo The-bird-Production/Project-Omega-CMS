@@ -26,12 +26,6 @@ router.get(
   VerifyPermissions("canViewStats"),
   GetStatsByDate
 ); // Getting stats by date
-router.post(
-  "/add",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("canAddWebStats"),
-  AddStats
-);
+router.post("/add", AddStats);
 
 module.exports = router;
