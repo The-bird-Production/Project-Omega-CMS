@@ -22,19 +22,6 @@ model Role {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   // Relation many-to-many avec les utilisateurs
-  users       User[]
-}
-
-// Modèle de données pour les utilisateurs
-model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String // Notez que vous devriez utiliser un cryptage approprié pour le mot de passe en production
-  role      Role     @relation(fields: [roleId], references: [id])
-  roleId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model File {

@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.1.0",
+    "@prisma/client": "^5.14.0",
+    "bcrypt": "^5.1.1",
     "isomorphic-fetch": "^3.0.0",
     "next": "14.1.4",
     "next-auth": "^4.24.7",
@@ -19,7 +22,10 @@
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-react": "^7.24.1",
+    "@types/node": "20.12.12",
+    "@types/react": "18.3.2",
     "eslint": "^8",
-    "eslint-config-next": "14.1.4"
+    "eslint-config-next": "14.1.4",
+    "prisma": "^5.14.0"
   }
 }
