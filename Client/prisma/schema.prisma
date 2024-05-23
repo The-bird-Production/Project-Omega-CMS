@@ -14,6 +14,8 @@ model User {
   email         String?         @unique
   emailVerified DateTime?
   image         String?
+  roleId        Int?
+  role          Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
   Session       Session[]
   Account       Account?
   // Optional for WebAuthn support
@@ -81,4 +83,55 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  permissions Json?
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  filename  String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  title     String
+  alt       String
+  file      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Log {
+  id     Int      @id @default(autoincrement())
+  action String
+  color  String
+  user   String
+  date   DateTime @default(now())
+}
+
+model Stats_web {
+  id    Int      @id @default(autoincrement())
+  count Int
+  page  String
+  date  DateTime @default(now())
+}
+
+model Stats_Api {
+  id                  Int      @id @default(autoincrement())
+  timestamp           DateTime @default(now())
+  totalRequests       Int
+  averageResponseTime Float
+  statusCodeCounts    Json
+  averageResponseSize Float
+  date                DateTime @default(now())
 }
