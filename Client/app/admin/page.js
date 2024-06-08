@@ -2,6 +2,12 @@
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+import AdminNavBar from "../components/admin/AdminNavBar";
+
+import AdminLayout from "../components/layout/AdminLayout";
+import AdminContentLayout from "../components/admin/AdminContentLayout";
+import AdminHeader from "../components/admin/AdminHeader";
+import MainContent from "../components/admin/MainContent";
 
 export default function Admin() {
   const { data: session, status } = useSession({
@@ -11,12 +17,10 @@ export default function Admin() {
   const [role, setRole] = useState(null);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      console.log(session);
+    if (status === "authenticated" && session.user.roleId) {
       fetch(`/api/getRole?id=${session.user.roleId}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
           if (data.role) {
             setRole(data.role);
             if (data.role !== "admin") {
@@ -34,15 +38,22 @@ export default function Admin() {
   if (status === "loading") {
     return (
       <>
-        <h1>Loading or not authenticated...</h1>
+        <h1>Loading...</h1>
+        <div className="spinner-border" role="status">
+          <span className="sr-only"></span>
+        </div>
       </>
     );
   }
-
   return (
     <>
-      <h1>Welcome Admin</h1>
-      <h2>Role: {role}</h2>
+      <AdminLayout>
+        <AdminNavBar></AdminNavBar>
+        <AdminContentLayout>
+          <AdminHeader session={session}></AdminHeader>
+          <MainContent></MainContent>
+        </AdminContentLayout>
+      </AdminLayout>
     </>
   );
 }
