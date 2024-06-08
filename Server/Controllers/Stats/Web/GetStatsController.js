@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 const GetAllStats = async (req, res) => {
   try {
+    
     const data = await prisma.stats_web.findMany({});
     res.status(200).json({ code: 200, data });
   } catch (e) {

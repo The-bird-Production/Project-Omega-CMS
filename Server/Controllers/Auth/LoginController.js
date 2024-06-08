@@ -30,30 +30,18 @@ exports.Login = async (req, res) => {
       return;
     }
 
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        role: user.roleId,
-      },
-      config.token_key,
-      {
-        expiresIn: "30d",
-      }
-    );
-
     let data = {
       id: user.id,
       username: user.username,
       roleId: user.roleId,
       email: user.email,
+      image: user.image,
     };
 
     res.status(200).json({
       code: "200",
       message: "Success",
-      data: { data, token },
+      user: data,
     });
   } catch (error) {
     console.error("Error during authentication:", error);
