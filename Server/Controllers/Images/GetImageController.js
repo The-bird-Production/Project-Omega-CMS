@@ -5,6 +5,21 @@ const config = require("../../config/server");
 
 const GetImage = async (req, res) => {
   try {
+
+
+
+    if (req.params.slug === "all") {
+      const files = await prisma.image.findMany();
+
+      return res.status(200).json({
+        code: 200,
+        data: {
+          files: files,
+        },
+      });
+    }
+
+
     const file = await prisma.image.findUnique({
       where: { slug: req.params.slug },
     });
