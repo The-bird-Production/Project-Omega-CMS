@@ -1,19 +1,23 @@
 const AdminHeader = dynamic(() => import('./AdminHeader'), { ssr: false });
 const AdminNavBar = dynamic(() => import('./AdminNavBar'), { ssr: false });
-import { redirect } from 'next/navigation';
+
 const AdminContentLayout = dynamic(() =>
   import('./AdminContentLayout', { ssr: false })
 );
-
-import { useEffect } from 'react';
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 
+
 export default function Layout({ children }) {
+  const [role, setRole] = useState(null)
   const { data: session, status } = useSession({
     required: true,
   });
+  const router = useRouter()
   useEffect(() => {
+    
     if (status === 'authenticated' && session.user.roleId) {
       fetch(`/api/getRole?id=${session.user.roleId}`)
         .then((response) => response.json())
@@ -21,13 +25,13 @@ export default function Layout({ children }) {
           if (data.role) {
             setRole(data.role);
             if (data.role !== 'admin') {
-              redirect('/');
+              return router.push('/')
             }
           }
         })
         .catch((error) => {
           console.error('Error fetching role:', error);
-          redirect('/');
+          return router.push('/')
         });
     }
   }, [session, status]);
@@ -37,8 +41,8 @@ export default function Layout({ children }) {
       
       <>
         <h1>Loading...</h1>
-        <div classNameNameName="spinner-border" role="status">
-          <span classNameNameName="sr-only"></span>
+        <div className="spinner-border" role="status">
+          <span className="sr-only"></span>
         </div>
       </>
     );

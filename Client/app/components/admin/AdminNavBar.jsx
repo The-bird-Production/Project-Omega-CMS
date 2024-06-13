@@ -10,7 +10,7 @@ export default function Component() {
       data-bs-backdrop="false"
     >
       <div className="offcanvas-header">
-        <h6 className="offcanvas-title d-none d-sm-block" id="offcanvas">
+        <h6 className="offcanvas-title d-none d-sm-block fs-2" id="offcanvas" >
           Omega Admin
         </h6>
       </div>
@@ -49,7 +49,7 @@ export default function Component() {
             </li>
 
             <li>
-              <Link href="/admin/image" classNameName="nav-link text-truncate">
+              <Link href="/admin/image" className="nav-link text-truncate">
                 <i className="fs-5 bi bi-image"></i>
                 <span className="ms-1 d-none d-sm-inline">Images</span>
               </Link>
