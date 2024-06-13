@@ -5,9 +5,7 @@ const multer = require("multer");
 const upload = multer({ dest: process.cwd() + "/Public/tmp/Images/" });
 
 //Security MiddleWare
-const VerifyToken = require("../../Middleware/VerifyToken");
-const AuthenticateSession = require("../../Middleware/AuthenticateSession");
-const VerifyPermissions = require("../../Middleware/VerifyPermissions");
+const Auth = require('../../Middleware/Auth')
 
 //Controller
 const UpdateImage = require("../../Controllers/Images/UpdateImageController");
@@ -17,24 +15,18 @@ const GetImage = require("../../Controllers/Images/GetImageController");
 
 router.post(
   "/create",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("canManageImage"),
+  Auth,
   upload.single("image"),
   CreateImage
 );
 router.put(
   "/update/:id",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("canManageImage"),
+  Auth,
   UpdateImage
 );
 router.delete(
   "/delete/:id",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("canManageImage"),
+  Auth,
   DeleteImage
 );
 router.get("/get/:slug", GetImage);

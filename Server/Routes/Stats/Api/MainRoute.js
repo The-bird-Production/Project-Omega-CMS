@@ -4,6 +4,7 @@ const router = express.Router();
 const autenticateSession = require("../../../Middleware/AuthenticateSession");
 const verifyToken = require("../../../Middleware/VerifyToken");
 const VerifyPermissions = require("../../../Middleware/VerifyPermissions");
+const Auth = require('../../../Middleware/Auth')
 
 const {
   requestStats,
@@ -27,9 +28,7 @@ router.use(saveMetrics);
 
 router.get(
   "/stats/all",
-  verifyToken,
-  autenticateSession,
-  VerifyPermissions("canViewStats"),
+  Auth,
   GetAllStats
 );
 router.get(
