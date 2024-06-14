@@ -7,7 +7,9 @@ const AddLog = require("../../Functions/AddLogs");
 
 const DeleteImage = async (req, res) => {
   try {
-    const file = await prisma.file.findUnique({ where: { id: req.params.id } });
+    const int = parseInt(req.params.id)
+    console.log(int)
+    const file = await prisma.image.findUnique({ where: { id: int } });
 
     if (!file) {
       return res.status(404).json({
@@ -18,12 +20,13 @@ const DeleteImage = async (req, res) => {
 
     await fs.unlink(process.cwd() + "/Public/Images/" + file.file);
 
-    await prisma.image.delete({ where: { id: req.params.id } });
+    await prisma.image.delete({ where: { id: int } });
     AddLog("Delete an image", "Anonymouss", "danger");
     return res
       .status(200)
       .json({ code: 200, message: "Successfully deleted." });
   } catch (e) {
+    console.log(e)
     return res
       .status(503)
       .json({ code: 500, message: "Internal Serveur Error " + e });
