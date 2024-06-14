@@ -31,7 +31,11 @@ const GetImage = async (req, res) => {
     res.status(200).json({
       code: 200,
       data: {
-        filname: file.name,
+        id: file.id,
+        
+        title: file.title,
+        alt: file.alt,
+        slug: file.slug,
         path: config.URL + "/image/" + file.file,
       },
     });
