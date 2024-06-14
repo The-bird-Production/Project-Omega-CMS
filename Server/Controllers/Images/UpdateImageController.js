@@ -7,10 +7,12 @@ const UpdateImage = async (req, res) => {
   try {
     await prisma.image.update({
       where: {
-        id: req.params.id,
+        id: parseInt(req.params.id),
       },
       data: {
         title: req.body.title,
+        alt: req.body.alt,
+        slug: req.body.slug
       },
     });
     AddLog("UPDATE an image", "Anonymouss", "info");
