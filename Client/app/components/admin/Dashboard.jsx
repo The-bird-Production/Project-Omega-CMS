@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
+import CheckPermission from "../../../Functions/CheckPermissions"
 
 
 export default function Layout({ children }) {
@@ -18,22 +19,10 @@ export default function Layout({ children }) {
   const router = useRouter()
   useEffect(() => {
     
-    if (status === 'authenticated' && session.user.roleId) {
-      fetch(`/api/getRole?id=${session.user.roleId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.role) {
-            setRole(data.role);
-            if (data.role !== 'admin') {
-              return router.push('/')
-            }
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching role:', error);
-          return router.push('/')
-        });
+    if (CheckPermission(status, session, "CanViewDashboard") == false ) {
+      router.push('/')
     }
+
   }, [session, status]);
 
   if (status === 'loading') {
