@@ -5,3 +5,8 @@ export const imageUpdateSchema = z.object({
     alt: z.string().min(1, "Alt is required"),
     slug: z.string().min(1, "Slug is required")
 })
+
+export const AddRoleSchema = z.object({
+    role_name: z.string().min(1, "Name is required"),
+    role_permission: z.object({})
+})
