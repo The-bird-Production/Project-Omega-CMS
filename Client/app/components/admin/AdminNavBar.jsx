@@ -10,7 +10,7 @@ export default function Component() {
       data-bs-backdrop="false"
     >
       <div className="offcanvas-header">
-        <h6 className="offcanvas-title d-none d-sm-block fs-2" id="offcanvas" >
+        <h6 className="offcanvas-title d-none d-sm-block fs-2" id="offcanvas">
           Omega Admin
         </h6>
       </div>
@@ -44,7 +44,9 @@ export default function Component() {
             <li>
               <a href="#" className="nav-link text-truncate">
                 <i className="fs-5 bi bi-folder"></i>
-                <span className="ms-1 d-none d-sm-inline">Fichiers</span>
+                <span className="ms-1 d-none d-sm-inline">
+                  Fichiers (indisponible)
+                </span>
               </a>
             </li>
 
@@ -55,20 +57,22 @@ export default function Component() {
               </Link>
             </li>
             <li>
-              <a href="#" className="nav-link text-truncate">
+              <Link href="/admin/page"className="nav-link text-truncate">
                 <i className="fs-5 bi-file-earmark"></i>
                 <span className="ms-1 d-none d-sm-inline">Pages</span>
-              </a>
+              </Link>
             </li>
             <li>
               <br />
               Utilisateurs
             </li>
             <li>
-              <a href="#" className="nav-link text-truncate">
+              <Link href="/admin/role" className="nav-link text-truncate">
+            
                 <i className="fs-5 bi-person-badge"></i>
                 <span className="ms-1 d-none d-sm-inline">Rôle</span>
-              </a>
+              
+              </Link>
             </li>
             <li>
               <a href="#" className="nav-link text-truncate">
