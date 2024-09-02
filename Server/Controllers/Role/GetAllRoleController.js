@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const GetAllRole = async (req, res) => {
   try {
-    const data = prisma.role.findMany();
+    const data = await prisma.role.findMany();
 
     if (!data) {
       return res.status(404).json({ code: 404, message: "Role not found" });
