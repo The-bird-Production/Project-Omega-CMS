@@ -5,6 +5,7 @@ const router = express.Router();
 const VerifyPermissions = require("../../Middleware/VerifyPermissions");
 const VerifyToken = require("../../Middleware/VerifyToken");
 const AuthenticateSession = require("../../Middleware/AuthenticateSession");
+const Auth = require('../../Middleware/Auth')
 
 const CreateRole = require("../../Controllers/Role/CreateRoleController");
 const UpdateRole = require("../../Controllers/Role/UpdateRoleController");
@@ -14,37 +15,27 @@ const GetAllRole = require("../../Controllers/Role/GetAllRoleController");
 
 router.post(
   "/create",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("CanManageRole"),
+  Auth,
   CreateRole
 );
 router.put(
   "/update/:id",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("CanManageRole"),
+  Auth,
   UpdateRole
 );
 router.delete(
   "/remove/:id",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("CanManageRole"),
+  Auth,
   DeleteRole
 );
 router.get(
   "/get/all",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("CanViewRoles"),
+  Auth,
   GetAllRole
 );
 router.get(
   "/get/:id",
-  VerifyToken,
-  AuthenticateSession,
-  VerifyPermissions("CanViewRoles"),
+  Auth,
   GetSingleRole
 );
 
