@@ -12,7 +12,10 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    next();
+    if (decoded) {
+      next();
+    }
+    
   } catch (err) {
     console.log(err);
 
