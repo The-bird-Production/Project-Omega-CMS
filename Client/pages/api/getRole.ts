@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (role) {
-      res.status(200).json({ role: role.name });
+      res.status(200).json({ role: role.name, permissions: role.permissions });
     } else {
       res.status(404).json({ error: 'Role not found' });
     }
