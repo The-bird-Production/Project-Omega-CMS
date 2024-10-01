@@ -73,7 +73,11 @@ export const authConfig = {
         return token;
       },
       async session({ session, token }) {
-        
+        const perm = await prisma.role.findFirst({
+          where: { id: token.user.roleId }, select:{permissions: true}
+        });
+       
+        session.permissions = perm?.permissions; 
         session.user = token.user;
         session.accessToken = token.user.acessToken ;
         
