@@ -14,6 +14,7 @@ const CreateRole = async (req, res) => {
       .status(200)
       .json({ code: 200, message: "Role successfully created" });
   } catch (e) {
+    console.log(e)
     return res
       .status(500)
       .json({ code: 500, message: "Internal Server Error " + e });
