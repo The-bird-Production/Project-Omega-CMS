@@ -3,10 +3,11 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const GetRole = async (req, res) => {
+  const id = parseInt(req.params.id)
   try {
     const data = await prisma.role.findFirst({
       where: {
-        id: req.params.id,
+        id: id,
       },
     });
 
@@ -17,7 +18,7 @@ const GetRole = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ code: 500, message: "Internal Server Error " + e });
+      .json({ code: 500, message: "Internal Server Error " + error });
   }
 };
 
