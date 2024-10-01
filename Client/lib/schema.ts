@@ -8,5 +8,5 @@ export const imageUpdateSchema = z.object({
 
 export const AddRoleSchema = z.object({
     role_name: z.string().min(1, "Name is required"),
-    role_permission: z.object({})
+    role_permissions: z.object({})
 })
