@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const config = require('./config/server')
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //Security
@@ -22,8 +23,12 @@ if (process.env.NODE_ENV == "development") {
 app.use(helmet());
 app.use(compression());
 app.use(cors(config.CORS));
-app.use(urlencoded({ extended: true }));
 app.use(morgan("dev"));
+
+
+
+
+
 
 const AuthRoute = require("./Routes/Auth/MainRoute");
 const FileRoute = require("./Routes/Files/MainRoute");
