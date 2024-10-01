@@ -9,7 +9,7 @@ const VerifyPermission = (permission) => {
       const decode = jwt.decode(token);
       const { permissions } = await GetPermissionByRoleId(decode.roleId);
 
-      if (permissions[permission]) {
+      if (permissions[permission] || permissions["admin"]) {
         next();
       } else {
         res.status(403).json({ code: 403, message: "Forbidden " });

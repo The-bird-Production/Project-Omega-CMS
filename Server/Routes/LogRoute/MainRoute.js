@@ -2,25 +2,24 @@ const express = require("express");
 const router = express.Router();
 
 //Security MiddleWare
-const VerifyToken = require("../../Middleware/VerifyToken");
-const AuthenticateSession = require("../../Middleware/AuthenticateSession");
+
 const VerifyPermissions = require("../../Middleware/VerifyPermissions");
+const Auth = require('../../Middleware/Auth')
 
 //Controller
 const DeleteLogs = require("../../Controllers/LogController/DeleteLogsController");
 const GetLogs = require("../../Controllers/LogController/GetLogsController");
 
+
 router.delete(
   "/delete",
-  VerifyToken,
-  AuthenticateSession,
+  Auth,
   VerifyPermissions("canDeleteLogs"),
   DeleteLogs
 );
 router.get(
   "/get",
-  VerifyToken,
-  AuthenticateSession,
+  Auth,
   VerifyPermissions("canGetLogs"),
   GetLogs
 );

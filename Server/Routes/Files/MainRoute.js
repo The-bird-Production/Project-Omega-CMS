@@ -4,8 +4,7 @@ const multer = require("multer");
 const upload = multer({ dest: process.cwd() + "/Public/tmp/Files/" });
 
 //Security MiddleWare
-const VerifyToken = require("../../Middleware/VerifyToken");
-const AuthenticateSession = require("../../Middleware/AuthenticateSession");
+
 const VerifyPermissions = require("../../Middleware/VerifyPermissions");
 
 //Controller
@@ -13,26 +12,24 @@ const UpdateFile = require("../../Controllers/Files/UpdateFileController");
 const CreateFile = require("../../Controllers/Files/CreateFileController");
 const DeleteFIle = require("../../Controllers/Files/DeleteFileController");
 const GetFile = require("../../Controllers/Files/GetFileController");
-
+const Auth = require('../../Middleware/Auth')
 router.post(
   "/create",
-  VerifyToken,
-  AuthenticateSession,
+
+  Auth,
   VerifyPermissions("canManageFiles"),
   upload.single("file"),
   CreateFile
 );
 router.put(
   "/update/:id",
-  VerifyToken,
-  AuthenticateSession,
+  Auth,
   VerifyPermissions("canManageFiles"),
   UpdateFile
 );
 router.delete(
   "/delete/:id",
-  VerifyToken,
-  AuthenticateSession,
+  Auth,
   VerifyPermissions("canManageFiles"),
   DeleteFIle
 );

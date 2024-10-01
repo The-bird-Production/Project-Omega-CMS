@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const autenticateSession = require("../../../Middleware/AuthenticateSession");
-const verifyToken = require("../../../Middleware/VerifyToken");
+
 const VerifyPermissions = require("../../../Middleware/VerifyPermissions");
 const Auth = require('../../../Middleware/Auth')
 
@@ -33,8 +32,7 @@ router.get(
 );
 router.get(
   "/stats/date",
-  verifyToken,
-  autenticateSession,
+  Auth,
   VerifyPermissions("canViewStats"),
   GetStatsByDate
 );
