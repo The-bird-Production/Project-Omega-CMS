@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { AddRoleSchema } from '../../../../lib/schema';
 import { useSession } from 'next-auth/react';
-import CheckPermissions from '../../../../Functions/CheckPermissions';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -18,39 +17,41 @@ const AdminLayout = dynamic(
 
 export default function Admin() {
   const router = useRouter();
-
   const { data: session, status } = useSession({
     required: true,
   });
+  
 
   const [formData, setFormData] = useState({
     role_name: '',
-    role_permission: {
+    role_permissions: {
       admin: false,
-      CanViewDashboard: false,
-      CanManageRole: false,
+      canViewDashboard: false,
+      canManageRole: false,
+      canManageImage: false,
+      canViewStats: false, 
+      canGetLogs: false,
+      canDeleteLogs: false,
+
+
     },
   });
   useEffect(() => {
-    const validation = CheckPermissions(status, session, "CanManageRole")
-    console.log(validation)
-    if (!validation) {
-      
-      
-      
-    }
+    
 
   }, [session,status])
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log('Données envoyées :', formData);
+    
 
     try {
       AddRoleSchema.parse(formData);
+      const data = JSON.stringify(formData)
+      console.log('Données envoyées :', data);
 
-      if (await CheckPermissions(status, session, 'CanManageRole')) {
+      if (session.permissions?.admin || session.permissions?.CanManageRole) {
         const token = session.accessToken || session.user.accessToken;
 
         await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/role/create/`, {
@@ -60,11 +61,11 @@ export default function Admin() {
           },
           method: 'POST',
           mode: 'cors',
-          body: formData,
+          body: data,
         });
         router.push('/admin/role/');
       } else {
-        //return router.push('/');
+        return router.push('/');
       }
     } catch (err) {
       console.error('Erreur de validation', err);
@@ -77,8 +78,8 @@ export default function Admin() {
     if (type === 'checkbox') {
       setFormData({
         ...formData,
-        role_permission: {
-          ...formData.role_permission,
+        role_permissions: {
+          ...formData.role_permissions,
           [name]: checked,
         },
       });
@@ -131,7 +132,7 @@ export default function Admin() {
                           id="adminSwitch"
                           name="admin"
                           onChange={handleChange}
-                          checked={formData.role_permission.admin}
+                          checked={formData.role_permissions.admin}
                         />
                         <label
                           className="form-check-label"
@@ -146,9 +147,9 @@ export default function Admin() {
                           type="checkbox"
                           role="switch"
                           id="testSwitch"
-                          name="CanViewDashboard"
+                          name="canViewDashboard"
                           onChange={handleChange}
-                          checked={formData.role_permission.CanViewDashboard}
+                          checked={formData.role_permissions.canViewDashboard}
                         />
                         <label
                           className="form-check-label"
@@ -163,15 +164,83 @@ export default function Admin() {
                           type="checkbox"
                           role="switch"
                           id="testSwitch"
-                          name="CanManageRole"
+                          name="canManageRole"
                           onChange={handleChange}
-                          checked={formData.role_permission.CanManageRole}
+                          checked={formData.role_permissions.canManageRole}
                         />
                         <label
                           className="form-check-label"
                           htmlFor="testSwitch"
                         >
                           Gérer les rôles
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canGetLogs"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canGetLogs}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Récuperer les logs
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canDeleteLogs"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canDeleteLogs}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Supprimer les logs 
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManageImage"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManageImage}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les images
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canViewStats"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canViewStats}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Voir les statistiques
                         </label>
                       </div>
                     </div>
