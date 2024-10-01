@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <>
       <Layout currentPage={"Default"}>
-        <center class="m-5 p-5">
+        <center className="m-5 p-5">
           <h1>Welcome to Omega</h1>
 
           <h2>Start Editing to see your changes.</h2>

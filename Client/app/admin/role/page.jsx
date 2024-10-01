@@ -46,7 +46,7 @@ export default function Admin() {
                 </div>
                 <div>
                   
-                  <Link href="/admin/role/new" className="btn btn-primary "><i class="bi bi-plus-circle"></i> Ajouter un rôle</Link>
+                  <Link href="/admin/role/new" className="btn btn-primary "><i className="bi bi-plus-circle"></i> Ajouter un rôle</Link>
                 </div>
               </div>
             </div>

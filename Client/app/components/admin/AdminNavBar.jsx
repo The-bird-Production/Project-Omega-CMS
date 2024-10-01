@@ -4,7 +4,7 @@ export default function Component() {
   return (
     <div
       className="offcanvas offcanvas-start w-25 show text-light m-lg-5 my-5 rounded-4 shadow bg-secondary"
-      tabindex="-1"
+      tabIndex="-1"
       id="offcanvas"
       data-bs-keyboard="false"
       data-bs-backdrop="false"

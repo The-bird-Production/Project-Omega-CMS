@@ -43,13 +43,13 @@ export default function Component() {
 
     fetchData();
 
-    const intervalId = setInterval(fetchData, 3000);
+    const intervalId = setInterval(fetchData, 15000);
 
     return () => clearInterval(intervalId);
   }, [session, status]);
 
   const editRole = (id) => {
-    router.push(`/role/edit/${id}`);
+    router.push(`/admin/role/edit/${id}`);
   }
 
   const delRole = async (id) => {
@@ -84,8 +84,8 @@ export default function Component() {
       <div className='container row'>
         <div className="col-10">{item.name}</div>
         <div className="col-2">
-          <button className='btn btn-secondary m-1' onClick={() => editRole(item.id)}><i class="bi bi-pencil-square"></i></button>
-          <button className='btn btn-secondary' onClick={() => delRole(item.id)}><i class="bi bi-trash"></i></button>
+          <button className='btn btn-secondary m-1' onClick={() => editRole(item.id)}><i className="bi bi-pencil-square"></i></button>
+          <button className='btn btn-secondary' onClick={() => delRole(item.id)}><i className="bi bi-trash"></i></button>
         </div>
       </div>
     </div>

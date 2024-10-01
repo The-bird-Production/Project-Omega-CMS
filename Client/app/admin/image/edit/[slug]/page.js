@@ -138,7 +138,7 @@ export default function Page({ params }) {
                     <div className="card card-body bg-secondary rounded">
                       <h3>Modification de l'image</h3>
                       <form onSubmit={handleSubmit}>
-                        <div class="mb-3">
+                        <div className="mb-3">
                           <label for="ImageTitle" className="form-label">
                             Titre de l'image
                           </label>
@@ -180,7 +180,7 @@ export default function Page({ params }) {
                           ></input>
                           {errors.slug && <p>{errors.slug}</p>}
                         </div>
-                        <button class="btn btn-primary" type="submit">
+                        <button className="btn btn-primary" type="submit">
                           Modifier
                         </button>
                         <Notification

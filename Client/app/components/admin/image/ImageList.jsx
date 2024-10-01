@@ -124,13 +124,13 @@ export default function Component() {
                       className="btn btn-primary m-2"
                       onClick={() => editImage(item.slug)}
                     >
-                      <i class="bi bi-pencil-square"></i>
+                      <i className="bi bi-pencil-square"></i>
                     </button>
                     <button
                       className=" btn btn-primary m-2"
                       onClick={() => delImage(item.id)}
                     >
-                      <i class="bi bi-trash"></i>
+                      <i className="bi bi-trash"></i>
                     </button>
                   </div>
                 </>
