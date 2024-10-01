@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
-import CheckPermission from "../../../Functions/CheckPermissions"
 
 
 export default function Layout({ children }) {
@@ -18,8 +17,8 @@ export default function Layout({ children }) {
   });
   const router = useRouter()
   useEffect(() => {
-    
-    if (CheckPermission(status, session, "CanViewDashboard") == false ) {
+     
+    if (!(session?.permissions?.admin || !session?.permissions?.canViewDashboard)) {
       router.push('/')
     }
 
