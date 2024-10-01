@@ -15,9 +15,11 @@ function Layout({ children }) {
   });
   return (
     <>
-      <body className="bg-primary text-light">
+      
+        <div className="bg-primary text-light">
         <div className="container">{children}</div>
-      </body>
+        </div>
+      
     </>
   );
 }
