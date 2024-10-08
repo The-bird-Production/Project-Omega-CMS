@@ -10,24 +10,28 @@ const DeleteRole = require("../../Controllers/Role/DeleteRoleController");
 const GetSingleRole = require("../../Controllers/Role/GetRoleController");
 const GetAllRole = require("../../Controllers/Role/GetAllRoleController");
 const VerifyPermission = require("../../Middleware/VerifyPermissions");
+const AddLogs = require('../../Functions/AddLogs')
 
 router.post(
   "/create",
   Auth,
   VerifyPermission("canManageRole"),
-  CreateRole
+  CreateRole,
+  AddLogs(req, "Create Role", "green")
 );
 router.post(
   "/update/:id",
   Auth,
   VerifyPermission("canManageRole"),
-  UpdateRole
+  UpdateRole,
+  AddLogs(req, "Update Role ", "blue")
 );
 router.delete(
   "/remove/:id",
   Auth,
   VerifyPermission("canManageRole"),
-  DeleteRole
+  DeleteRole,
+  AddLogs(req, "Delete role", "red")
 );
 router.get(
   "/get/all",

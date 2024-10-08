@@ -9,13 +9,15 @@ const Auth = require('../../Middleware/Auth')
 //Controller
 const DeleteLogs = require("../../Controllers/LogController/DeleteLogsController");
 const GetLogs = require("../../Controllers/LogController/GetLogsController");
+const Addlogs = require('../../Functions/AddLogs')
 
 
 router.delete(
   "/delete",
   Auth,
   VerifyPermissions("canDeleteLogs"),
-  DeleteLogs
+  DeleteLogs,
+  Addlogs(req, "Delete Logs", "red")
 );
 router.get(
   "/get",
