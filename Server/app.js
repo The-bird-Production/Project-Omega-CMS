@@ -37,6 +37,7 @@ const LogRoute = require("./Routes/LogRoute/MainRoute");
 const Stats = require("./Routes/Stats/Api/MainRoute");
 const web_stats = require("./Routes/Stats/Web/MainRoute");
 const RoleRoute = require("./Routes/Role/MainRoute");
+const PageRoute = require('./Routes/Pages/MainRoutes');
 
 app.use(Stats);
 app.use("/auth", AuthRoute);
@@ -45,6 +46,7 @@ app.use("/image", ImageRoute);
 app.use("/logs", LogRoute);
 app.use("/web_stats", web_stats);
 app.use("/role", RoleRoute);
+app.use('/page', PageRoute); 
 
 
 
