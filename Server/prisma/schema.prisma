@@ -136,3 +136,13 @@ model Stats_Api {
   averageResponseSize Float
   date                DateTime @default(now())
 }
+model Page {
+  id              Int @id @default(autoincrement())
+  slug            String  @unique
+  title           String
+  body            String @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+
+}
