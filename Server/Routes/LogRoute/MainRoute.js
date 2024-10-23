@@ -17,7 +17,7 @@ router.delete(
   Auth,
   VerifyPermissions("canDeleteLogs"),
   DeleteLogs,
-  Addlogs(req, "Delete Logs", "red")
+  Addlogs("Delete Logs", "red")
 );
 router.get(
   "/get",

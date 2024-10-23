@@ -20,15 +20,15 @@ router.delete(
   Auth,
   VerifyPermissions("canManagePages"),
   DeletePage,
-  AddLogs(req, "Delete Page", "red")
+  AddLogs("Delete Page", "red")
 );
 router.post(
   "/update/id:",
   Auth,
   VerifyPermissions("canManagePages"),
   UpdatePage,
-  AddLogs(req, "Update page", "green")
+  AddLogs("Update page", "green")
 );
-router.post("/create", Auth, VerifyPermissions("canManagePages"), CreatePage, AddLogs(req, "Create page", "green"));
+router.post("/create", Auth, VerifyPermissions("canManagePages"), CreatePage, AddLogs("Create page", "green"));
 
 module.exports = router;

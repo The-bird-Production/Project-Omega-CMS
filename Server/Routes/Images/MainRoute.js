@@ -16,27 +16,28 @@ const GetImage = require("../../Controllers/Images/GetImageController");
 
 const AddLogs = require('../../Functions/AddLogs')
 
+
 router.post(
   "/create",
-  Auth,
+  Auth, 
   verifyPermission("canManageImage"),
   upload.single("image"),
-  CreateImage, 
-  AddLogs(req, "Create Image", "green")
+  CreateImage,
+  AddLogs("Create Image", "green")
 );
 router.put(
   "/update/:id",
   Auth,
   verifyPermission("canManageImage"),
   UpdateImage,
-  AddLogs(req, "Update Image", "green")
+  AddLogs("Update Image", "green")
 );
 router.delete(
   "/delete/:id",
   Auth,
   verifyPermission("canManageImage"),
   DeleteImage,
-  AddLogs(req, "Delete Image", "red")
+  AddLogs("Delete Image", "red")
 );
 router.get("/get/:slug", GetImage);
 

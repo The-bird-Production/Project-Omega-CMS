@@ -17,21 +17,21 @@ router.post(
   Auth,
   VerifyPermission("canManageRole"),
   CreateRole,
-  AddLogs(req, "Create Role", "green")
+  AddLogs("Create Role", "green")
 );
 router.post(
   "/update/:id",
   Auth,
   VerifyPermission("canManageRole"),
   UpdateRole,
-  AddLogs(req, "Update Role ", "blue")
+  AddLogs("Update Role ", "blue")
 );
 router.delete(
   "/remove/:id",
   Auth,
   VerifyPermission("canManageRole"),
   DeleteRole,
-  AddLogs(req, "Delete role", "red")
+  AddLogs("Delete role", "red")
 );
 router.get(
   "/get/all",
