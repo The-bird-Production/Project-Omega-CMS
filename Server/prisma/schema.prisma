@@ -1,10 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -15,7 +15,7 @@ model User {
   password      String?         @unique
   emailVerified DateTime?
   image         String?
-  roleId        Int?
+  roleId        Int?            @default(0)
   role          Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
   Session       Session[]
   Account       Account?
@@ -30,8 +30,8 @@ model Account {
   id                       String  @id @default(cuid())
   userId                   String  @unique
   type                     String
-  provider                 String
-  providerAccountId        String
+  provider                 String?  
+  providerAccountId        String?  
   refresh_token            String? @db.Text
   access_token             String? @db.Text
   expires_at               Int?
@@ -47,6 +47,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+  
 }
 
 model Session {
@@ -92,7 +93,7 @@ model Role {
   permissions Json?
   users       User[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt()
 }
 
 model File {
@@ -136,13 +137,14 @@ model Stats_Api {
   averageResponseSize Float
   date                DateTime @default(now())
 }
+
 model Page {
   id              Int @id @default(autoincrement())
   slug            String  @unique
   title           String
   body            String @db.Text
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt()
 
 
 }
