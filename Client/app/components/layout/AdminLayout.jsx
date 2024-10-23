@@ -16,7 +16,7 @@ function Layout({ children }) {
   return (
     <>
       
-        <div className="bg-primary text-light">
+        <div className=" vh-100 bg-primary text-light">
         <div className="container">{children}</div>
         </div>
       

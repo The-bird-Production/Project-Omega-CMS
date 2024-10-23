@@ -33,7 +33,7 @@ function Layout({ children, currentPage }) {
     }
   }, [currentPage]); // currentPage est la seule dépendance de l'effet
 
-  return <div>{children}</div>;
+  return <>{children}</>;
 }
 
 export default Layout;
