@@ -15,7 +15,7 @@ model User {
   password      String?         @unique
   emailVerified DateTime?
   image         String?
-  roleId        Int?
+  roleId        Int?            @default(0)
   role          Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
   Session       Session[]
   Account       Account?
