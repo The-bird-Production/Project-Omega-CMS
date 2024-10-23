@@ -11,9 +11,10 @@ const GetAllRole = async (req, res) => {
     }
     res.status(200).json({ code: 200, data: data });
   } catch (error) {
+    console.log(error)
     return res
       .status(500)
-      .json({ code: 500, message: "Internal Server Error " + e });
+      .json({ code: 500, message: "Internal Server Error " + error });
   }
 };
 
