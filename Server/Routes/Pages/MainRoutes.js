@@ -12,9 +12,11 @@ const UpdatePage = require("../../Controllers/Pages/UpdatePageController");
 const DeletePage = require("../../Controllers/Pages/DeletePageController");
 const CreatePage = require("../../Controllers/Pages/CreatePageController");
 
-const AddLogs = require('../../Functions/AddLogs')
-
+const AddLogs = require('../../Functions/AddLogs');
+const { GetAllPage } = require("../../Controllers/Pages/GetAllPageController");
+router.get('/get/all',Auth,VerifyPermissions("canManagePages"), GetAllPage);
 router.get("/get/:slug", GetPage);
+
 router.delete(
   "/delete/:id",
   Auth,
