@@ -144,7 +144,7 @@ model Page {
   title           String
   body            String @db.Text
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt()
+  updatedAt   DateTime @updatedAt
 
 
 }
