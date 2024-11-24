@@ -25,7 +25,7 @@ router.delete(
   AddLogs("Delete Page", "red")
 );
 router.post(
-  "/update/id:",
+  "/update/:id",
   Auth,
   VerifyPermissions("canManagePages"),
   UpdatePage,

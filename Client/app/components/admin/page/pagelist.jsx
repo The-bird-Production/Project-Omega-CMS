@@ -48,8 +48,8 @@ export default function PageList() {
     return () => clearInterval(intervalId);
   }, [session, status]);
 
-  const editPage = (id) => {
-    router.push(`/admin/page/edit/${id}`);
+  const editPage = (slug) => {
+    router.push(`/admin/page/edit/${slug}`);
   }
 
   const delPage = async (id) => {
@@ -84,7 +84,7 @@ export default function PageList() {
       <div className='container row'>
         <div className="col-10">{item.title}</div>
         <div className="col-2">
-          <button className='btn btn-secondary m-1' onClick={() => editPage(item.id)}><i className="bi bi-pencil-square"></i></button>
+          <button className='btn btn-secondary m-1' onClick={() => editPage(item.slug)}><i className="bi bi-pencil-square"></i></button>
           <button className='btn btn-secondary' onClick={() => delPage(item.id)}><i className="bi bi-trash"></i></button>
         </div>
       </div>

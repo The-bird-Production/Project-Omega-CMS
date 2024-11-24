@@ -10,3 +10,9 @@ export const AddRoleSchema = z.object({
     role_name: z.string().min(1, "Name is required"),
     role_permissions: z.object({})
 })
+
+export const pageSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    slug: z.string().min(1, "Slug is required"),
+    body: z.string().min(1, "Body is required")
+})

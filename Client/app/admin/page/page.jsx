@@ -28,6 +28,9 @@ export default function Admin() {
           <div className='mt-3 pt-3'>
             <div className='card card-body bg-secondary'>
                 <PageList></PageList>
+                <div className='mb-3'>
+                  <Link href="/admin/page/new" className='btn btn-primary'><i className="bi bi-plus-circle"></i> New</Link>
+                </div>
             </div>
 
           </div>
