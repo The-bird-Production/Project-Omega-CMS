@@ -14,7 +14,7 @@ const CreatePage = require("../../Controllers/Pages/CreatePageController");
 
 const AddLogs = require('../../Functions/AddLogs');
 const { GetAllPage } = require("../../Controllers/Pages/GetAllPageController");
-router.get('/get/all',Auth,VerifyPermissions("canManagePages"), GetAllPage);
+router.get('/get/all', GetAllPage);
 router.get("/get/:slug", GetPage);
 
 router.delete(
