@@ -12,7 +12,9 @@ const GetLogs = async (req, res) => {
           gte: startId || 1,
           lte: endId || 50,
         },
-      },
+      },orderBy: {
+        id: 'desc'
+      }
     });
 
     return res.status(200).json({ code: 200, data: logs });
