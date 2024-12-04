@@ -57,7 +57,7 @@ export default function Component() {
               </Link>
             </li>
             <li>
-              <Link href="/admin/page"className="nav-link text-truncate">
+              <Link href="/admin/page" className="nav-link text-truncate">
                 <i className="fs-5 bi-file-earmark"></i>
                 <span className="ms-1 d-none d-sm-inline">Pages</span>
               </Link>
@@ -68,10 +68,8 @@ export default function Component() {
             </li>
             <li>
               <Link href="/admin/role" className="nav-link text-truncate">
-            
                 <i className="fs-5 bi-person-badge"></i>
                 <span className="ms-1 d-none d-sm-inline">Rôle</span>
-              
               </Link>
             </li>
             <li>
@@ -82,10 +80,11 @@ export default function Component() {
             </li>
             <li>Autre</li>
             <li>
-              <a href="#" className="nav-link text-truncate">
+              <Link href="/admin/log" className="nav-link text-truncate">
+                {' '}
                 <i className="fs-5 bi-newspaper"></i>
                 <span className="ms-1 d-none d-sm-inline">Logs</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
