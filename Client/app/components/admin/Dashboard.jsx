@@ -11,7 +11,6 @@ import dynamic from 'next/dynamic';
 
 
 export default function Layout({ children }) {
-  const [role, setRole] = useState(null)
   const { data: session, status } = useSession({
     required: true,
   });
