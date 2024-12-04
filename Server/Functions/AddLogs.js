@@ -8,7 +8,8 @@ const AddLogs = (action, color) => {
     const authHeader = req.headers.authorization;
       const token = authHeader.split(" ")[1];
       const decode = jwt.decode(token);
-      const user = decode.username; 
+      const user = decode.user.name; 
+      
 
   try {
     await prisma.log.create({

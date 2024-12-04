@@ -22,22 +22,25 @@ router.post(
   Auth, 
   verifyPermission("canManageImage"),
   upload.single("image"),
+  AddLogs("Create Image", "green"),
   CreateImage,
-  AddLogs("Create Image", "green")
+  
 );
 router.put(
   "/update/:id",
   Auth,
   verifyPermission("canManageImage"),
+  AddLogs("Update Image", "green"),
   UpdateImage,
-  AddLogs("Update Image", "green")
+  
 );
 router.delete(
   "/delete/:id",
   Auth,
   verifyPermission("canManageImage"),
+  AddLogs("Delete Image", "red"),
   DeleteImage,
-  AddLogs("Delete Image", "red")
+  
 );
 router.get("/get/:slug", GetImage);
 

@@ -16,22 +16,25 @@ router.post(
   "/create",
   Auth,
   VerifyPermission("canManageRole"),
+  AddLogs("Create Role", "green"),
   CreateRole,
-  AddLogs("Create Role", "green")
+  
 );
 router.post(
   "/update/:id",
   Auth,
   VerifyPermission("canManageRole"),
+  AddLogs("Update Role ", "blue"),
   UpdateRole,
-  AddLogs("Update Role ", "blue")
+  
 );
 router.delete(
   "/remove/:id",
   Auth,
   VerifyPermission("canManageRole"),
+  AddLogs("Delete role", "red"),
   DeleteRole,
-  AddLogs("Delete role", "red")
+  
 );
 router.get(
   "/get/all",
