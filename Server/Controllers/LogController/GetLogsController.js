@@ -16,8 +16,9 @@ const GetLogs = async (req, res) => {
         id: 'desc'
       }
     });
+    const totalItems = await prisma.log.count(); 
 
-    return res.status(200).json({ code: 200, data: logs });
+    return res.status(200).json({ code: 200,totalItems: totalItems, data: logs });
   } catch (e) {
     console.log("Error: ", e);
     res.status(500).json({ code: 500, message: "Internal Server Error " + e });
