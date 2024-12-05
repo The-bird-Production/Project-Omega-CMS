@@ -73,10 +73,10 @@ export default function Component() {
               </Link>
             </li>
             <li>
-              <a href="#" className="nav-link text-truncate">
+              <Link href="/admin/user" className="nav-link text-truncate">
                 <i className="fs-5 bi-people"></i>
                 <span className="ms-1 d-none d-sm-inline">Utilisateurs</span>
-              </a>
+              </Link>
             </li>
             <li>Autre</li>
             <li>
