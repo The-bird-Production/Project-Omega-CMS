@@ -7,13 +7,29 @@ import Dashboard from '../../../../components/admin/Dashboard';
 import Link from 'next/link';
 import Image from 'next/image';
 import FormatedDate from '../../../../components/util/FormatedDate';
-
+import { userSchema } from '../../../../../lib/schema';
+import { useRouter } from 'next/navigation';
 export default function Page({ params }) {
+  const router = useRouter();
   const { data: session, status } = useSession();
 
   const id = params.id;
 
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState({
+    username: '',
+    email: '',
+    emailVerified: false,
+    roleId: 0,
+    image: '',
+    createdAt: null,
+    updatedAt: null,
+  });
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    emailVerified: false,
+    roleId: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,6 +52,12 @@ export default function Page({ params }) {
             const jsonData = data.data;
 
             setUserData(jsonData);
+            setFormData({
+              username: userData.username,
+              email: userData.email,
+              emailVerified: userData.emailVerified,
+              roleId: userData.roleId,
+            });
           } else {
             console.error('Failed to fetch data:', res.statusText);
           }
@@ -47,6 +69,53 @@ export default function Page({ params }) {
 
     fetchData();
   }, [session, status]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      console.log('Données envoyées :', formData);
+      userSchema.parse(formData);
+      const data = JSON.stringify(formData);
+
+      if (session.permissions?.admin || session.permissions?.canManageUser) {
+        const token = session.accessToken || session.user.accessToken;
+
+        await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/update/${id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            mode: 'cors',
+            body: data,
+          }
+        );
+        router.push('/admin/user/');
+      } else {
+        return router.push('/');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (type === 'checkbox') {
+      setFormData({ ...formData, emailVerified: checked });
+      
+    } else {
+      
+      setFormData({ ...formData, [name]: value });
+    console.log(formData)
+
+    }
+
+    
+  };
 
   return (
     <>
@@ -71,7 +140,7 @@ export default function Page({ params }) {
                 <h2 className="card-title text-light">
                   Modification d'utilisateur :{' '}
                 </h2>
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="text-white container row pt-3 ">
                     <div className="col-6">
                       <h2>{userData.name || userData.username}</h2>
@@ -84,21 +153,56 @@ export default function Page({ params }) {
                         width="125"
                         height="125"
                         className="img-fluid"
+                        alt="Profile Picture"
                       ></Image>
                     </div>
                     <div className="col-6">
-                      <h3>Informations : </h3>
-                      <h4>Email : <input className='form-control' type='text' value={userData.email}></input> {userData.email}</h4>
-                      <h4>Email verified : {userData.emailVerified}</h4>
-                      <h4>Role : {userData.roleId} </h4>
-                      <h5>
-                        Creation date :{' '}
-                        <FormatedDate rowDate={userData.createdAt} />
-                      </h5>
-                      <h5>
-                        Last update :{' '}
-                        <FormatedDate rowDate={userData.updatedAt} />
-                      </h5>
+                      <h3 className="mb-3">Informations : </h3>
+                      <div className="m-3">
+                        <h4 className="mb-3">
+                          Email :{' '}
+                          <input
+                            className="form-control m-2"
+                            type="text"
+                            defaultValue={userData.email}
+                            onChange={handleChange}
+                            name="email"
+                          ></input>{' '}
+                        </h4>
+                        <h4 className="mb-3">
+                          Email verified :{' '}
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            checked={userData.emailVerified}
+                            onChange={handleChange}
+                            name="emailVerified"
+                          ></input>
+                        </h4>
+                        <h4 className="mb-3">
+                          Role :{' '}
+                          <input
+                            type="number"
+                            defaultValue={userData.roleId}
+                            className="form-control"
+                            onChange={handleChange}
+                            name="role"
+                          ></input>{' '}
+                        </h4>
+                        <h5 className="mb-3">
+                          Creation date :{' '}
+                          <FormatedDate rowDate={userData.createdAt} />
+                        </h5>
+                        <h5 className="mb-3">
+                          Last update :{' '}
+                          <FormatedDate rowDate={userData.updatedAt} />
+                        </h5>
+                        <input
+                          type="submit"
+                          value="Save"
+                          className="btn btn-primary"
+                        />
+                      </div>
                     </div>
                   </div>
                 </form>{' '}
