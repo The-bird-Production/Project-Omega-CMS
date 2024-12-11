@@ -16,3 +16,10 @@ export const pageSchema = z.object({
     slug: z.string().min(1, "Slug is required"),
     body: z.string().min(1, "Body is required")
 })
+
+export const userSchema = z.object({
+    username: z.string().min(3, "Username is required").max(10, "Lenght is to mutch").nullable().optional(),
+    email: z.string().min(5, "Email is required").email("Must be an email").nullable().optional(),
+    role : z.number(), 
+    emailVerified: z.boolean().nullable().optional()
+})
