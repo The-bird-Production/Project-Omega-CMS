@@ -6,6 +6,7 @@ const Auth = require("../../Middleware/Auth");
 const VerifyPermissions = require("../../Middleware/VerifyPermissions");
 const GetAllUserController = require("../../Controllers/Auth/GetAllUserController");
 const DeleteUserController = require("../../Controllers/Auth/DeleteUserController");
+const UpdateUserController = require('../../Controllers/Auth/UpdateUserController')
 const GetUserById = require("../../Controllers/Auth/GetUserById")
 const AddLogs = require("../../Functions/AddLogs");
 
@@ -25,6 +26,7 @@ router.delete(
   AddLogs("Delete user", "red"),
   DeleteUserController.Delete
 );
+router.post('/update/:id', Auth, VerifyPermissions("canManageUser"), AddLogs("Update user", "Blue"), UpdateUserController.Update)
 router.get("/get/:id",Auth, VerifyPermissions("canManageUser"), GetUserById.GetUserById);
 
 module.exports = router;
