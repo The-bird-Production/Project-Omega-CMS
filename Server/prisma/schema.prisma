@@ -1,79 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-model User {
-  id            String          @id @default(cuid())
-  name          String?
-  username      String?         @unique
-  email         String?         @unique
-  password      String?         @unique
-  emailVerified DateTime?
-  image         String?
-  roleId        Int?            @default(0)
-  role          Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
-  Session       Session[]
-  Account       Account?
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Account {
-  id                       String  @id @default(cuid())
-  userId                   String  @unique
+model account {
+  id                       String   @id
+  userId                   String   @unique(map: "Account_userId_key")
   type                     String
-  provider                 String?  
-  providerAccountId        String?  
-  refresh_token            String? @db.Text
-  access_token             String? @db.Text
+  provider                 String?
+  providerAccountId        String?
+  refresh_token            String?  @db.Text
+  access_token             String?  @db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String? @db.Text
+  id_token                 String?  @db.Text
   session_state            String?
   refresh_token_expires_in Int?
-  user                     User?   @relation(fields: [userId], references: [id])
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime
+  user                     user     @relation(fields: [userId], references: [id], map: "Account_userId_fkey")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-  
+  @@unique([provider, providerAccountId], map: "Account_provider_providerAccountId_key")
+  @@index([userId], map: "Account_userId_idx")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-// Optional for WebAuthn support
-model Authenticator {
-  credentialID         String  @unique
+model authenticator {
+  credentialID         String  @unique(map: "Authenticator_credentialID_key")
   userId               String
   providerAccountId    String
   credentialPublicKey  String
@@ -81,39 +38,29 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 user    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Authenticator_userId_fkey")
 
   @@id([userId, credentialID])
 }
 
-model Role {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  permissions Json?
-  users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt()
-}
-
-model File {
+model file {
   id        Int      @id @default(autoincrement())
-  name      String   @unique
-  filename  String   @unique
-  slug      String   @unique
+  name      String   @unique(map: "File_name_key")
+  filename  String   @unique(map: "File_filename_key")
+  slug      String   @unique(map: "File_slug_key")
   createdAt DateTime @default(now())
 }
 
-model Image {
+model image {
   id        Int      @id @default(autoincrement())
   title     String
   alt       String
-  file      String   @unique
-  slug      String   @unique
+  file      String   @unique(map: "Image_file_key")
+  slug      String   @unique(map: "Image_slug_key")
   createdAt DateTime @default(now())
 }
 
-model Log {
+model log {
   id     Int      @id @default(autoincrement())
   action String
   color  String
@@ -121,14 +68,37 @@ model Log {
   date   DateTime @default(now())
 }
 
-model Stats_web {
-  id    Int      @id @default(autoincrement())
-  count Int
-  page  String
-  date  DateTime @default(now())
+model page {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique(map: "Page_slug_key")
+  title     String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 }
 
-model Stats_Api {
+model role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique(map: "Role_name_key")
+  permissions Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  user        user[]
+}
+
+model session {
+  id           String   @id
+  sessionToken String   @unique(map: "Session_sessionToken_key")
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  user         user     @relation(fields: [userId], references: [id], map: "Session_userId_fkey")
+
+  @@index([userId], map: "Session_userId_idx")
+}
+
+model stats_api {
   id                  Int      @id @default(autoincrement())
   timestamp           DateTime @default(now())
   totalRequests       Int
@@ -138,13 +108,36 @@ model Stats_Api {
   date                DateTime @default(now())
 }
 
-model Page {
-  id              Int @id @default(autoincrement())
-  slug            String  @unique
-  title           String
-  body            String @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model stats_web {
+  id    Int      @id @default(autoincrement())
+  count Int
+  page  String
+  date  DateTime @default(now())
+}
 
+model user {
+  id            String          @id
+  name          String?
+  username      String?         @unique(map: "User_username_key")
+  email         String?         @unique(map: "User_email_key")
+  password      String?         @unique(map: "User_password_key")
+  image         String?
+  roleId        Int?            @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  emailVerified Boolean?
+  account       account?
+  authenticator authenticator[]
+  session       session[]
+  role          role?           @relation(fields: [roleId], references: [id], map: "User_roleId_fkey")
 
+  @@index([roleId], map: "User_roleId_fkey")
+}
+
+model verificationtoken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
 }

@@ -13,7 +13,7 @@ model User {
   username      String?         @unique
   email         String?         @unique
   password      String?         @unique
-  emailVerified DateTime?
+  emailVerified Boolean?
   image         String?
   roleId        Int?            @default(0)
   role          Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
