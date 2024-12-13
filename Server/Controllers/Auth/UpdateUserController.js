@@ -7,11 +7,11 @@ exports.Update = async (req,res) => {
 
 
     try {
-        console.log(req.body)
-        await prisma.user.update({where: {id: id}, data: req.body})
         
+        await prisma.user.update({where: {id: id}, data: req.body})
         res.json({code: 200, message: "User successfully updated"})
     } catch(error) {
+        console.log(error)
         res.json({code : 500, message: "Internal Server Error" + error})
     }
 
