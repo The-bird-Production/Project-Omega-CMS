@@ -19,7 +19,10 @@ export const pageSchema = z.object({
 
 export const userSchema = z.object({
     username: z.string().min(3, "Username is required").max(10, "Lenght is to mutch").nullable().optional(),
-    email: z.string().min(5, "Email is required").email("Must be an email").nullable().optional(),
-    role : z.number(), 
+    email: z.string()
+    .email("Must be a valid email")
+    .or(z.literal(null)) 
+    .optional(), 
+    roleId : z.number(), 
     emailVerified: z.boolean().nullable().optional()
 })
