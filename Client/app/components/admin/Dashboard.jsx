@@ -16,8 +16,11 @@ export default function Layout({ children }) {
   });
   const router = useRouter()
   useEffect(() => {
-     
+    
     if (!(session?.permissions?.admin || !session?.permissions?.canViewDashboard)) {
+      router.push('/')
+    }
+    if (session?.permissions.admin == false ) {
       router.push('/')
     }
 
