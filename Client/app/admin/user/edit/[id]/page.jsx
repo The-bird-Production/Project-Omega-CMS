@@ -15,21 +15,8 @@ export default function Page({ params }) {
 
   const id = params.id;
 
-  const [userData, setUserData] = useState({
-    username: '',
-    email: '',
-    emailVerified: false,
-    roleId: 0,
-    image: '',
-    createdAt: null,
-    updatedAt: null,
-  });
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    emailVerified: false,
-    roleId: 0,
-  });
+  const [userData, setUserData] = useState({});
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,12 +39,6 @@ export default function Page({ params }) {
             const jsonData = data.data;
 
             setUserData(jsonData);
-            setFormData({
-              username: userData.username,
-              email: userData.email,
-              emailVerified: userData.emailVerified,
-              roleId: userData.roleId,
-            });
           } else {
             console.error('Failed to fetch data:', res.statusText);
           }
@@ -70,12 +51,24 @@ export default function Page({ params }) {
     fetchData();
   }, [session, status]);
 
+  useEffect(() => {
+    if (userData && Object.keys(userData).length > 0) {
+      setFormData({
+        username: userData.username || userData.name || '',
+        email: userData.email || '',
+        emailVerified: userData.emailVerified || false,
+        roleId: userData.roleId || 0,
+      });
+    }
+  }, [userData]);
+  
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      console.log('Données envoyées :', formData);
-      userSchema.parse(formData);
+     
+      userSchema.safeParse(formData);
       const data = JSON.stringify(formData);
 
       if (session.permissions?.admin || session.permissions?.canManageUser) {
@@ -107,10 +100,19 @@ export default function Page({ params }) {
     if (type === 'checkbox') {
       setFormData({ ...formData, emailVerified: checked });
       
-    } else {
+    } 
+    
+    else {
+
+      if (type === 'number') {
+        setFormData({ ...formData, roleId: parseInt(value)});
+      } else {
+        setFormData({ ...formData, [name]: value });
+        console.log(formData)
+
+      }
       
-      setFormData({ ...formData, [name]: value });
-    console.log(formData)
+      
 
     }
 
@@ -143,8 +145,9 @@ export default function Page({ params }) {
                 <form onSubmit={handleSubmit}>
                   <div className="text-white container row pt-3 ">
                     <div className="col-6">
-                      <h2>{userData.name || userData.username}</h2>
+                      <h2> <input type='text' name='username' onChange={handleChange} defaultValue={userData.name || userData.username} className='form-control m-2'></input></h2>
                     </div>
+                    
 
                     <div className="col-6">
                       <h4>Profil picture : </h4>
@@ -186,7 +189,7 @@ export default function Page({ params }) {
                             defaultValue={userData.roleId}
                             className="form-control"
                             onChange={handleChange}
-                            name="role"
+                            name="roleId"
                           ></input>{' '}
                         </h4>
                         <h5 className="mb-3">
