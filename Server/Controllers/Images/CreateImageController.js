@@ -2,11 +2,11 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 const fs = require("fs/promises");
-const AddLog = require("../../Functions/AddLogs");
+
 
 const CreateImage = async (req, res) => {
   try {
-    console.log(req.file);
+    
     if (!req.body.slug || !req.body.title || !req.body.alt) {
       return res.status(400).json({
         code: 400,
@@ -29,11 +29,11 @@ const CreateImage = async (req, res) => {
         slug: req.body.slug,
       },
     });
-    AddLog("Create an image", "Annonymouss", "sucess");
     return res
       .status(201)
       .json({ code: "201", message: "Image created sucessfully " });
   } catch (e) {
+    console.log(e)
     return res
       .status(500)
       .json({ code: 500, message: "Internal Server Error " + e });
