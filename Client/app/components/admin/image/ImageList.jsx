@@ -91,7 +91,7 @@ export default function Component() {
         {rowData.map((item, index) => (
           <li
             key={index}
-            className="list-group-item bg-secondary text-light border-primary m-2 rounded"
+            className="list-group-item bg-secondary border border-secondary text-light shadow m-2 rounded"
           >
             {' '}
             <div className="container row p-4">
