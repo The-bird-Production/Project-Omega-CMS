@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const multer = require("multer");
-const upload = multer({ dest: process.cwd() + "/Public/tmp/Images/" });
+const upload = multer({ dest: process.cwd() + "/Public/tmp/Images/", limits: {fileSize: 50 * 1024 * 1024} });
 
 //Security MiddleWare
 const Auth = require('../../Middleware/Auth')
