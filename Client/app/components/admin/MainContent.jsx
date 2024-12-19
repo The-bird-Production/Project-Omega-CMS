@@ -3,6 +3,7 @@
 import ConsultedPages from './graph/ConsultedPages';
 import TotalViewedPages from './graph/TotalViewedPages';
 import ApiResponseTime from './graph/APIResponseTime';
+import NumberOfUser from './graph/NumberOfUser';
 
 import { Suspense } from 'react';
 
@@ -15,7 +16,7 @@ export default function Components() {
             <div className="card rounded-4 shadow bg-secondary text-light">
               <div className="card-body">
                 <i className="bi bi-people fs-3"></i>
-                25654 visiteurs Totaux
+                <NumberOfUser/>
               </div>
             </div>
           </div>
