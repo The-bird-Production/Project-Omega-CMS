@@ -28,14 +28,11 @@ export default function Component() {
               </Link>
             </li>
             <li>
-              <a
-                href="#submenu1"
-                data-bs-toggle="collapse"
-                className="nav-link text-truncate"
-              >
+              <Link className='nav-link text-truncate' href="/admin/stats">
+              
                 <i className="fs-5 bi-speedometer2"></i>
                 <span className="ms-1 d-none d-sm-inline">Stats</span>
-              </a>
+                </Link>
             </li>
             <li>
               <br />
