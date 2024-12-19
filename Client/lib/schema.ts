@@ -26,3 +26,10 @@ export const userSchema = z.object({
     roleId : z.number(), 
     emailVerified: z.boolean().nullable().optional()
 })
+
+export const fileSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    slug: z.string().min(1, "Slug is required"),
+    alt: z.string().min(1, "Alt is required"),
+   
+})
