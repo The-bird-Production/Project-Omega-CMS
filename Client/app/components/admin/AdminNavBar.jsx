@@ -75,6 +75,11 @@ export default function Component() {
                 <span className="ms-1 d-none d-sm-inline">Utilisateurs</span>
               </Link>
             </li>
+            <li>Addons</li>
+            <li> <Link href="/admin/plugins" className="nav-link text-truncate">
+                <i class="bi bi-puzzle-fill"></i>
+                <span className="ms-1 d-none d-sm-inline">Plugins</span>
+              </Link></li>
             <li>Autre</li>
             <li>
               <Link href="/admin/log" className="nav-link text-truncate">
