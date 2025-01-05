@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const PluginsPage = () => {
   const { data: session, status } = useSession({
@@ -60,6 +61,9 @@ const PluginsPage = () => {
               <h2 className="h5">{plugin.name}</h2>
               <p>{plugin.description}</p>
               <p><strong>Version :</strong> {plugin.version}</p>
+              <Link href={`/admin/plugins/${plugin.folder}`} className="btn btn-secondary">Settings</Link>
+
+            
             </li>
           ))}
         </ul>
