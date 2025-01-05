@@ -39,6 +39,7 @@ const web_stats = require("./Routes/Stats/Web/MainRoute");
 const OtherStats = require('./Routes/Stats/Other/MainRoute')
 const RoleRoute = require("./Routes/Role/MainRoute");
 const PageRoute = require('./Routes/Pages/MainRoutes');
+const PluginsRoute = require('./Routes/Plugins/MainRoute')
 
 app.use(Stats);
 app.use("/auth", AuthRoute);
@@ -49,6 +50,7 @@ app.use("/web_stats", web_stats);
 app.use('/otherstats', OtherStats)
 app.use("/role", RoleRoute);
 app.use('/page', PageRoute); 
+app.use('/plugins', PluginsRoute)
 
 
 
