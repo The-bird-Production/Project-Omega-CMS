@@ -1,15 +1,6 @@
 {
-    "name": "example-plugin",
-    "admin": {
-      "dashboardComponent": "./admin/dashboard.js"
-    },
-    "user": {
-      "routes": [
-        {
-          "path": "/example-plugin",
-          "component": "./user/page.js"
-        }
-      ]
-    }
-  }
-   
+  "name": "Exemple plugin",
+  "version": "1.0.0",
+  "description": "Un plugin d'exemple",
+  "folder": "example-plugin"
+}
