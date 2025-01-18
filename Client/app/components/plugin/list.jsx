@@ -61,7 +61,7 @@ const PluginsPage = () => {
               <h2 className="h5">{plugin.name}</h2>
               <p>{plugin.description}</p>
               <p><strong>Version :</strong> {plugin.version}</p>
-              <Link href={`/admin/plugins/${plugin.folder}`} className="btn btn-secondary">Settings</Link>
+              <Link href={`/admin/plugins/${plugin.id}`} className="btn btn-secondary">Settings</Link>
 
             
             </li>
