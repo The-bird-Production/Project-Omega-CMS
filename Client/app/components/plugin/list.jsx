@@ -68,6 +68,8 @@ const PluginsPage = () => {
           ))}
         </ul>
       )}
+
+      <div className='pt-3'><Link href="/admin/plugins/install" className='btn btn-primary'>Installer un plugin </Link></div>
     </div>
   );
 };
