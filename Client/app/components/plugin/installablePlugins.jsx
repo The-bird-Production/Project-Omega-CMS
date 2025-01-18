@@ -50,13 +50,13 @@ const pluginsInstallable = () => {
   if (loading) return <div>Chargement des plugins...</div>;
   if (error) return <div>Erreur : {error}</div>;
 
-  const installPlugin = async (name) => {
+  const installPlugin = async (id) => {
     if (status === 'authenticated') {
       const token = session.accessToken || session.user.accessToken;
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/install/${name}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/install/${id}`,
           {
             method: 'POST',
             headers: {
@@ -100,7 +100,7 @@ const pluginsInstallable = () => {
               </p>
               <button
                 className="btn btn-secondary"
-                onClick={() => installPlugin(plugin.name)}
+                onClick={() => installPlugin(plugin.id)}
               >
                 Install
               </button>
