@@ -20,7 +20,7 @@ const loadPlugin = (app, pluginId) => {
       if (fs.existsSync(pluginRoutesPath)) {
         const pluginRoutes = require(pluginRoutesPath);
 
-        console.log(pluginRoutes);
+        
         app.use(url || `/${url}`, pluginRoutes); // Utiliser l'URL spécifiée dans le plugin.json
 
         console.log(`Plugin chargé : ${id} avec l'URL ${url || `/${url}`}`);
