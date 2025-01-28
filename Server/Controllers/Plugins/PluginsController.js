@@ -26,11 +26,11 @@ exports.getInstallablePlugins = async (req, res) => {
   res.json(plugins);
 };
 
-exports.InstallPlugin = async (req,res) => {
+exports.InstallPlugin = async (req,res, router) => {
   const pluginId = req.params.id;
 
   try {
-    await InstallPlugins(pluginId);
+    await InstallPlugins(pluginId, router);
   } catch(err) {
     console.error(err);
     res.status(500).json({error: "Erreur lors de l'installation du plugin"});
