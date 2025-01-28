@@ -11,7 +11,7 @@ const AdminLayout = dynamic(() => import('../../../components/layout/AdminLayout
 
 
 
-export default function Admin() {
+export default function InstallPlugin() {
   return (
     <>
       <AdminLayout>
