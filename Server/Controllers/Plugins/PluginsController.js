@@ -35,20 +35,28 @@ exports.getInstallablePlugins = async (req, res) => {
     );
 
     if (!response.ok) {
-      return res.status(500).json({ error: "Erreur lors de la récupération des plugins disponibles" });
+      return res
+        .status(500)
+        .json({
+          error: "Erreur lors de la récupération des plugins disponibles",
+        });
     }
 
     const availablePlugins = await response.json();
 
     // Filtrer les plugins déjà installés
-    const nonInstalledPlugins = availablePlugins.filter(
+    const nonInstalledPlugins = availablePlugins.plugins.filter(
       (plugin) => !installedPlugins.includes(plugin.id)
     );
 
     res.json(nonInstalledPlugins);
   } catch (err) {
     console.error("Erreur lors de la récupération des plugins : ", err);
-    res.status(500).json({ error: "Erreur lors de la récupération des plugins disponibles" });
+    res
+      .status(500)
+      .json({
+        error: "Erreur lors de la récupération des plugins disponibles",
+      });
   }
 };
 
@@ -57,7 +65,9 @@ exports.InstallPlugin = async (req, res, router) => {
 
   try {
     await InstallPlugins(pluginId, router);
-    res.status(200).json({ success: true, message: "Plugin installé avec succès" });
+    res
+      .status(200)
+      .json({ success: true, message: "Plugin installé avec succès" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erreur lors de l'installation du plugin" });

@@ -82,7 +82,7 @@ const pluginsInstallable = () => {
   return (
     <div className="container mt-5 bg-secondary p-4 rounded border border-secondary">
       <h1 className="mb-4">Liste des Plugins Disponibles</h1>
-      {plugins.length === 0 ? (
+      {!plugins || plugins.length === 0 ? (
         <div className="alert alert-warning" role="alert">
           Aucun plugin disponible.
         </div>
