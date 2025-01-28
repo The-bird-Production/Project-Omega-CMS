@@ -13,6 +13,7 @@ const compression = require("compression");
 const { urlencoded } = require("express");
 const morgan = require("morgan");
 
+//Environnement
 if (process.env.NODE_ENV == "development") {
   console.log("Backend running in dev mod");
   app.use(morgan("dev"));
@@ -51,7 +52,6 @@ app.use('/otherstats', OtherStats)
 app.use("/role", RoleRoute);
 app.use('/page', PageRoute); 
 app.use('/plugins', PluginsRoute)
-
 
 
 app.get("/test", (req, res) => {
