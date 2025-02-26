@@ -7,7 +7,7 @@ import AdminLayout from "../../../components/layout/AdminLayout";
 export default function Page({params}) {
 
     const plugin = params.plugin; 
-     const PluginPage = dynamic(() => import(`../../../components/plugin/${plugin}/dashboard`), {
+     const PluginPage = dynamic(() => import(`../../../components/plugin/${plugin}/dashboard.js`), {
         ssr: false,
     }); 
     
