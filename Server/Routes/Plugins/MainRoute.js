@@ -10,6 +10,9 @@ const {loadAllPlugins} = require('../../Functions/LoadPlugin')
 router.get("/", Auth, VerifyPermissions("canManagePlugins"), PluginsController.getPluginsInstalled)
 router.get("/installable", Auth, VerifyPermissions("canManagePlugins"), PluginsController.getInstallablePlugins)
 router.post("/install/:id", Auth, VerifyPermissions("canManagePlugins"),AddLogs("Install a new plugin" , "green"), (req,res) => PluginsController.InstallPlugin(req,res,router))
+router.get("/all", Auth, VerifyPermissions("canManagePlugins"), PluginsController.getAllPlugins)
+router.post("/update/:id", Auth, VerifyPermissions("canManagePlugins"),AddLogs("Update plugin", "info"),  (req,res) => PluginsController.UpdatePlugin(req,res,router))
+
 router.get("/user-routes", PluginsController.getUserRoutes)
 
 loadAllPlugins(router)
