@@ -8,7 +8,7 @@ const url = require("url");
 const { loadPlugin } = require("./LoadPlugin");
 const { warn } = require("console");
 
-const InstallPlugins = async (pluginId, app) => {
+const InstallPlugins = async (pluginId, app, update) => {
   const pluginsDir = path.resolve(process.cwd(), "Plugins");
   const pluginDir = path.resolve(pluginsDir, pluginId);
   const clientDir = path.resolve(
@@ -37,27 +37,31 @@ const InstallPlugins = async (pluginId, app) => {
 
     zip.extractAllTo(tempDir + `/${pluginId}/`, true);
 
-    //copy the plugin files to the plugins folder
+    //Copy the plugin files to the plugin folder and move the client files to the client Side
 
-    if (fs.existsSync(pluginDir)) {
-      throw new Error("Le plugin est déjà installé.");
-    }
-    //copy the plugin files to the plugins folder
-    fs.renameSync(tempDir + `/${pluginId}/`, pluginDir);
+    setTimeout(() => {
+      try {
+        fs.renameSync(tempDir + `/${pluginId}`, pluginDir);
+        if (!update) {
+          fs.mkdirSync(clientDir + `/${pluginId}`);
+        }
 
-    //Move the client files to the client Side
-    
-    fs.mkdirSync(clientDir + `/${pluginId}`);
-    fs.renameSync(
-      pluginDir + "/admin/dashboard.js",
-      clientDir + `/${pluginId}/dashboard.js`
-    );
-    fs.renameSync(
-      pluginDir + "/public/publicComponent.js",
-      clientDir + `/${pluginId}/publicComponent.js`
-    );
-    fs.rmdirSync(pluginDir + "/admin/");
-    fs.rmdirSync(pluginDir + "/public/");
+        fs.renameSync(
+          pluginDir + "/admin/dashboard.js",
+          clientDir + `/${pluginId}/dashboard.js`
+        );
+        fs.renameSync(
+          pluginDir + "/public/publicComponent.js",
+          clientDir + `/${pluginId}/publicComponent.js`
+        );
+        fs.rmdirSync(pluginDir + "/admin/");
+        fs.rmdirSync(pluginDir + "/public/");
+        console.log("Dossier déplacé avec succès !");
+      } catch (error) {
+        console.error("Erreur lors du déplacement :", error);
+        return error;
+      }
+    }, 100);
 
     //Database migration
 
@@ -70,16 +74,16 @@ const InstallPlugins = async (pluginId, app) => {
     const DATABASE_URL =
       process.env.DATABASE_URL ||
       "mysql://etienne:Titi@91490@localhost:3306/omega";
-    const { hostname, port, pathname, username, password } = new url.URL(DATABASE_URL);
-    
+    const { hostname, port, pathname, username, password } = new url.URL(
+      DATABASE_URL
+    );
+
     const dbName = pathname.replace("/", "");
     const dumpCommand = `mysqldump -u ${username} -p${password} -h ${hostname} -P ${
       port || 3306
     } ${dbName} > ${backupFilePath}`;
 
     if (!(process.env.NODE_ENV === "development")) {
-
-      
       exec(dumpCommand, (error, stdout, stderr) => {
         if (error) {
           console.error("Erreur lors de la sauvegarde :", error.message);
@@ -91,10 +95,7 @@ const InstallPlugins = async (pluginId, app) => {
         }
         console.log(`Sauvegarde réussie : ${backupFilePath}`);
       });
-
     }
-
-    
 
     //Apply the migration
     const migrationPath = path.join(pluginDir, "prisma", "migration.sql");
@@ -115,9 +116,10 @@ const InstallPlugins = async (pluginId, app) => {
 
     loadPlugin(app, pluginId);
   } catch (err) {
-    fs.rmSync(pluginDir, { recursive: true });
-    fs.rmSync(clientDir + `/${pluginId}`, { recursive: true });
     console.error("Erreur lors de l'installation du plugin :", err);
+    fs.rmSync(pluginDir, { recursive: true, force: true });
+    fs.rmSync(clientDir + `/${pluginId}`, { recursive: true, force: true });
+
     return err;
   }
 };

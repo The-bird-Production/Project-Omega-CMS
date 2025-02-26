@@ -34,7 +34,7 @@ const pluginsInstallable = () => {
           }
 
           const data = await response.json();
-          setPlugins(data.plugins);
+          setPlugins(data);
         } catch (err) {
           setError(err.message);
           console.error('Erreur lors de la récupération des plugins :', err);
