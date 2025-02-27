@@ -20,7 +20,6 @@ export default function Admin() {
   const { data: session, status } = useSession({
     required: true,
   });
-  
 
   const [formData, setFormData] = useState({
     role_name: '',
@@ -29,26 +28,23 @@ export default function Admin() {
       canViewDashboard: false,
       canManageRole: false,
       canManageImage: false,
-      canViewStats: false, 
+      canViewStats: false,
       canGetLogs: false,
       canDeleteLogs: false,
-
-
+      canManageUser: false,
+      canManagePages: false,
+      canManagePlugins: false,
+      canManageRedirects: false,
     },
   });
-  useEffect(() => {
-    
-
-  }, [session,status])
+  useEffect(() => {}, [session, status]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    
-
     try {
       AddRoleSchema.parse(formData);
-      const data = JSON.stringify(formData)
+      const data = JSON.stringify(formData);
       console.log('Données envoyées :', data);
 
       if (session.permissions?.admin || session.permissions?.CanManageRole) {
@@ -206,7 +202,7 @@ export default function Admin() {
                           className="form-check-label"
                           htmlFor="testSwitch"
                         >
-                          Supprimer les logs 
+                          Supprimer les logs
                         </label>
                       </div>
                       <div className="form-check form-switch">
@@ -241,6 +237,74 @@ export default function Admin() {
                           htmlFor="testSwitch"
                         >
                           Voir les statistiques
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManageUser"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManageUser}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les utilisateurs
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManagePages"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManagePages}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les Pages
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManagePlugins"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManagePlugins}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les Plugins
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManageRedirects"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManageRedirects}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les redirection
                         </label>
                       </div>
                     </div>

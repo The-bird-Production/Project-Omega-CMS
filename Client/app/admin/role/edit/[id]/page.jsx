@@ -35,6 +35,10 @@ export default function Page({ params }) {
       canViewStats: false,
       canGetLogs: false,
       canDeleteLogs: false,
+      canManageUser: false,
+      canManagePages: false,
+      canManagePlugins: false,
+      canManageRedirects: false,
     },
   });
   useEffect(() => {
@@ -273,6 +277,74 @@ export default function Page({ params }) {
                           htmlFor="testSwitch"
                         >
                           Voir les statistiques
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManageUser"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManageUser}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les utilisateurs
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManagePages"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManagePages}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les Pages
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManagePlugins"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManagePlugins}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les Plugins
+                        </label>
+                      </div>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="testSwitch"
+                          name="canManageRedirects"
+                          onChange={handleChange}
+                          checked={formData.role_permissions.canManageRedirects}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="testSwitch"
+                        >
+                          Gérer les redirection
                         </label>
                       </div>
                     </div>
