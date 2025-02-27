@@ -41,6 +41,7 @@ const OtherStats = require('./Routes/Stats/Other/MainRoute')
 const RoleRoute = require("./Routes/Role/MainRoute");
 const PageRoute = require('./Routes/Pages/MainRoutes');
 const PluginsRoute = require('./Routes/Plugins/MainRoute')
+const RedirectRoute = require('./Routes/Redirect/MainRoute')
 
 app.use(Stats);
 app.use("/auth", AuthRoute);
@@ -52,6 +53,7 @@ app.use('/otherstats', OtherStats)
 app.use("/role", RoleRoute);
 app.use('/page', PageRoute); 
 app.use('/plugins', PluginsRoute)
+app.use('/redirect', RedirectRoute)
 
 
 app.get("/test", (req, res) => {
