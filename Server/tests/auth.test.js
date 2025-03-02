@@ -1,7 +1,6 @@
 const request = require("supertest");
-const app = require("../server");
-const {prisma} = require("../lib/prisma");
-
+const app = require("../app");
+const { prisma } = require("../lib/prisma");
 
 describe("Auth API", () => {
   beforeAll(async () => {
@@ -10,18 +9,17 @@ describe("Auth API", () => {
 
   it("devrait créer un utilisateur et renvoyer un token", async () => {
     const res = await request(app).post("/api/auth/register").send({
+      username: "test",
       email: "test@example.com",
-      password: "password123"
+      password: "password123",
     });
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty("token");
 
     const user = await prisma.user.findUnique({
-      where: { email: "test@example.com" }
+      where: { email: "test@example.com" },
     });
     expect(user).not.toBeNull();
   });
-
- 
 });
