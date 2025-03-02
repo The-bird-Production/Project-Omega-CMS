@@ -16,7 +16,7 @@ exports.Register = async (req, res) => {
         username: req.body.username,
         email: req.body.email,
         password: await hash(req.body.password),
-        roleId: 21
+        roleId: 1
       },
     });
 
