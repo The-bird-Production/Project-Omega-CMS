@@ -50,3 +50,19 @@ exports.addRedirect = async (req, res) => {
       .json({ code: 500, message: "Internal Server Error " + error });
   }
 };
+
+
+exports.deleteRedirect = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await prisma.redirect.delete({ where: { id: parseInt(id) } });
+    return res
+      .status(200)
+      .json({ code: 200, message: "Redirect Deleted", data: data });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ code: 500, message: "Internal Server Error " + error });
+  }
+};
