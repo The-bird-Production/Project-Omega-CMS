@@ -20,7 +20,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js  ",
-    "setup": "node ./Functions/setup.js"
+    "setup": "node ./Functions/setup.js",
+    "test:setup": "dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push",
+    "test:watch": "npm run test -- --watch"
   },
   "name": "server",
   "version": "1.0.0",
