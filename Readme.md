@@ -25,20 +25,17 @@
 
 ### Cloner le projet
 ```sh
- git clone https://github.com/The-bird-Production/Project-Omega.git
+ git clone https://github.com/The-bird-Production/Project-Omega-CMS.git
  cd project-omega-cms
 ```
 
-### Installer les dépendances
+### Installer les dépendances de chaque dossier (Server et Client)
 ```sh
 npm install
 ```
 
 ### Configurer l'environnement
-Copiez le fichier d'exemple :
-```sh
-cp .env.example .env
-```
+Copiez le fichier d'exemple 
 Puis remplissez les variables selon votre configuration.
 
 ### Lancer le projet en local Backend + Frontend séparés
@@ -64,7 +61,7 @@ Le CMS est maintenant accessible sur `http://localhost:3000`.
   npx prisma migrate dev
   ```
 - **Gestion des permissions** : Stockées en JSON et modifiables dans l'admin.
-- **Plugins** : Ajoutez vos propres plugins en les plaçant dans `plugins/`.
+- **Plugins** : Ajoutez vos propres plugins en les plaçant dans `plugins/`. Voir le repo github : `https://github.com/The-bird-Production/OmegaPlugin`
 
 ## 🏗 Structure du projet
 
