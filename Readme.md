@@ -12,7 +12,7 @@
 - 🎨 **Système de thème** personnalisable depuis l'administration. (🚧WIP)
 - 🌍 **Support multi-langues**. (🚧WIP)
 - 🛠 **Admin Dashboard** ergonomique avec stats et gestion du contenu.
-- 🔄 **Mises à jour automatiques** depuis un repo GitHub privé.
+- 🔄 **Mises à jour automatiques** depuis un repo GitHub.
 - 📡 **Notifications en temps réel** (Socket.io) pour admins. (🚧WIP)
 - 📬 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs). (🚧WIP)
 - 🌐 **Optimisation SEO** avec génération auto du sitemap et balises SEO. (🚧WIP)
