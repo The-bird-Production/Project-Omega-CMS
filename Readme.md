@@ -5,20 +5,20 @@
 ## 🚀 Roadmap
 
 ### 🔹 Fonctionnalités terminées
-✅ **Authentification** avec NextAuth.js et gestion avancée des rôles.
-✅ **Système de plugins** pour ajouter des fonctionnalités personnalisées.
-✅ **Admin Dashboard** ergonomique avec stats et gestion du contenu.
-✅ **Mises à jour automatiques** depuis un repo GitHub privé.
+✅ **Authentification** avec NextAuth.js et gestion avancée des rôles.<br>
+✅ **Système de plugins** pour ajouter des fonctionnalités personnalisées.<br>
+✅ **Admin Dashboard** ergonomique avec stats et gestion du contenu.<br>
+✅ **Mises à jour automatiques** depuis un repo GitHub privé.<br>
 
 ### 🏗 Fonctionnalités en cours de développement
-🚧 **Gestion d'articles** avec brouillons, sauvegarde auto et publication.
-🚧 **Gestion des médias** (upload fichiers).
-🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).
-🚧 **Système de thème** personnalisable depuis l'administration.
-🚧 **Support multi-langues**.
-🚧 **Notifications en temps réel** (Socket.io) pour admins.
-🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).
-🚧 **Optimisation SEO** avec génération auto du sitemap et balises SEO.
+🚧 **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
+🚧 **Gestion des médias** (upload fichiers). <br>
+🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).<br>
+🚧 **Système de thème** personnalisable depuis l'administration.<br>
+🚧 **Support multi-langues**.<br>
+🚧 **Notifications en temps réel** (Socket.io) pour admins.<br>
+🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).<br>
+🚧 **Optimisation SEO** avec génération auto du sitemap et balises SEO.<br>
 
 
 ## 📦 Installation
