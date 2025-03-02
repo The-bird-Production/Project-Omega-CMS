@@ -1,0 +1,54 @@
+name: CI - Tests Backend & Frontend
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  backend-tests:
+    name: ⚙️ Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: omega_cms_test
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install backend dependencies
+        run: |
+          cd Server
+          npm install
+
+      - name: 🔄 Setup test database
+        run: |
+          cd Server
+          npm run test:setup
+
+      - name: 🧪 Run backend tests
+        run: |
+          cd Server
+          npm run test
