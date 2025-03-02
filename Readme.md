@@ -2,20 +2,24 @@
 
 **Un CMS moderne, modulaire et personnalisable, basé sur Next.js et Express.js.**
 
-## 🚀 Fonctionnalités
+## 🚀 Roadmap
 
-- 🔑 **Authentification** avec NextAuth.js et gestion avancée des rôles.
-- 📝 **Gestion d'articles** avec brouillons, sauvegarde auto et publication.(🚧WIP)
-- 📁 **Gestion des médias** (upload d'images et (🚧WIP) fichiers).
-- 🔎 **Recherche et filtrage avancés** (tags, catégories, pagination). (🚧WIP)
-- 🏗 **Système de plugins** pour ajouter des fonctionnalités personnalisées.
-- 🎨 **Système de thème** personnalisable depuis l'administration. (🚧WIP)
-- 🌍 **Support multi-langues**. (🚧WIP)
-- 🛠 **Admin Dashboard** ergonomique avec stats et gestion du contenu.
-- 🔄 **Mises à jour automatiques** depuis un repo GitHub.
-- 📡 **Notifications en temps réel** (Socket.io) pour admins. (🚧WIP)
-- 📬 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs). (🚧WIP)
-- 🌐 **Optimisation SEO** avec génération auto du sitemap et balises SEO. (🚧WIP)
+### 🔹 Fonctionnalités terminées
+✅ **Authentification** avec NextAuth.js et gestion avancée des rôles.
+✅ **Système de plugins** pour ajouter des fonctionnalités personnalisées.
+✅ **Admin Dashboard** ergonomique avec stats et gestion du contenu.
+✅ **Mises à jour automatiques** depuis un repo GitHub privé.
+
+### 🏗 Fonctionnalités en cours de développement
+🚧 **Gestion d'articles** avec brouillons, sauvegarde auto et publication.
+🚧 **Gestion des médias** (upload fichiers).
+🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).
+🚧 **Système de thème** personnalisable depuis l'administration.
+🚧 **Support multi-langues**.
+🚧 **Notifications en temps réel** (Socket.io) pour admins.
+🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).
+🚧 **Optimisation SEO** avec génération auto du sitemap et balises SEO.
+
 
 ## 📦 Installation
 
