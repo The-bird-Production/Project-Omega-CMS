@@ -47,7 +47,7 @@ jobs:
         run: |
           cd Server
           npm run test:setup
-          npm run setup
+          npm run setup:test
 
       - name: 🧪 Run backend tests
         run: |
