@@ -82,6 +82,13 @@ export default function Component() {
               </Link></li>
             <li>Autre</li>
             <li>
+              <Link href="/admin/redirect" className="nav-link text-truncate">
+                {' '}
+                <i className="fs-5 bi bi-compass"></i>
+                <span className="ms-1 d-none d-sm-inline">Redirect</span>
+              </Link>
+            </li>
+            <li>
               <Link href="/admin/log" className="nav-link text-truncate">
                 {' '}
                 <i className="fs-5 bi-newspaper"></i>
