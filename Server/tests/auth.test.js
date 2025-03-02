@@ -1,6 +1,6 @@
 const request = require("supertest");
 const app = require("../server");
-const  prisma  = require("../lib/prisma");
+const {prisma} = require("../lib/prisma");
 
 
 describe("Auth API", () => {
@@ -23,7 +23,5 @@ describe("Auth API", () => {
     expect(user).not.toBeNull();
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
+ 
 });
