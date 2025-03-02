@@ -21,6 +21,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js  ",
     "setup": "node ./Functions/setup.js",
+    "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
     "test:setup": "dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push",
     "test:watch": "npm run test -- --watch"
   },
