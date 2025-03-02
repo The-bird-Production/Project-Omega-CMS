@@ -33,3 +33,7 @@ export const fileSchema = z.object({
     alt: z.string().min(1, "Alt is required"),
    
 })
+export const redirectSchema = z.object({
+    from: z.string().min(1, "From is required"),
+    to: z.string().min(1, "To is required"),
+})
