@@ -60,7 +60,7 @@ function saveMetrics(req, res, next) {
     averageResponseSize,
   } = stats;
 
-  prisma.stats_Api
+  prisma.stats_api
     .create({
       data: {
         totalRequests: requestStats.totalRequests,
