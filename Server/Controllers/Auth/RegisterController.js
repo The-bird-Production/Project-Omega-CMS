@@ -13,18 +13,25 @@ exports.Register = async (req, res) => {
   try {
     await prisma.user.create({
       data: {
+        id: cuid(),
         username: req.body.username,
         email: req.body.email,
         password: await hash(req.body.password),
-        roleId: 1
+        roleId: 1,
+        updatedAt: new Date(),
       },
     });
 
     res
       .status(201)
       .json({ code: "201", message: "User created successfully!" });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ code: 500, message: "Internal Server Error " + e });
+  } catch (error) {
+    console.error("🚨 Erreur lors de la création de l'utilisateur :", error);
+    res.status(500).json({
+      code: 500,
+      message: "Internal Server Error",
+      error: error.message,
+      details: error,
+    });
   }
 };
