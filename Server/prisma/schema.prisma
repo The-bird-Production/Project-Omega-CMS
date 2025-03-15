@@ -149,3 +149,14 @@ model verificationtoken {
 
   @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
 }
+
+model article {
+  id          Int      @id @default(autoincrement())
+  title       String   @unique(map: "Article_title_key")
+  slug        String   @unique(map: "Article_slug_key")
+  body        String   @db.Text
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime
+}
