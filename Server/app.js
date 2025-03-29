@@ -54,6 +54,7 @@ app.use("/role", RoleRoute);
 app.use('/page', PageRoute); 
 app.use('/plugins', PluginsRoute)
 app.use('/redirect', RedirectRoute)
+app.use('/article', require('./Routes/Article/MainRoute'))
 
 
 app.get("/test", (req, res) => {
