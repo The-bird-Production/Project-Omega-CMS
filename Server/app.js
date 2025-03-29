@@ -12,6 +12,8 @@ const helmet = require("helmet");
 const compression = require("compression");
 const { urlencoded } = require("express");
 const morgan = require("morgan");
+const limiter = require('./Middleware/Limiter')
+app.use(limiter)
 
 //Environnement
 if (process.env.NODE_ENV == "development") {
