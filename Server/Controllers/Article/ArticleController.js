@@ -2,10 +2,10 @@ const { prisma } = require("../../lib/prisma");
 
 exports.createArticle = async (req, res) => {
   try {
-    const { title, content, authorId } = req.body;
+    const { title, body, authorId, slug } = req.body;
 
     // Validate input
-    if (!title || !content || !authorId) {
+    if (!title || !body || !authorId || !slug) {
       return res
         .status(400)
         .json({ message: "Title, content, and authorId are required" });
@@ -15,8 +15,11 @@ exports.createArticle = async (req, res) => {
     const article = await prisma.article.create({
       data: {
         title,
-        content,
-        authorId,
+        body,
+        authorId: parseInt(authorId),
+        slug,
+        image: req.file ? req.file.path : null,
+        publishedAt: req.body.publishedAt || new Date(), // Set the current date as publishedAt
       },
     });
 
@@ -29,18 +32,18 @@ exports.createArticle = async (req, res) => {
 
 exports.modifyArticle = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { title, content } = req.body;
+    const { slug } = req.params;
+    const { title, body } = req.body;
     // Validate input
     if (!title && !content) {
       return res.status(400).json({ message: "Title or content is required" });
     }
     // Update article
     const article = await prisma.article.update({
-      where: { id: parseInt(id) },
+      where: { slug: slug },
       data: {
         title,
-        content,
+        body,
       },
     });
     res.status(200).json(article);
@@ -86,11 +89,12 @@ exports.saveArticle = async (req, res) => {
 
 exports.deleteArticle = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
 
     await prisma.article.delete({
-      where: { id: parseInt(id) },
+      where: { slug: slug },
     });
+    res.status(200).json({ message: "Article deleted successfully" });
   } catch (error) {
     console.error("Error deleting article:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -118,10 +122,14 @@ exports.getArticle = async (req, res) => {
   }
 };
 exports.getAllArticles = async (req, res) => {
+  const currentDate = new Date();
   try {
     const articles = await prisma.article.findMany({
-      where: { publishedAt: (publishedAt.getTime() <= currentDate.getTime() ? publishedAt : null && { lte: new Date() })  },
+      where: { publishedAt: { lte: currentDate } },
     });
+    if (!articles) {
+      return res.status(404).json({ message: "No articles found" });
+    }
     res.status(200).json(articles);
   } catch (error) {
     console.error("Error retrieving articles:", error);
@@ -129,13 +137,13 @@ exports.getAllArticles = async (req, res) => {
   }
 };
 exports.getArticleBySlug = async (req, res) => {
+  const currentDate = new Date();
   try {
     const { slug } = req.params;
     const article = await prisma.article.findUnique({
       where: {
         slug,
-        publishedAt:
-          publishedAt.getTime() <= currentDate.getTime() ? publishedAt : null,
+        publishedAt: { lte: currentDate },
       },
     });
     if (!article) {
