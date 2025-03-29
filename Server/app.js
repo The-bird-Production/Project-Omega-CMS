@@ -12,6 +12,8 @@ const helmet = require("helmet");
 const compression = require("compression");
 const { urlencoded } = require("express");
 const morgan = require("morgan");
+const limiter = require('./Middleware/Limiter')
+app.use(limiter)
 
 //Environnement
 if (process.env.NODE_ENV == "development") {
@@ -54,6 +56,7 @@ app.use("/role", RoleRoute);
 app.use('/page', PageRoute); 
 app.use('/plugins', PluginsRoute)
 app.use('/redirect', RedirectRoute)
+app.use('/article', require('./Routes/Article/MainRoute'))
 
 
 app.get("/test", (req, res) => {
