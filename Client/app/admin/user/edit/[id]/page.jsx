@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useSession } from 'next-auth/react';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../components/admin/Dashboard';
@@ -9,7 +9,8 @@ import Image from 'next/image';
 import FormatedDate from '../../../../components/util/FormatedDate';
 import { userSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
-export default function Page({ params }) {
+export default function Page(props) {
+  const params = use(props.params);
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -61,7 +62,7 @@ export default function Page({ params }) {
       });
     }
   }, [userData]);
-  
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();

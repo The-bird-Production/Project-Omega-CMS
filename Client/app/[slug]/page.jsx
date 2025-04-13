@@ -22,16 +22,17 @@ export async function generateStaticParams() {
   }))
 }
  
-export default async function Page({ params }) {
+export default async function Page(props) {
+  const params = await props.params;
   const data = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL +`/page/get/${params.slug}`).then(
     (res) => res.json()
     
   )
   const page = await data.data
   const body = {__html: `${page.body}`}
-  
-  
-  
+
+
+
   return (
     <Layout currentPage={page.title}>
         <title>{page.title}</title>

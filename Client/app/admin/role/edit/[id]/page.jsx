@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 import Dashboard from '../../../../components/admin/Dashboard';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { AddRoleSchema } from '../../../../../lib/schema';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -15,7 +15,8 @@ const AdminLayout = dynamic(
   }
 );
 
-export default function Page({ params }) {
+export default function Page(props) {
+  const params = use(props.params);
   const id = params.id;
 
   const router = useRouter();

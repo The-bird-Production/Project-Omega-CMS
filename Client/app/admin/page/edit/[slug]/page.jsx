@@ -1,7 +1,7 @@
 'use client';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../components/admin/Dashboard';
-import { useEffect } from 'react';
+import { useEffect, use } from 'react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../../lib/schema';
@@ -9,13 +9,14 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function Page({ params }) {
+export default function Page(props) {
+  const params = use(props.params);
   const slug = params.slug;
   const { data: session, status } = useSession();
 
   const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
   const [data, setData] = useState(null);
-  
+
   const router = useRouter();
 
 
@@ -100,17 +101,17 @@ export default function Page({ params }) {
   const handleEditorChange = (content) => {
     setFormData({ ...formData, body: content });
   };
-    if (!data) {
-      return (
-        <div>
-        <div className="loader">
-          <div className="spinner-border" role="status">
-            <span className="sr-only">Loading...</span>
-          </div>
+  if (!data) {
+    return (
+      <div>
+      <div className="loader">
+        <div className="spinner-border" role="status">
+          <span className="sr-only">Loading...</span>
         </div>
       </div>
-      )
-    }
+    </div>
+    )
+  }
   return (
     <>
       <AdminLayout>
