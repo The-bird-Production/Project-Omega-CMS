@@ -4,6 +4,7 @@
     "adm-zip": "^0.5.16",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
+    "better-auth": "^1.2.7",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "cuid": "^3.0.0",
@@ -21,7 +22,9 @@
     "ts-jest": "^29.2.6"
   },
   "scripts": {
-    "start": "node server.js",
+    "start:build": "tsc -w",
+    "start:run": "nodemon ./build/server.js",
+    "start": "concurrently npm:start:*",
     "dev": "nodemon server.js  ",
     "setup:test": "dotenv -e .env.test -- node ./Functions/setup.js",
     "setup": "node ./Functions/setup.js",
@@ -36,8 +39,12 @@
   "author": "Faynix - The bird production",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.1",
+    "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "dotenv-cli": "^8.0.0",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "typescript": "^5.8.3"
   }
 }

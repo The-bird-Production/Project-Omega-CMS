@@ -1,10 +1,7 @@
-const express = require("express");
+import express from "express"
 const app = express();
 const config = require('./config/server')
 
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 //Security
 
 const cors = require("cors");
@@ -15,7 +12,13 @@ const morgan = require("morgan");
 const limiter = require('./Middleware/Limiter')
 app.use(limiter)
 
-//Environnement
+
+app.use(helmet());
+app.use(compression());
+app.use(cors(config.CORS));
+app.use(morgan("dev"));
+
+//Environnement logs
 if (process.env.NODE_ENV == "development") {
   console.log("Backend running in dev mod");
   app.use(morgan("dev"));
@@ -23,10 +26,24 @@ if (process.env.NODE_ENV == "development") {
   console.log("Backend running in production mod");
   app.use(morgan("combined"));
 }
-app.use(helmet());
-app.use(compression());
-app.use(cors(config.CORS));
-app.use(morgan("dev"));
+//Body controller
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+//Auth
+import {auth} from './lib/auth'
+import {toNodeHandler} from 'better-auth/node'
+
+app.all("/auth/*", (req, res, next) => {
+  console.log("Body:", req.body);
+  next();
+}, toNodeHandler(auth));
+
+
+
+
+
+
 
 
 
@@ -46,7 +63,6 @@ const PluginsRoute = require('./Routes/Plugins/MainRoute')
 const RedirectRoute = require('./Routes/Redirect/MainRoute')
 
 app.use(Stats);
-app.use("/auth", AuthRoute);
 app.use("/file", FileRoute);
 app.use("/image", ImageRoute);
 app.use("/logs", LogRoute);
