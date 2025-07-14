@@ -3,11 +3,13 @@ const path = require("path");
 const AdmZip = require("adm-zip");
 const axios = require("axios");
 const cms = require("../../cms");
+const sanitize = require("sanitize-filename");
 
 
 const InstallTheme = async (themeId, update) => {
+  const sanitizedThemeId = sanitize(themeId);
   const ThemesDir = path.resolve(process.cwd(), "Themes");
-  const themeDir = path.resolve(ThemesDir, themeId);
+  const themeDir = path.resolve(ThemesDir, sanitizedThemeId);
   const clientDir = path.resolve(
     cms.dirname,
     "Client",
@@ -29,28 +31,28 @@ const InstallTheme = async (themeId, update) => {
     
 
     const zipFile = await axios.get(
-      `https://omega.marketplace.thebirdproduction.fr/download/theme/${themeId}`,
+      `https://omega.marketplace.thebirdproduction.fr/download/theme/${sanitizedThemeId}`,
       {
         responseType: "arraybuffer",
       }
     );
     const zip = new AdmZip(zipFile.data);
 
-    zip.extractAllTo(tempDir + `/${themeId}/`, true);
+    zip.extractAllTo(tempDir + `/${sanitizedThemeId}/`, true);
 
     //Copy the plugin files to the plugin folder and move the client files to the client Side
 
     setTimeout(() => {
       try {
-        fs.renameSync(tempDir + `/${themeId}`, themeDir);
+        fs.renameSync(tempDir + `/${sanitizedThemeId}`, themeDir);
 
         if (!update) {
-          fs.mkdirSync(clientDir + `/${themeId}`);
+          fs.mkdirSync(clientDir + `/${sanitizedThemeId}`);
         }
 
-        fs.renameSync(themeDir + '/components', clientDir + `/${themeId}/components`);
-        fs.renameSync(themeDir + '/asset', clientDir + `/${themeId}/asset`);
-        fs.renameSync(themeDir + '/style', styleDir + `/${themeId}`);
+        fs.renameSync(themeDir + '/components', clientDir + `/${sanitizedThemeId}/components`);
+        fs.renameSync(themeDir + '/asset', clientDir + `/${sanitizedThemeId}/asset`);
+        fs.renameSync(themeDir + '/style', styleDir + `/${sanitizedThemeId}`);
 
         console.log("Dossier déplacé avec succès !");
       } catch (error) {
@@ -63,8 +65,8 @@ const InstallTheme = async (themeId, update) => {
   } catch (err) {
     console.error("Erreur lors de l'installation du theme :", err);
     fs.rmSync(themeDir, { recursive: true, force: true });
-    fs.rmSync(clientDir + `/${themeId}`, { recursive: true, force: true });
-    fs.rmSync(styleDir + "themes" + `/${themeId}`, { recursive: true, force: true });
+    fs.rmSync(clientDir + `/${sanitizedThemeId}`, { recursive: true, force: true });
+    fs.rmSync(styleDir + "themes" + `/${sanitizedThemeId}`, { recursive: true, force: true });
 
     return err;
   }
