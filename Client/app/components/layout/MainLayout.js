@@ -2,6 +2,7 @@
 
 import fetch from "isomorphic-fetch";
 import { useEffect } from "react";
+import { ThemeProvider } from "../theme/themeProvider";
 
 function Layout({ children, currentPage }) {
   useEffect(() => {

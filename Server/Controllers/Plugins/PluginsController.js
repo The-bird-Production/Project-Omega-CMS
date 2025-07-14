@@ -5,7 +5,9 @@ const InstallPlugins = require("../../Functions/InstallPlugins");
 exports.getPluginsInstalled = (req, res) => {
   const pluginsDir = path.resolve(process.cwd(), "Plugins");
 
-  const plugins = fs.readdirSync(pluginsDir).map((plugin) => {
+  const plugins = fs.readdirSync(pluginsDir)
+  .filter((plugin) => plugin.toLowerCase() !== "readme.md")
+  .map((plugin) => {
     const manifest = require(path.join(pluginsDir, plugin, "plugin.json"));
     return {
       name: manifest.name,
@@ -23,7 +25,9 @@ exports.getInstallablePlugins = async (req, res) => {
   const pluginsDir = path.resolve(process.cwd(), "Plugins");
 
   // Récupérer les plugins déjà installés
-  const installedPlugins = fs.readdirSync(pluginsDir).map((plugin) => {
+  const installedPlugins = fs.readdirSync(pluginsDir)
+  .filter((plugin) => plugin.toLowerCase() !== "readme.md")
+  .map((plugin) => {
     const manifest = require(path.join(pluginsDir, plugin, "plugin.json"));
     return manifest.id; // Comparaison via l'ID du plugin
   });
@@ -79,6 +83,7 @@ exports.getUserRoutes = (req, res) => {
 
   const routes = fs
     .readdirSync(pluginsDir)
+    .filter((plugin) => plugin.toLowerCase() !== "readme.md")
     .map((plugin) => {
       const manifest = require(path.join(pluginsDir, plugin, "plugin.json"));
       return manifest.user?.routes || [];
