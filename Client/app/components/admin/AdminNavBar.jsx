@@ -80,6 +80,10 @@ export default function Component() {
                 <i class="bi bi-puzzle-fill"></i>
                 <span className="ms-1 d-none d-sm-inline">Plugins</span>
               </Link></li>
+              <li> <Link href="/admin/themes" className="nav-link text-truncate">
+              <i class="bi bi-palette-fill"></i>
+                <span className="ms-1 d-none d-sm-inline">Themes</span>
+              </Link></li>
             <li>Autre</li>
             <li>
               <Link href="/admin/redirect" className="nav-link text-truncate">
