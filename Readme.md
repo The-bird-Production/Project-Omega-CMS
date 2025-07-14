@@ -9,12 +9,12 @@
 ✅ **Système de plugins** pour ajouter des fonctionnalités personnalisées.<br>
 ✅ **Admin Dashboard** ergonomique avec stats et gestion du contenu.<br>
 ✅ **Mises à jour automatiques** depuis un repo GitHub privé.<br>
+✅ **Système de thème** personnalisable depuis l'administration.<br>
 
 ### 🏗 Fonctionnalités en cours de développement
 🚧 **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
 🚧 **Gestion des médias** (upload fichiers). <br>
 🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).<br>
-🚧 **Système de thème** personnalisable depuis l'administration.<br>
 🚧 **Support multi-langues**.<br>
 🚧 **Notifications en temps réel** (Socket.io) pour admins.<br>
 🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).<br>
