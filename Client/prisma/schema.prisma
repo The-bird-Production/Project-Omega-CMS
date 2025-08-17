@@ -8,7 +8,7 @@ datasource db {
 }
 
 model account {
-  id                       String   @id  @default(cuid())
+  id                       String   @id @default(cuid())
   userId                   String   @unique(map: "Account_userId_key")
   type                     String
   provider                 String?
@@ -22,7 +22,7 @@ model account {
   session_state            String?
   refresh_token_expires_in Int?
   createdAt                DateTime @default(now())
-  updatedAt                DateTime   @updatedAt
+  updatedAt                DateTime @updatedAt
   user                     user     @relation(fields: [userId], references: [id], map: "Account_userId_fkey")
 
   @@unique([provider, providerAccountId], map: "Account_provider_providerAccountId_key")
@@ -148,4 +148,28 @@ model verificationtoken {
   expires    DateTime
 
   @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
+}
+
+model article {
+  id          Int      @id @default(autoincrement())
+  title       String   @unique(map: "Article_title_key")
+  slug        String   @unique(map: "Article_slug_key")
+  body        String   @db.Text
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  publishedAt DateTime
+  authorId    Int
+}
+
+model articlesaved {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique(map: "ArticleSaved_slug_key")
+  body        String   @db.Text
+  image       String?
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  publishedAt DateTime
 }
