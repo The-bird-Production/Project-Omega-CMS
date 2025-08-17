@@ -7,6 +7,7 @@ import '../../../public/js/chart';
 import Link from 'next/link';
 import Script from 'next/script';
 import { useEffect } from 'react';
+import RootLayout from '../../layout';
 
 function Layout({ children }) {
   useEffect(() => {
@@ -15,11 +16,11 @@ function Layout({ children }) {
   });
   return (
     <>
-      <body className='bg-primary'>
+      <section className="bg-primary min-vh-100">
         <div className="text-light">
           <div className="container">{children}</div>
         </div>
-      </body>
+      </section>
     </>
   );
 }

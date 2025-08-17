@@ -38,14 +38,14 @@ export default function Component() {
               <br />
               Content
             </li>
-            <li>
+            {/* <li>
               <a href="#" className="nav-link text-truncate">
                 <i className="fs-5 bi bi-folder"></i>
                 <span className="ms-1 d-none d-sm-inline">
                   Fichiers (indisponible)
                 </span>
               </a>
-            </li>
+            </li> */}
 
             <li>
               <Link href="/admin/image" className="nav-link text-truncate">
@@ -57,6 +57,11 @@ export default function Component() {
               <Link href="/admin/page" className="nav-link text-truncate">
                 <i className="fs-5 bi-file-earmark"></i>
                 <span className="ms-1 d-none d-sm-inline">Pages</span>
+              </Link>
+            </li> <li>
+              <Link href="/admin/article" className="nav-link text-truncate">
+                <i className="fs-5 bi bi-pen"></i>
+                <span className="ms-1 d-none d-sm-inline">Articles</span>
               </Link>
             </li>
             <li>
@@ -77,11 +82,11 @@ export default function Component() {
             </li>
             <li>Addons</li>
             <li> <Link href="/admin/plugins" className="nav-link text-truncate">
-                <i class="bi bi-puzzle-fill"></i>
+                <i className="bi bi-puzzle-fill"></i>
                 <span className="ms-1 d-none d-sm-inline">Plugins</span>
               </Link></li>
               <li> <Link href="/admin/themes" className="nav-link text-truncate">
-              <i class="bi bi-palette-fill"></i>
+              <i className="bi bi-palette-fill"></i>
                 <span className="ms-1 d-none d-sm-inline">Themes</span>
               </Link></li>
             <li>Autre</li>
