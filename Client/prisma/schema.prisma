@@ -159,7 +159,7 @@ model article {
   createdAt   DateTime @default(now())
   updatedAt   DateTime
   publishedAt DateTime
-  authorId    Int
+  authorId    String
 }
 
 model articlesaved {
