@@ -16,7 +16,7 @@ exports.createArticle = async (req, res) => {
       data: {
         title,
         body,
-        authorId: parseInt(authorId),
+        authorId,
         slug,
         image: req.file ? req.file.path : null,
         publishedAt: req.body.publishedAt || new Date(), // Set the current date as publishedAt
@@ -55,44 +55,39 @@ exports.modifyArticle = async (req, res) => {
 
 exports.saveArticle = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { title, content } = req.body;
-    // Validate input
-    if (!title && !content) {
-      return res.status(400).json({ message: "Title or content is required" });
-    }
+    const { draftId, title, content, slug, authorId } = req.body;
 
-    if (!id) {
-      const article = await prisma.articleSaved.create({
-        data: {
-          title,
-          content,
-          image: req.file ? req.file.path : null,
-        },
-      });
-      return res.status(201).json(article);
-    }
-    // Save article
-    const article = await prisma.articleSaved.update({
-      where: { id: parseInt(id) },
-      data: {
+    const article = await prisma.articleSaved.upsert({
+      where: { draftId },
+      update: {
         title,
-        content,
+        body: content,
+        slug,
+        updatedAt: new Date(),
+      },
+      create: {
+        draftId,
+        title,
+        body: content,
+        slug,
+        authorId,
       },
     });
-    res.status(200).json(article);
-  } catch (error) {
-    console.error("Error saving article:", error);
-    res.status(500).json({ message: "Internal server error" });
+
+    res.json(article);
+  } catch (err) {
+    console.error("Error saving article:", err);
+    res.status(500).json({ error: "Failed to save article" });
   }
 };
+
 
 exports.deleteArticle = async (req, res) => {
   try {
     const { slug } = req.params;
 
     await prisma.article.delete({
-      where: { slug: slug },
+      where: { id: parseInt(slug) },
     });
     res.status(200).json({ message: "Article deleted successfully" });
   } catch (error) {
@@ -104,10 +99,10 @@ exports.deleteArticle = async (req, res) => {
 exports.getArticle = async (req, res) => {
   try {
     const currentDate = new Date();
-    const { id } = req.params;
+    const { slug } = req.params;
     const article = await prisma.article.findUnique({
       where: {
-        id: parseInt(id),
+        slug,
         publishedAt:
           publishedAt.getTime() <= currentDate.getTime() ? publishedAt : null,
       },
