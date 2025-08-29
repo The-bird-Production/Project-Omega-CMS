@@ -1,4 +1,24 @@
 {
+    "name": "server",
+    "version": "1.0.0",
+    "description": "Backend For project Omega",
+    "license": "ISC",
+    "author": "Faynix - The bird production",
+    "type": "module",
+    "main": "server.js",
+    "directories": {
+        "lib": "lib",
+        "test": "tests"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "dev": "nodemon server.js  ",
+        "setup:test": "dotenv -e .env.test -- node ./Functions/setup.js",
+        "setup": "node ./Functions/setup.js",
+        "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
+        "test:setup": "dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push",
+        "test:watch": "npm run test -- --watch"
+    },
     "dependencies": {
         "@prisma/client": "^6.5.0",
         "adm-zip": "^0.5.16",
@@ -23,21 +43,6 @@
         "supertest": "^7.0.0",
         "ts-jest": "^29.2.6"
     },
-    "scripts": {
-        "start": "node server.js",
-        "dev": "nodemon server.js  ",
-        "setup:test": "dotenv -e .env.test -- node ./Functions/setup.js",
-        "setup": "node ./Functions/setup.js",
-        "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
-        "test:setup": "dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push",
-        "test:watch": "npm run test -- --watch"
-    },
-    "name": "server",
-    "version": "1.0.0",
-    "description": "Backend For project Omega",
-    "main": "server.js",
-    "author": "Faynix - The bird production",
-    "license": "ISC",
     "devDependencies": {
         "cross-env": "^7.0.3",
         "dotenv-cli": "^8.0.0",

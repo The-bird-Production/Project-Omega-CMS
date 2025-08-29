@@ -5,4 +5,4 @@ export const CORS = {
     optionsSuccessStatus: 204,
 };
 export const app_port = 3001;
-export const URL = "http://localhost:" + this.app_port;
+export const URL = "http://localhost:" + app_port;

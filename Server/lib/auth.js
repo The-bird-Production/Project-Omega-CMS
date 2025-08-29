@@ -1,20 +1,18 @@
 import { betterAuth } from "better-auth";
-import prisma$0 from "better-auth/adapters/prisma";
-import client from "@prisma/client";
-const { prismaAdapter } = prisma$0;
-const { PrismaClient } = client;
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { PrismaClient } from "@prisma/client";
+
+// Initialise Prisma
 const prisma = new PrismaClient();
-const auth = betterAuth({
-    // Active l'authentification par email/mot de passe
-    emailAndPassword: {
-        enabled: true,
-    },
-    // Utilisation de Prisma pour la base de données
-    database: prismaAdapter(prisma, {
-        provider: "mysql", // ou "sqlite" / "postgresql" selon ton setup
-    }),
+
+// Configure BetterAuth
+export const auth = betterAuth({
+  // Authentification email/mot de passe
+  emailAndPassword: { enabled: true },
+  trustedOrigins: ["http://localhost:3000", "http://localhost:3001"],
+
+  // Adapter Prisma pour la base de données
+  database: prismaAdapter(prisma, {
+    provider: "mysql", // ou "sqlite" / "postgresql" selon ton setup
+  }),
 });
-export { auth };
-export default {
-    auth
-};

@@ -10,7 +10,7 @@ datasource db {
 
 model User {
   id            String    @id
-  name          String    @db.Text
+  name          String?    @db.Text
   email         String
   emailVerified Boolean
   image         String?   @db.Text
