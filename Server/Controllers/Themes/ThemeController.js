@@ -92,18 +92,19 @@ export const UpdateTheme = async (req, res) => {
         res.status(500).json({ error: "Erreur lors de l'installation du plugin" });
     }
 };
-export const getCurrentTheme = (req, res) => {
+export const getCurrentTheme = async (req, res) => {
     const themeDir = path.resolve(process.cwd(), "Themes");
     // Récupérer le thème actuellement utilisé
     const currentTheme = fs.readdirSync(themeDir).filter((theme) => theme.toLowerCase() !== "readme.md").filter((theme) => theme.toLowerCase() !== "default").map((theme) => {
-        return manifest; // Retourne le manifest du thème
+        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json")));
+        return manifest;
     });
     if (currentTheme.length === 0) {
         return res.status(404).json({ error: "Aucun thème actuellement utilisé switch to default" });
     }
     res.json(currentTheme[0]);
 };
-export const getDefaultTheme = (req, res) => {
+export const getDefaultTheme =  async (req, res) => {
     const themeDir = path.resolve(process.cwd(), "Themes", "default");
     if (!fs.existsSync(themeDir)) {
         return res.status(404).json({ error: "Thème par défaut non trouvé" });
@@ -112,6 +113,7 @@ export const getDefaultTheme = (req, res) => {
     if (!fs.existsSync(manifestPath)) {
         return res.status(404).json({ error: "Manifest du thème par défaut non trouvé" });
     }
+   const manifest = await JSON.parse(fs.readFileSync(manifestPath));
     res.json(manifest);
 };
 export { InstallTheme$0 as InstallTheme };
