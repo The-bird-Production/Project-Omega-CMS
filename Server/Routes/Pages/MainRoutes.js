@@ -1,5 +1,4 @@
 import * as express from "express";
-import Auth from "../../Middleware/Auth.js";
 import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
 import GetPage from "../../Controllers/Pages/GetPageController.js";
 import UpdatePage from "../../Controllers/Pages/UpdatePageController.js";
@@ -10,7 +9,7 @@ import { GetAllPage } from "../../Controllers/Pages/GetAllPageController.js";
 const router = express.Router();
 router.get('/get/all', GetAllPage);
 router.get("/get/:slug", GetPage);
-router.delete("/delete/:id", Auth, VerifyPermissions("canManagePages"), AddLogs("Delete Page", "red"), DeletePage);
-router.post("/update/:id", Auth, VerifyPermissions("canManagePages"), AddLogs("Update page", "green"), UpdatePage);
-router.post("/create", Auth, VerifyPermissions("canManagePages"), AddLogs("Create page", "green"), CreatePage);
+router.delete("/delete/:id",  VerifyPermissions("admin"), AddLogs("Delete Page", "red"), DeletePage);
+router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update page", "green"), UpdatePage);
+router.post("/create",  VerifyPermissions("admin"), AddLogs("Create page", "green"), CreatePage);
 export default router;

@@ -1,11 +1,10 @@
 import * as express from "express";
 import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
-import Auth from "../../Middleware/Auth.js";
 import AddLogs from "../../Functions/AddLogs.js";
 import { getAllRedirects, getSpecificRedirect, addRedirect, deleteRedirect } from "../../Controllers/Redirect/RedirectController.js";
 const router = new express.Router();
-router.post('/add', Auth, VerifyPermissions('canManageRedirects'), AddLogs('Add Redirect', 'green'), addRedirect);
-router.get('/all', Auth, VerifyPermissions('canManageRedirects'), getAllRedirects);
+router.post('/add',  VerifyPermissions('admin'), AddLogs('Add Redirect', 'green'), addRedirect);
+router.get('/all',  VerifyPermissions('admin'), getAllRedirects);
 router.get('/get/:slug', getSpecificRedirect);
-router.delete('/delete/:id', Auth, VerifyPermissions('canManageRedirects'), AddLogs('Delete Redirect', 'red'), deleteRedirect);
+router.delete('/delete/:id',  VerifyPermissions('admin'), AddLogs('Delete Redirect', 'red'), deleteRedirect);
 export default router;

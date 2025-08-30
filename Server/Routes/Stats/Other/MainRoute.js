@@ -1,9 +1,9 @@
 import * as express from "express";
 import VerifyPermissions from "../../../Middleware/VerifyPermissions.js";
-import Auth from "../../../Middleware/Auth.js";
+
 import { GetNumberOfAllPage, GetNumberOfAllRole, GetNumberOfAllUser } from "../../../Controllers/Stats/Other/OtherStatsController.js";
 const router = express.Router();
-router.get("/number/role", Auth, VerifyPermissions("canViewStats"), GetNumberOfAllRole); // Getting all stats data
-router.get('/number/page', Auth, VerifyPermissions("canViewStats"), GetNumberOfAllPage);
-router.get('/number/user', Auth, VerifyPermissions("canViewStats"), GetNumberOfAllUser);
+router.get('/number/user',  VerifyPermissions("admin"), GetNumberOfAllUser);
+router.get('/number/page',  VerifyPermissions("admin"), GetNumberOfAllPage);
+router.get("/number/role",  VerifyPermissions("admin"), GetNumberOfAllRole); // Getting all stats data
 export default router;
