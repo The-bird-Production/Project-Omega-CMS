@@ -1,6 +1,11 @@
 import Image from "next/image";
-import { signOut } from "next-auth/react";
-export default function Components({ session }) {
+import { useSession, signOut } from "../../../lib/authClient";
+export default function Components() {
+  const {data, isPending} = useSession();
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <nav className="navbar bg-secondary rounded-4 shadow">
@@ -8,7 +13,7 @@ export default function Components({ session }) {
           <div className="d-flex gap-2 justify-content-end">
             <div className="w-auto">
               <img
-                src={session.user.avatar}
+                src={data.user?.image}
                 alt=""
                 className="img-fluid w-25 rounded-circle"
               />
@@ -18,7 +23,7 @@ export default function Components({ session }) {
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false">
-                  {session.name || session.user.username}
+                  
                 </button>
                 <ul className="dropdown-menu bg-secondary text-light">
                   <li className="dropdown-item">

@@ -1,27 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+
 import FormatedDate from '../../util/FormatedDate';
 
 export default function RedirectList() {
-  const { data: session, status } = useSession({
-    required: true,
-  });
+  
 
   const [rowData, setRowData] = useState([]);
 
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/redirect/all`,
             {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
+              credentials: 'include',
               mode: 'cors',
             }
           );
@@ -37,7 +30,7 @@ export default function RedirectList() {
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-      }
+      
     };
 
     fetchData();
@@ -45,17 +38,13 @@ export default function RedirectList() {
   }, [session, status]);
 
   const delRedirect = async (id) => {
-    if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+   
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/redirect/delete/${id}`,
             {
               method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
+              credentials: 'include',
               mode: 'cors',
             }
           );
@@ -68,7 +57,7 @@ export default function RedirectList() {
         } catch (error) {
           console.error('Error deleting redirect:', error);
         } 
-      }
+      
   }
 
   

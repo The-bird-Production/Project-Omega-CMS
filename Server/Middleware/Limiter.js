@@ -1,7 +1,7 @@
 import { rateLimit } from "express-rate-limit";
 const rateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 15 minutes
-    max: 100, // Limite à 100 requêtes par fenêtre de temps
+    max: 10000, // Limite à 100 requêtes par fenêtre de temps
     message: {
         success: false,
         error: "Trop de requêtes. Veuillez réessayer plus tard.",
