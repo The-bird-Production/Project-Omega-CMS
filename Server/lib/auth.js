@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient } from "@prisma/client";
+import {admin as adminPlugins}  from "better-auth/plugins" 
+import {ac,admin, user} from "./permissions.js"
 
 // Initialise Prisma
 const prisma = new PrismaClient();
@@ -15,4 +17,13 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "mysql", // ou "sqlite" / "postgresql" selon ton setup
   }),
+  plugins: [
+    adminPlugins({
+      ac,
+      roles:{
+        admin,
+        user,
+      }
+    })
+  ]
 });
