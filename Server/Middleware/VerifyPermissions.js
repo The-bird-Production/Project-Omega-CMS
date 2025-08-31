@@ -1,32 +1,22 @@
-// middleware/VerifyPermission.js
 import { auth } from "../lib/auth.js";
 
-const VerifyPermission = (permission) => {
+const VerifyPermission = (role) => {
   return async function (req, res, next) {
     try {
-      if (process.env.NODE_ENV === "test") {
-        return next();
-      }
+      if (process.env.NODE_ENV === "test") return next();
 
-      // Récupération de la session utilisateur
-      const session = await auth.api.getSession({ req, res });
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session) return res.status(401).json({ code: 401, message: "Unauthorized" });
 
-      if (!session) {
-        return res.status(401).json({ code: 401, message: "Unauthorized" });
-      }
-
-      // Vérification via Better Auth
-      const { data, error } = await auth.api.userHasPermission({
+      const canAcess = await auth.api.userHasPermission({
         body: {
-          userId: session.user.id, // obligatoire
-          role: permission, // 🔥 à ajuster selon comment tu structures tes rôles
-          // 🔥 à ajuster selon comment tu structures tes permissions
+          userId: session.user.id,
+          permission: {"administration": ["viewDashboard"] }
         },
       });
+      
 
-      if (error || !data) {
-        return res.status(403).json({ code: 403, message: "Forbidden" });
-      }
+      if (!canAcess) return res.status(403).json({ code: 403, message: "Forbidden" });
 
       return next();
     } catch (e) {

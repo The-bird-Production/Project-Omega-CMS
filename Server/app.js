@@ -11,7 +11,6 @@ import morgan from "morgan";
 import limiter from './Middleware/Limiter.js';
 //Auth
 import { auth } from './lib/auth.js';
-import AuthRoute from "./Routes/Auth/MainRoute.js";
 import FileRoute from "./Routes/Files/MainRoute.js";
 import ImageRoute from "./Routes/Images/MainRoute.js";
 import LogRoute from "./Routes/LogRoute/MainRoute.js";
