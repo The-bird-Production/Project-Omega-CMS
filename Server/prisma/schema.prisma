@@ -148,7 +148,7 @@ model article {
 
 model articleSaved {
   id          Int      @id @default(autoincrement())
-  draftId     String   @unique()
+  draftId     String?   @unique()
   title       String?
   slug        String?   
   body        String?   @db.Text

@@ -27,7 +27,7 @@ export const articleDraftSchema = z.object({
     slug: z.string().optional().nullable(),
     body: z.string().nullable(),
     authorId: z.string().min(1, "Author ID is required"),
-    draftId: z.uuidv4()
+    draftId: z.string(),
 })
 
 export const userSchema = z.object({
