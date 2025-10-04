@@ -1,6 +1,6 @@
-const request = require("supertest");
-const app = require("../app");
-const { prisma } = require("../lib/prisma");
+import request from "supertest";
+import app from "../app";
+import { prisma } from "../lib/prisma";
 
 describe("Auth API", () => {
   beforeAll(async () => {
