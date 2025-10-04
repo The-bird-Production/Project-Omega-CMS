@@ -1,123 +1,113 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../components/admin/Dashboard';
 import Link from 'next/link';
-import Image from 'next/image';
 import FormatedDate from '../../../../components/util/FormatedDate';
 import { userSchema } from '../../../../../lib/schema';
-import { useRouter } from 'next/navigation';
+import { authClient } from '../../../../../lib/authClient';
+
 export default function Page({ params }) {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-
   const id = params.id;
-
   const [userData, setUserData] = useState({});
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/get/${id}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              mode: 'cors',
-            }
-          );
-
-          if (res.ok) {
-            const data = await res.json();
-            const jsonData = data.data;
-
-            setUserData(jsonData);
-          } else {
-            console.error('Failed to fetch data:', res.statusText);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/get/${id}`,
+          {
+            method: 'GET',
+            credentials: 'include',
+            mode: 'cors',
           }
-        } catch (error) {
-          console.error('Error fetching data:', error);
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          const jsonData = data;
+
+          setUserData(jsonData);
+          console.log(jsonData);
+        } else {
+          console.error('Failed to fetch data:', res.statusText);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
 
     fetchData();
-  }, [session, status]);
+  }, []);
 
   useEffect(() => {
     if (userData && Object.keys(userData).length > 0) {
       setFormData({
         username: userData.username || userData.name || '',
+        name: userData.name || '',
         email: userData.email || '',
-        emailVerified: userData.emailVerified || false,
-        roleId: userData.roleId || 0,
+        emailVerified: userData.emailVerified || false, // Assure boolean false par défaut
+        role: userData.role || '',
       });
     }
   }, [userData]);
-  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-     
-      userSchema.safeParse(formData);
-      const data = JSON.stringify(formData);
+      const validation = userSchema.safeParse(formData);
+      if (!validation.success) {
+        console.error('Validation error:', validation.error);
+        return;
+      }
 
-      if (session.permissions?.admin || session.permissions?.canManageUser) {
-        const token = session.accessToken || session.user.accessToken;
+      const { isUpdated, error } = await authClient.admin.updateUser ({
+        userId: id,
+        data: {
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          emailVerified: formData.emailVerified, // Boolean true/false
+          role: formData.role,
+        },
+      });
 
-        await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/update/${id}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            mode: 'cors',
-            body: data,
-          }
-        );
-        router.push('/admin/user/');
+      if (error) {
+        console.error('Update error:', error);
       } else {
-        return router.push('/');
+        console.log('User  updated successfully');
+        // Optionnel : rediriger ou afficher un message de succès
       }
     } catch (error) {
-      console.log(error);
+      console.error('Submit error:', error);
     }
   };
+
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (type === 'checkbox') {
-      setFormData({ ...formData, emailVerified: checked });
-      
-    } 
-    
-    else {
-
-      if (type === 'number') {
-        setFormData({ ...formData, roleId: parseInt(value)});
-      } else {
-        setFormData({ ...formData, [name]: value });
-        console.log(formData)
-
-      }
-      
-      
-
+    const { name, value, type } = e.target;
+    if (type === 'select-one') { // Correction : type pour <select> est 'select-one'
+      setFormData({ ...formData, [name]: value });
+    } else if (type === 'checkbox') {
+      // Pas besoin, car la checkbox a son propre onChange inline
+    } else {
+      setFormData({ ...formData, [name]: value });
+      console.log(formData);
     }
-
-    
   };
+
+  // État de chargement basique
+  if (Object.keys(userData).length === 0) {
+    return (
+      <AdminLayout>
+        <Dashboard>
+          <div>Chargement des données utilisateur...</div>
+        </Dashboard>
+      </AdminLayout>
+    );
+  }
 
   return (
     <>
@@ -145,19 +135,27 @@ export default function Page({ params }) {
                 <form onSubmit={handleSubmit}>
                   <div className="text-white container row pt-3 ">
                     <div className="col-6">
-                      <h2> <input type='text' name='username' onChange={handleChange} defaultValue={userData.name || userData.username} className='form-control m-2'></input></h2>
+                      <h2>
+                        {' '}
+                        <input
+                          type="text"
+                          name="name"
+                          onChange={handleChange}
+                          value={formData.name  || ''} // Contrôlé par formData
+                          className="form-control m-2"
+                        />
+                      </h2>
                     </div>
-                    
 
                     <div className="col-6">
                       <h4>Profil picture : </h4>
-                      <Image
+                      {/* <Image
                         src={userData.image}
                         width="125"
                         height="125"
                         className="img-fluid"
                         alt="Profile Picture"
-                      ></Image>
+                      /> */}
                     </div>
                     <div className="col-6">
                       <h3 className="mb-3">Informations : </h3>
@@ -167,30 +165,37 @@ export default function Page({ params }) {
                           <input
                             className="form-control m-2"
                             type="text"
-                            defaultValue={userData.email}
+                            value={formData.email || ''} // Contrôlé par formData
                             onChange={handleChange}
                             name="email"
-                          ></input>{' '}
+                          />{' '}
                         </h4>
                         <h4 className="mb-3">
                           Email verified :{' '}
                           <input
                             type="checkbox"
                             className="form-check-input"
-                            checked={userData.emailVerified}
-                            onChange={handleChange}
+                            checked={formData.emailVerified} // Corrigé : lié à formData
+                            onChange={(e) => {
+                              const { name, checked } = e.target;
+                              setFormData({ ...formData, [name]: checked });
+                            }}
                             name="emailVerified"
-                          ></input>
+                          />
                         </h4>
                         <h4 className="mb-3">
                           Role :{' '}
-                          <input
-                            type="number"
-                            defaultValue={userData.roleId}
-                            className="form-control"
+                          <select
+                            className="form-select"
+                            aria-label="Default select example"
+                            name="role"
+                            value={formData.role || ''} // Contrôlé par formData (pré-sélectionne la valeur actuelle)
                             onChange={handleChange}
-                            name="roleId"
-                          ></input>{' '}
+                          >
+                            <option value="">Choose a role</option> {/* value="" pour l'option par défaut */}
+                            <option value="admin">Admin</option>
+                            <option value="user">User </option>
+                          </select>
                         </h4>
                         <h5 className="mb-3">
                           Creation date :{' '}
