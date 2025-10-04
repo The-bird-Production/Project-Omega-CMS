@@ -39,11 +39,6 @@ export const ThemeProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
-  
-
-  // Détecter si l'URL commence par /admin (client-side only)
-  const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
-
   // const router = useRouter(); // Initialisation du router si besoin
 
   // Fonction pour charger et appliquer un thème spécifique
