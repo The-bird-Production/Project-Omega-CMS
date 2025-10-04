@@ -32,7 +32,7 @@ export default function UserList() {
       }
     };
     fetchData();
-    const intervalId = setInterval(fetchData, 15000);
+    const intervalId = setInterval(fetchData, 30000);
     return () => clearInterval(intervalId);
   }, []);
 

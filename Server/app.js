@@ -22,6 +22,7 @@ import PageRoute from './Routes/Pages/MainRoutes.js';
 import PluginsRoute from './Routes/Plugins/MainRoute.js';
 import RedirectRoute from './Routes/Redirect/MainRoute.js';
 import ThemesRoute from './Routes/Themes/MainRoute.js';
+import UserRoute from './Routes/User/mainRoute.js';
 const app = express();
 app.use(limiter);
 //Environnement
@@ -43,6 +44,7 @@ app.use(json());
 app.use(_urlencoded({ extended: true }));
 //app.use(Stats);
 //app.use("/auth", AuthRoute);
+app.use("/user", UserRoute);
 app.use("/file", FileRoute);
 app.use("/image", ImageRoute);
 app.use("/logs", LogRoute);
