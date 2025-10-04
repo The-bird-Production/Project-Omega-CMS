@@ -13,7 +13,7 @@ export const createArticle = async (req, res) => {
       data: {
         title,
         body,
-        authorId: parseInt(authorId),
+        authorId,
         slug,
         image: req.file ? req.file.path : null,
         publishedAt: req.body.publishedAt || new Date(), // Set the current date as publishedAt
@@ -74,6 +74,7 @@ export const saveDraft = async (req, res) => {
           title,
           body,
           authorId,
+          slug, 
         },
       });
     } else {
@@ -84,6 +85,7 @@ export const saveDraft = async (req, res) => {
           title,
           body,
           authorId,
+            slug,
         },
       });
     }
@@ -107,6 +109,18 @@ export const deleteArticle = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+export const deleteArticleDraft = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    await prisma.articleSaved.delete({
+      where: { draftId: slug },
+    });
+    res.status(200).json({ message: "Article draft deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting article draft:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 export const getArticle = async (req, res) => {
   try {
     const currentDate = new Date();
@@ -127,15 +141,48 @@ export const getArticle = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+export const getDraftById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const article = await prisma.articleSaved.findUnique({
+      where: {
+        draftId: id,
+      },
+    });
+    if (!article) {
+      return res.status(404).json({ message: "Article not found" });
+    }
+    res.status(200).json(article);
+  } catch (error) {
+    console.error("Error retrieving article:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 export const getAllArticles = async (req, res) => {
   const currentDate = new Date();
   try {
     const articles = await prisma.article.findMany({
       where: { publishedAt: { lte: currentDate } },
     });
-    if (!articles) {
+
+    if (articles.length === 0) {
       return res.status(404).json({ message: "No articles found" });
     }
+
+    res.status(200).json(articles);
+  } catch (error) {
+    console.error("Error retrieving articles:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getAllDrafts = async (req, res) => {
+  try {
+    const articles = await prisma.articleSaved.findMany();
+
+    if (articles.length === 0) {
+      return res.status(404).json({ message: "No articles found" });
+    }
+
     res.status(200).json(articles);
   } catch (error) {
     console.error("Error retrieving articles:", error);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function articleList() {
+export default function draftList() {
   
   const [rowData, setRowData] = useState([]);
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function articleList() {
       
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/get/all`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/get/all/drafts`,
             {
               headers: {
                 'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export default function articleList() {
   }, []);
 
   const editArticle = (slug) => {
-    router.push(`/admin/article/edit/${slug}`);
+    router.push(`/admin/article/drafts/edit/${slug}`);
   }
 
   const delArticle = async (id) => {
@@ -52,7 +52,7 @@ export default function articleList() {
       
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/delete/${id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/delete/draft/${id}`,
           {
             method: 'DELETE',
             headers: {
@@ -73,6 +73,7 @@ export default function articleList() {
       } 
     
   } 
+  console.log(rowData);
   if (!rowData) {
     return <div className="text-center text-white">No articles found.</div>;
   }
@@ -81,8 +82,8 @@ export default function articleList() {
       <div className='container row'>
         <div className="col-10">{item.title}</div>
         <div className="col-2">
-          <button className='btn btn-secondary m-1' onClick={() => editArticle(item.slug)}><i className="bi bi-pencil-square"></i></button>
-          <button className='btn btn-secondary' onClick={() => delArticle(item.id)}><i className="bi bi-trash"></i></button>
+          <button className='btn btn-secondary m-1' onClick={() => editArticle(item.draftId)}><i className="bi bi-pencil-square"></i></button>
+          <button className='btn btn-secondary' onClick={() => delArticle(item.draftId)}><i className="bi bi-trash"></i></button>
         </div>
       </div>
     </div>

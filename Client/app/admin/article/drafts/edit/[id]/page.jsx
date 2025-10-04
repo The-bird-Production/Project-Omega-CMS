@@ -1,15 +1,17 @@
 'use client';
-import AdminLayout from '../../../../components/layout/AdminLayout';
-import Dashboard from '../../../../components/admin/Dashboard';
+import AdminLayout from '../../../../../components/layout/AdminLayout';
+import Dashboard from '../../../../../components/admin/Dashboard';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { pageSchema } from '../../../../../lib/schema';
+import { pageSchema } from '../../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Editor } from '@tinymce/tinymce-react';
+import { authClient } from '../../../../../../lib/authClient';
+import { articleSchema } from '../../../../../../lib/schema';
 
 export default function Page({ params }) {
-  const slug = params.slug;
+  const slug = params.id;
 
   const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
   const [data, setData] = useState(null);
@@ -20,7 +22,7 @@ export default function Page({ params }) {
     const fetchdata = async (slug) => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/${slug}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/draft/${slug}`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -51,6 +53,31 @@ export default function Page({ params }) {
       fetchdata(slug);
     }
   });
+  const handlePublish = async (event) => {
+    event.preventDefault();
+    try {
+      const { data: session } = await authClient.getSession({});
+
+      const updatedFormData = { ...formData, authorId: session.user.id };
+
+      // Validation
+      articleSchema.parse(updatedFormData);
+
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/create/`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify(updatedFormData),
+      });
+
+      router.push('/admin/article');
+    } catch (e) {
+      console.error('Submit error:', e);
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -59,18 +86,15 @@ export default function Page({ params }) {
       pageSchema.parse(formData);
 
       try {
-        await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/update/${data.slug}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            method: 'PUT',
-            mode: 'cors',
-            body: JSON.stringify(formData),
-          }
-        );
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/draft/`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          method: 'PUT',
+          mode: 'cors',
+          body: JSON.stringify(formData),
+        });
 
         router.refresh();
       } catch (e) {
@@ -113,7 +137,9 @@ export default function Page({ params }) {
                 <li className="breadcrumb-item" aria-current="page">
                   <Link href="/admin/article">Article</Link>
                 </li>
-                <li className="breadcrumb-item active">Edit / {params.slug}</li>
+                <li className="breadcrumb-item active">
+                  Edit / Draft / {params.id}
+                </li>
               </ol>
             </nav>
           </div>
@@ -160,6 +186,7 @@ export default function Page({ params }) {
               </div>
               <div className="mb-3">
                 <button className="btn btn-primary">Update</button>
+                <button className="btn btn-primary mx-2" onClick={handlePublish}>Publish</button>
               </div>
             </form>
           </div>
