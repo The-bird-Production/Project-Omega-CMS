@@ -27,16 +27,16 @@ export const articleDraftSchema = z.object({
     slug: z.string().optional().nullable(),
     body: z.string().nullable(),
     authorId: z.string().min(1, "Author ID is required"),
-    draftId: z.uuidv4()
+    draftId: z.string(),
 })
 
 export const userSchema = z.object({
-    username: z.string().min(3, "Username is required").max(10, "Lenght is to mutch").nullable().optional(),
+    name: z.string().min(3, "Username is required").max(10, "Lenght is to mutch").nullable().optional(),
     email: z.string()
     .email("Must be a valid email")
     .or(z.literal(null)) 
     .optional(), 
-    roleId : z.number(), 
+    role : z.string(), 
     emailVerified: z.boolean().nullable().optional()
 })
 

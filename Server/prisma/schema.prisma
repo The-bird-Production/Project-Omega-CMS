@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,42 +8,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model account {
-  id                       String   @id
-  userId                   String   @unique(map: "Account_userId_key")
-  type                     String
-  provider                 String?
-  providerAccountId        String?
-  refresh_token            String?  @db.Text
-  access_token             String?  @db.Text
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String?  @db.Text
-  session_state            String?
-  refresh_token_expires_in Int?
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime
-  user                     user     @relation(fields: [userId], references: [id], map: "Account_userId_fkey")
+model User {
+  id            String    @id
+  name          String?   @db.Text
+  email         String
+  emailVerified Boolean
+  image         String?   @db.Text
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
 
-  @@unique([provider, providerAccountId], map: "Account_provider_providerAccountId_key")
-  @@index([userId], map: "Account_userId_idx")
+  role       String?   @db.Text
+  banned     Boolean?
+  banReason  String?   @db.Text
+  banExpires DateTime?
+
+  @@unique([email])
+  @@map("user")
 }
 
-model authenticator {
-  credentialID         String  @unique(map: "Authenticator_credentialID_key")
-  userId               String
-  providerAccountId    String
-  credentialPublicKey  String
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
-  user                 user    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Authenticator_userId_fkey")
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?  @db.Text
+  userAgent String?  @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([userId, credentialID])
+  impersonatedBy String? @db.Text
+
+  @@unique([token])
+  @@map("session")
 }
 
+model Account {
+  id                    String    @id
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String    @db.Text
+  value      String    @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
 model file {
   id        Int      @id @default(autoincrement())
   name      String   @unique(map: "File_name_key")
@@ -82,29 +113,9 @@ model redirect {
   from      String   @unique(map: "Redirect_from_key")
   to        String
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
 }
 
-model role {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique(map: "Role_name_key")
-  permissions Json?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime?
-  user        user[]
-}
-
-model session {
-  id           String   @id
-  sessionToken String   @unique(map: "Session_sessionToken_key")
-  userId       String
-  expires      DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
-  user         user     @relation(fields: [userId], references: [id], map: "Session_userId_fkey")
-
-  @@index([userId], map: "Session_userId_idx")
-}
 
 model stats_api {
   id                  Int      @id @default(autoincrement())
@@ -123,33 +134,6 @@ model stats_web {
   date  DateTime @default(now())
 }
 
-model user {
-  id            String          @id
-  name          String?
-  username      String?         @unique(map: "User_username_key")
-  email         String?         @unique(map: "User_email_key")
-  password      String?         @unique(map: "User_password_key")
-  image         String?
-  roleId        Int?            @default(1)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime
-  emailVerified Boolean?
-  account       account?
-  authenticator authenticator[]
-  session       session[]
-  role          role?           @relation(fields: [roleId], references: [id], map: "User_roleId_fkey")
-
-  @@index([roleId], map: "User_roleId_fkey")
-}
-
-model verificationtoken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
-}
-
 model article {
   id          Int      @id @default(autoincrement())
   title       String   @unique(map: "Article_title_key")
@@ -164,7 +148,7 @@ model article {
 
 model articleSaved {
   id          Int      @id @default(autoincrement())
-  draftId     String   @unique()
+  draftId     String?   @unique()
   title       String?
   slug        String?   
   body        String?   @db.Text

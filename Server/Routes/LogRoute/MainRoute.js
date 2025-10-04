@@ -1,30 +1,9 @@
-const express = require("express");
+import * as express from "express";
+import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
+import DeleteLogs from "../../Controllers/LogController/DeleteLogsController.js";
+import GetLogs from "../../Controllers/LogController/GetLogsController.js";
+import Addlogs from "../../Functions/AddLogs.js";
 const router = express.Router();
-
-//Security MiddleWare
-
-const VerifyPermissions = require("../../Middleware/VerifyPermissions");
-const Auth = require('../../Middleware/Auth')
-
-//Controller
-const DeleteLogs = require("../../Controllers/LogController/DeleteLogsController");
-const GetLogs = require("../../Controllers/LogController/GetLogsController");
-const Addlogs = require('../../Functions/AddLogs')
-
-
-router.delete(
-  "/delete",
-  Auth,
-  VerifyPermissions("canDeleteLogs"),
-  Addlogs("Delete Logs", "red"),
-  DeleteLogs,
-  
-);
-router.get(
-  "/get",
-  Auth,
-  VerifyPermissions("canGetLogs"),
-  GetLogs
-);
-
-module.exports = router;
+router.delete("/delete",  VerifyPermissions("admin"), Addlogs("Delete Logs", "red"), DeleteLogs);
+router.get("/get",  VerifyPermissions("admin"), GetLogs);
+export default router;

@@ -1,17 +1,16 @@
-const express = require('express');
+import * as express from "express";
+import VerifiyPermissions from "../../Middleware/VerifyPermissions.js";
+import { getAllArticles } from "../../Controllers/Article/ArticleController.js";
+import { createArticle } from "../../Controllers/Article/ArticleController.js";
+import { modifyArticle } from "../../Controllers/Article/ArticleController.js";
+import { deleteArticle } from "../../Controllers/Article/ArticleController.js";
+import { saveDraft} from "../../Controllers/Article/ArticleController.js";
+import { getArticleBySlug } from "../../Controllers/Article/ArticleController.js";
 const router = express.Router();
-
-//Middleware 
-const Auth = require('../../Middleware/Auth')
-const VerifiyPermissions = require('../../Middleware/VerifyPermissions')
-
-router.get('/get/all', require('../../Controllers/Article/ArticleController').getAllArticles);
-router.post('/create', Auth, VerifiyPermissions("canManageArticle"), require('../../Controllers/Article/ArticleController').createArticle);
-router.put('/update/:slug', Auth, VerifiyPermissions("canManageArticle"), require('../../Controllers/Article/ArticleController').modifyArticle);
-router.delete('/delete/:slug', Auth, VerifiyPermissions("canManageArticle"), require('../../Controllers/Article/ArticleController').deleteArticle);
-router.post('/draft/', Auth, VerifiyPermissions("canManageArticle"), require('../../Controllers/Article/ArticleController').saveArticle);
-router.get('/:slug', require('../../Controllers/Article/ArticleController').getArticleBySlug);
-
-
-
-module.exports = router;
+router.get('/all', { getAllArticles }.getAllArticles);
+router.post('/create', VerifiyPermissions("admin"), { createArticle }.createArticle);
+router.put('/update/:slug',VerifiyPermissions("admin"), { modifyArticle }.modifyArticle);
+router.delete('/delete/:slug', VerifiyPermissions("admin"), { deleteArticle }.deleteArticle);
+router.post('/draft/', VerifiyPermissions("admin"), { saveDraft }.saveDraft);
+router.get('/:slug', { getArticleBySlug }.getArticleBySlug);
+export default router;

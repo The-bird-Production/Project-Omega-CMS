@@ -1,20 +1,31 @@
-import SessionWrapper from './components/auth/SessionWrapper';
+'use client';
+
+import { usePathname } from 'next/navigation';
 import { ThemeProvider } from './components/theme/themeProvider';
 
-export default function RootLayout({ children, params }) {
+
+export default function RootLayout({ children }) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
+
   return (
-    <SessionWrapper>
-      <html lang="en">
-        <head>
-          <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-          ></link>
-        </head>
-        <body className={params.bg}>
+    <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        />
+        {isAdminRoute && <link rel="stylesheet" href="/css/admin.css" />}
+      </head>
+
+      <body>
+        {isAdminRoute ? (
+          <>{children}</>
+        ) : (
           <ThemeProvider>{children}</ThemeProvider>
-        </body>
-      </html>
-    </SessionWrapper>
+        )}
+      </body>
+    </html>
+
   );
 }

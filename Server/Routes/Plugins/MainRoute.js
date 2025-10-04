@@ -1,23 +1,14 @@
-const express = require('express')
-const router = express.Router()
-
-const Auth = require("../../Middleware/Auth");
-const VerifyPermissions = require("../../Middleware/VerifyPermissions");
-const PluginsController = require('../../Controllers/Plugins/PluginsController')
-const AddLogs = require('../../Functions/AddLogs')
-const {loadAllPlugins} = require('../../Functions/LoadPlugin')
-
-router.get("/", Auth, VerifyPermissions("canManagePlugins"), PluginsController.getPluginsInstalled)
-router.get("/installable", Auth, VerifyPermissions("canManagePlugins"), PluginsController.getInstallablePlugins)
-router.post("/install/:id", Auth, VerifyPermissions("canManagePlugins"),AddLogs("Install a new plugin" , "green"), (req,res) => PluginsController.InstallPlugin(req,res,router))
-router.get("/all", Auth, VerifyPermissions("canManagePlugins"), PluginsController.getAllPlugins)
-router.post("/update/:id", Auth, VerifyPermissions("canManagePlugins"),AddLogs("Update plugin", "info"),  (req,res) => PluginsController.UpdatePlugin(req,res,router))
-
-router.get("/user-routes", PluginsController.getUserRoutes)
-
-loadAllPlugins(router)
-
-
-
-
-module.exports = router
+import * as express from "express";
+import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
+import * as PluginsController from "../../Controllers/Plugins/PluginsController.js";
+import AddLogs from "../../Functions/AddLogs.js";
+import { loadAllPlugins } from "../../Functions/LoadPlugin.js";
+const router = express.Router();
+router.get("/",  VerifyPermissions("admin"), PluginsController.getPluginsInstalled);
+router.get("/installable", VerifyPermissions("admin"), PluginsController.getInstallablePlugins);
+router.post("/install/:id", VerifyPermissions("admin"), AddLogs("Install a new plugin", "green"), (req, res) => PluginsController.InstallPlugin(req, res, router));
+router.get("/all",  VerifyPermissions("admin"), PluginsController.getAllPlugins);
+router.post("/update/:id", VerifyPermissions("admin"), AddLogs("Update plugin", "info"), (req, res) => PluginsController.UpdatePlugin(req, res, router));
+router.get("/user-routes", PluginsController.getUserRoutes);
+loadAllPlugins(router);
+export default router;

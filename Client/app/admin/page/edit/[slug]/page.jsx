@@ -2,7 +2,6 @@
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../components/admin/Dashboard';
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
@@ -11,47 +10,41 @@ import { Editor } from '@tinymce/tinymce-react';
 
 export default function Page({ params }) {
   const slug = params.slug;
-  const { data: session, status } = useSession();
 
   const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
   const [data, setData] = useState(null);
-  
-  const router = useRouter();
 
+  const router = useRouter();
 
   useEffect(() => {
     const fetchdata = async (slug) => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              mode: 'cors',
-            }
-          );
-
-          if (res.ok) {
-            const response = await res.json();
-            const jsonData = response.data;
-            setData(jsonData);
-            
-            
-            setFormData({
-              title: jsonData.title,
-              body: jsonData.body,
-              slug: jsonData.slug,
-            });
-          } else {
-            console.error('Failed to fetch data:', res.statusText);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            mode: 'cors',
           }
-        } catch (error) {
-          console.error('Error fetching data:', error);
+        );
+
+        if (res.ok) {
+          const response = await res.json();
+          const jsonData = response.data;
+          setData(jsonData);
+
+          setFormData({
+            title: jsonData.title,
+            body: jsonData.body,
+            slug: jsonData.slug,
+          });
+        } else {
+          console.error('Failed to fetch data:', res.statusText);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
     if (!data) {
@@ -65,27 +58,24 @@ export default function Page({ params }) {
     try {
       pageSchema.parse(formData);
 
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
-        try {
-          await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/page/update/${data.id}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              method: 'POST',
-              mode: 'cors',
-              body: JSON.stringify(formData),
-            }
-          );
+      
+      try {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/page/update/${data.id}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify(formData),
+          }
+        );
 
-          
-          router.refresh();
-        } catch (e) {
-          console.log(e);
-        }
+        router.refresh();
+      } catch (e) {
+        console.log(e);
       }
     } catch (e) {
       console.log(e);
@@ -100,17 +90,17 @@ export default function Page({ params }) {
   const handleEditorChange = (content) => {
     setFormData({ ...formData, body: content });
   };
-    if (!data) {
-      return (
-        <div>
+  if (!data) {
+    return (
+      <div>
         <div className="loader">
           <div className="spinner-border" role="status">
             <span className="sr-only">Loading...</span>
           </div>
         </div>
       </div>
-      )
-    }
+    );
+  }
   return (
     <>
       <AdminLayout>

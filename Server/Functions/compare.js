@@ -1,10 +1,5 @@
-const bcrypt = require('bcrypt')
-
+import * as bcrypt from "bcrypt";
 async function compare(hashedPassword, password) {
-
     return await bcrypt.compare(password, hashedPassword);
-
-
 }
-
-module.exports = compare
+export default compare;

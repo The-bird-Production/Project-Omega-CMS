@@ -1,11 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
 
 export default function Components() {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
-  const { data: session, status } = useSession();
   const [data, setData] = useState(null);
   const [labels, setLabels] = useState(null);
   const [error, setError] = useState(null);
@@ -13,47 +11,40 @@ export default function Components() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/all`,
+          {
+            credentials: 'include',
+            mode: 'cors',
+          }
+        );
+        const jsonData = await res.json();
+        const rowData = jsonData.data;
 
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/all`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              mode: 'cors',
-            }
-          );
-          const jsonData = await res.json();
-          const rowData = jsonData.data;
+        const pageCounts = rowData.reduce((acc, curr) => {
+          if (!acc[curr.page]) {
+            acc[curr.page] = 0;
+          }
+          acc[curr.page] += curr.count;
+          return acc;
+        }, {});
 
-          const pageCounts = rowData.reduce((acc, curr) => {
-            if (!acc[curr.page]) {
-              acc[curr.page] = 0;
-            }
-            acc[curr.page] += curr.count;
-            return acc;
-          }, {});
+        const labels = Object.keys(pageCounts);
+        const data = labels.map((label) => pageCounts[label]);
+        setLabels(labels);
+        setData(data);
 
-          const labels = Object.keys(pageCounts);
-          const data = labels.map((label) => pageCounts[label]);
-          setLabels(labels);
-          setData(data);
-
-          setLoading(false);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-          setError(error.message);
-          setLoading(false);
-        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(error.message);
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [status, session]);
+  }, []);
 
   useEffect(() => {
     require('../../../../public/js/chart');

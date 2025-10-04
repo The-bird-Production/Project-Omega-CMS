@@ -1,28 +1,23 @@
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function articleList() {
-  const { data: session, status } = useSession({
-    required: true,
-  });
-
+  
   const [rowData, setRowData] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/get/all`,
             {
               headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
               },
+              credentials: 'include',
               mode: 'cors',
             }
           );
@@ -38,7 +33,7 @@ export default function articleList() {
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-      }
+      
     };
 
     fetchData();
@@ -46,24 +41,24 @@ export default function articleList() {
     const intervalId = setInterval(fetchData, 15000);
 
     return () => clearInterval(intervalId);
-  }, [session, status]);
+  }, []);
 
   const editArticle = (slug) => {
     router.push(`/admin/article/edit/${slug}`);
   }
 
   const delArticle = async (id) => {
-    if (status === 'authenticated') {
-      const token = session.accessToken || session.user.accessToken;
+   
+      
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/article/delete/${id}`,
           {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
             mode: 'cors',
           }
         );
@@ -76,7 +71,7 @@ export default function articleList() {
       } catch (error) {
         console.error('Error deleting image:', error);
       } 
-    }
+    
   } 
   console.log(rowData);
   if (!rowData) {

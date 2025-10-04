@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import FormatedDate from '../../util/FormatedDate';
 import { useRouter } from 'next/navigation';
 
@@ -15,23 +14,18 @@ export default function LogList() {
   const [selectedLogs, setSelectedLogs] = useState([]); // Gérer les logs sélectionnés
   const [selectAll, setSelectAll] = useState(false); // Gérer l'état "tout sélectionner"
 
-  const { data: session, status } = useSession({
-    required: true,
-  });
+ 
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      
+        
 
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/logs/get/?startId=1&endId=`,
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
+              credentials: 'include',
               mode: 'cors',
             }
           );
@@ -46,17 +40,15 @@ export default function LogList() {
         } catch (error) {
           console.error('Error fetching logs:', error);
         }
-      }
+      
     };
 
     fetchInitialData();
-  }, [session, status]);
+  }, []);
 
   useEffect(() => {
     const fetchPageData = async () => {
-      if (status === 'authenticated' && maxId !== null) {
-        const token = session.accessToken || session.user.accessToken;
-
+      if (maxId !== null) {
         const startId = maxId - (currentPage - 1) * logsPerPage;
         const endId = Math.max(1, startId - logsPerPage + 1);
 
@@ -64,10 +56,7 @@ export default function LogList() {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/logs/get/?startId=${endId}&endId=${startId}`,
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
+              credentials: 'include',
               mode: 'cors',
             }
           );
@@ -85,7 +74,7 @@ export default function LogList() {
     };
 
     fetchPageData();
-  }, [session, status, currentPage, logsPerPage, maxId]);
+  }, [ currentPage, logsPerPage, maxId]);
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -120,7 +109,6 @@ export default function LogList() {
   const handleDeleteLogs = async () => {
     if (selectedLogs.length === 0) return;
 
-    const token = session.accessToken || session.user.accessToken;
 
     try {
       const startId = Math.min(...selectedLogs);
@@ -128,10 +116,7 @@ export default function LogList() {
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/logs/delete/?startId=${startId}&endId=${endId}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        credentials: 'include',
         mode: 'cors',
       });
 

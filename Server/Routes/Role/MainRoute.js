@@ -1,51 +1,15 @@
-const express = require("express");
+import * as express from "express";
+import CreateRole from "../../Controllers/Role/CreateRoleController.js";
+import UpdateRole from "../../Controllers/Role/UpdateRoleController.js";
+import DeleteRole from "../../Controllers/Role/DeleteRoleController.js";
+import GetSingleRole from "../../Controllers/Role/GetRoleController.js";
+import GetAllRole from "../../Controllers/Role/GetAllRoleController.js";
+import VerifyPermission from "../../Middleware/VerifyPermissions.js";
+import AddLogs from "../../Functions/AddLogs.js";
 const router = express.Router();
-
-//Security MiddleWare
-const Auth = require('../../Middleware/Auth')
-
-const CreateRole = require("../../Controllers/Role/CreateRoleController");
-const UpdateRole = require("../../Controllers/Role/UpdateRoleController");
-const DeleteRole = require("../../Controllers/Role/DeleteRoleController");
-const GetSingleRole = require("../../Controllers/Role/GetRoleController");
-const GetAllRole = require("../../Controllers/Role/GetAllRoleController");
-const VerifyPermission = require("../../Middleware/VerifyPermissions");
-const AddLogs = require('../../Functions/AddLogs')
-
-router.post(
-  "/create",
-  Auth,
-  VerifyPermission("canManageRole"),
-  AddLogs("Create Role", "green"),
-  CreateRole,
-  
-);
-router.post(
-  "/update/:id",
-  Auth,
-  VerifyPermission("canManageRole"),
-  AddLogs("Update Role ", "blue"),
-  UpdateRole,
-  
-);
-router.delete(
-  "/remove/:id",
-  Auth,
-  VerifyPermission("canManageRole"),
-  AddLogs("Delete role", "red"),
-  DeleteRole,
-  
-);
-router.get(
-  "/get/all",
-  Auth,
-  VerifyPermission("canManageRole"),
-  GetAllRole
-);
-router.get(
-  "/get/:id",
-  Auth,
-  GetSingleRole
-);
-
-module.exports = router;
+router.post("/create",  VerifyPermission("admin"), AddLogs("Create Role", "green"), CreateRole);
+router.post("/update/:id",  VerifyPermission("admin"), AddLogs("Update Role ", "blue"), UpdateRole);
+router.delete("/remove/:id",  VerifyPermission("admin"), AddLogs("Delete role", "red"), DeleteRole);
+router.get("/get/all",  VerifyPermission("admin"), GetAllRole);
+router.get("/get/:id",  GetSingleRole);
+export default router;

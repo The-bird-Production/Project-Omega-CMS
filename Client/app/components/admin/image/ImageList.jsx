@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+
 import { useRouter } from 'next/navigation';
 
 export default function Component() {
-  const { data: session, status } = useSession({
-    required: true,
-  });
 
   const [rowData, setRowData] = useState([]);
   const [loadingIds, setLoadingIds] = useState(new Set());
@@ -13,16 +10,11 @@ export default function Component() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/get/all`,
             {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
+              credentials: 'include',
               mode: 'cors',
             }
           );
@@ -37,15 +29,15 @@ export default function Component() {
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-      }
+      
     };
 
     fetchData();
 
-    const intervalId = setInterval(fetchData, 3000);
+    const intervalId = setInterval(fetchData, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(intervalId);
-  }, [session, status]);
+  }, []);
 
   const delImage = async (id) => {
     if (status === 'authenticated') {

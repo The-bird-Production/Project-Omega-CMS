@@ -1,52 +1,55 @@
-const AdminHeader = dynamic(() => import('./AdminHeader'), { ssr: false });
-const AdminNavBar = dynamic(() => import('./AdminNavBar'), { ssr: false });
+"use client";
 
-const AdminContentLayout = dynamic(() =>
-  import('./AdminContentLayout', { ssr: false })
-);
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { authClient } from "../../../lib/authClient";
 
+const AdminHeader = dynamic(() => import("./AdminHeader"), { ssr: false });
+const AdminNavBar = dynamic(() => import("./AdminNavBar"), { ssr: false });
+const AdminContentLayout = dynamic(() => import("./AdminContentLayout"), { ssr: false });
 
 export default function Layout({ children }) {
-  const { data: session, status } = useSession({
-    required: true,
-  });
-  const router = useRouter()
+  const router = useRouter();
+  const [canViewDashboard, setCanViewDashboard] = useState(null);
+
   useEffect(() => {
-    
-    if (!(session?.permissions?.admin || !session?.permissions?.canViewDashboard)) {
-      router.push('/')
-    }
-    if (session?.permissions.admin == false ) {
-      router.push('/')
-    }
+    const checkPermission = async () => {
+      try {
+        const { data, error } = await authClient.admin.hasPermission({
+          permissions: {
+            administration: ["viewDashboard"],
+          },
+        });
 
-  }, [session, status]);
+        if (error || !data) {
+          console.log("No permission to view dashboard");
+          router.push("/");
+          return;
+        }
 
-  if (status === 'loading') {
-    return (
-      
-      <>
-        <h1>Loading...</h1>
-        <div className="spinner-border" role="status">
-          <span className="sr-only"></span>
-        </div>
-      </>
-    );
+        setCanViewDashboard(true);
+      } catch (err) {
+        console.error("Error while checking permissions:", err);
+        router.push("/");
+      }
+    };
+
+    checkPermission();
+  }, [router]);
+
+  if (canViewDashboard === null) {
+    // Loader temporaire pendant la vérification
+    return <div>Checking permissions...</div>;
   }
 
   return (
     <>
-     
-        <AdminNavBar></AdminNavBar>
-        <AdminContentLayout>
-          <AdminHeader session={session}></AdminHeader>
-          {children}
-        </AdminContentLayout>
-      
+      <AdminNavBar />
+      <AdminContentLayout>
+        <AdminHeader />
+        {children}
+      </AdminContentLayout>
     </>
   );
 }

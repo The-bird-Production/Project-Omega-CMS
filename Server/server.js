@@ -1,15 +1,17 @@
-const app = require("./app");
-const config = require("./config/server");
-require("dotenv").config();
+import { config } from "dotenv";
+import  app from "./app.js";          // ton Express app
+import { app_port } from "./config/server.js";
 
+// Charge les variables d'environnement
+config();
 
-
-//Global  Error Handling  Middleware
-app.use(function (err, req, res, next) {
+// Middleware global de gestion des erreurs
+app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ code: 500, message: "Internal server error :" + err });
+  res.status(500).json({ code: 500, message: "Internal server error: " + err });
 });
 
-app.listen(config.app_port, () => {
-  console.log("Backend Start on http://localhost:" + config.app_port);
+// Démarrage du serveur
+app.listen(app_port, () => {
+  console.log(`Backend started on http://localhost:${app_port}`);
 });

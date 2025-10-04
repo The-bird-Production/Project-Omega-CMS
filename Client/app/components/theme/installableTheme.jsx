@@ -1,12 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+
 import Link from 'next/link';
 
 const themesInstallable = () => {
-  const { data: session, status } = useSession({
-    required: true, // Redirige automatiquement si l'utilisateur n'est pas authentifié
-  });
+ 
 
   const [themes, setThemes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,17 +12,16 @@ const themesInstallable = () => {
 
   useEffect(() => {
     const fetchThemes = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      
 
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/installable`,
             {
               headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
               },
+              credentials: 'include',
               mode: 'cors', // Permet les requêtes cross-origin
             }
           );
@@ -41,18 +38,17 @@ const themesInstallable = () => {
         } finally {
           setLoading(false);
         }
-      }
+      
     };
 
     fetchThemes();
-  }, [session, status]);
+  }, []);
 
   if (loading) return <div>Chargement des thèmes...</div>;
   if (error) return <div>Erreur : {error}</div>;
 
   const installTheme = async (id) => {
-    if (status === 'authenticated') {
-      const token = session.accessToken || session.user.accessToken;
+   
 
       try {
         const response = await fetch(
@@ -60,9 +56,9 @@ const themesInstallable = () => {
           {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
             mode: 'cors', 
           }
         );
@@ -76,7 +72,7 @@ const themesInstallable = () => {
         setError(err.message);
         console.error("Erreur lors de l'installation du plugin :", err);
       }
-    }
+    
   };
 
   return (
