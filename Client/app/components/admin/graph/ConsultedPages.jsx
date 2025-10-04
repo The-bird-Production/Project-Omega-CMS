@@ -1,11 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
 
 export default function Components() {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
-  const { data: session, status } = useSession();
   const [data, setData] = useState(null);
   const [labels, setLabels] = useState(null);
   const [error, setError] = useState(null);
@@ -46,7 +44,7 @@ export default function Components() {
     };
 
     fetchData();
-  }, [status, session]);
+  }, []);
 
   useEffect(() => {
     require('../../../../public/js/chart');
