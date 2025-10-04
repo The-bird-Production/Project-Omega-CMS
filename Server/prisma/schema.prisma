@@ -133,3 +133,28 @@ model stats_web {
   page  String
   date  DateTime @default(now())
 }
+
+model article {
+  id          Int      @id @default(autoincrement())
+  title       String   @unique(map: "Article_title_key")
+  slug        String   @unique(map: "Article_slug_key")
+  body        String   @db.Text
+  image       String?
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime
+}
+
+model articleSaved {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique(map: "ArticleSaved_slug_key")
+  body        String   @db.Text
+  image       String?
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime
+  
+}
