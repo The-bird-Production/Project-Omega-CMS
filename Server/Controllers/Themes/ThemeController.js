@@ -4,6 +4,7 @@ import InstallTheme from "../../Functions/InstallTheme.js";
 export const getThemeInstalled = (req, res) => {
     const themeDir = path.resolve(process.cwd(), "Themes");
     const themes = fs.readdirSync(themeDir).filter((theme) => theme.toLowerCase() !== "readme.md").map((theme) => {
+        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json")));
         return {
             name: manifest.name,
             id: manifest.id,
@@ -18,6 +19,7 @@ export const getInstallableThemes = async (req, res) => {
     const themeDir = path.resolve(process.cwd(), "Themes");
     // Récupérer les thèmes déjà installés
     const installedTheme = fs.readdirSync(themeDir).filter((theme) => theme.toLowerCase() !== "readme.md").map((theme) => {
+        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json")));
         return manifest.id; // Comparaison via l'ID du theme
     });
     try {

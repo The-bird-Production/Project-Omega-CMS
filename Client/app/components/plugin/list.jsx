@@ -1,12 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const PluginsPage = () => {
-  const { data: session, status } = useSession({
-    required: true, // Redirige automatiquement si l'utilisateur n'est pas authentifié
-  });
 
   const [plugins, setPlugins] = useState([]); // Plugins installés
   const [installablePlugins, setInstallablePlugins] = useState([]); // Plugins disponibles
@@ -16,15 +12,15 @@ const PluginsPage = () => {
 
   useEffect(() => {
     const fetchPlugins = async () => {
-      if (status === "authenticated") {
-        const token = session.accessToken || session.user.accessToken;
+      
+        
 
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins`, {
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
+            credentials: "include",
             mode: "cors",
           });
 
@@ -42,23 +38,22 @@ const PluginsPage = () => {
         } finally {
           setLoading(false);
         }
-      }
+      
     };
 
     fetchPlugins();
-  }, [session, status]);
+  }, []);
 
   const checkUpdate = async () => {
-    if (status === "authenticated") {
+    
       setLoading(true);
-      const token = session.accessToken || session.user.accessToken;
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/all`, {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          credentials: "include",
           mode: "cors",
         });
 
@@ -89,20 +84,20 @@ const PluginsPage = () => {
       } finally {
         setLoading(false);
       }
-    }
+    
   };
 
   const updatePlugin = async (id) => {
-    if (status === "authenticated") {
-      const token = session.accessToken || session.user.accessToken;
+   
+
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/update/${id}`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          credentials: "include",
           mode: "cors",
         });
 
@@ -120,7 +115,7 @@ const PluginsPage = () => {
         setError(err.message);
         console.error("Erreur lors de la mise à jour du plugin :", err);
       }
-    }
+    
   };
 
   if (loading) return <div>Chargement des plugins...</div>;

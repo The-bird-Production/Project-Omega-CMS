@@ -1,7 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 import Dashboard from '../../../components/admin/Dashboard';
-import PluginsInstallable from '../../../components/theme/installableTheme';
+import ThemesInstallable from '../../../components/theme/installableTheme';
 import Link from 'next/link';
 
 
@@ -31,7 +31,7 @@ export default function InstallPlugin() {
           </nav>
             <div className=''>
                 <h1>Install thèmes</h1>
-                <PluginsInstallable />
+                <ThemesInstallable />
 
                 
                 

@@ -6,8 +6,8 @@ import AdminLayout from "../../../components/layout/AdminLayout";
 
 export default function Page({params}) {
 
-    const plugin = params.theme; 
-     const ThemePage = dynamic(() => import(`../../../Themes/${plugin}/dashboard.js`), {
+    const theme = params.theme; 
+     const ThemePage = dynamic(() => import(`../../../Themes/${theme}/dashboard.js`), {
         ssr: false,
     }); 
     
