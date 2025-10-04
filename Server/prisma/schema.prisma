@@ -74,3 +74,62 @@ model Verification {
 
   @@map("verification")
 }
+model file {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique(map: "File_name_key")
+  filename  String   @unique(map: "File_filename_key")
+  slug      String   @unique(map: "File_slug_key")
+  createdAt DateTime @default(now())
+}
+
+model image {
+  id        Int      @id @default(autoincrement())
+  title     String
+  alt       String
+  file      String   @unique(map: "Image_file_key")
+  slug      String   @unique(map: "Image_slug_key")
+  createdAt DateTime @default(now())
+}
+
+model log {
+  id     Int      @id @default(autoincrement())
+  action String
+  color  String
+  user   String
+  date   DateTime @default(now())
+}
+
+model page {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique(map: "Page_slug_key")
+  title     String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model redirect {
+  id        Int      @id @default(autoincrement())
+  from      String   @unique(map: "Redirect_from_key")
+  to        String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model stats_api {
+  id                  Int      @id @default(autoincrement())
+  timestamp           DateTime @default(now())
+  totalRequests       Int
+  averageResponseTime Float
+  statusCodeCounts    Json
+  averageResponseSize Float
+  date                DateTime @default(now())
+}
+
+model stats_web {
+  id    Int      @id @default(autoincrement())
+  count Int
+  page  String
+  date  DateTime @default(now())
+}
