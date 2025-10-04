@@ -35,7 +35,7 @@ export default function RedirectList() {
 
     fetchData();
 
-  }, [session, status]);
+  }, []);
 
   const delRedirect = async (id) => {
    

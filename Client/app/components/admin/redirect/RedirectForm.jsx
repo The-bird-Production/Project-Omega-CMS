@@ -24,6 +24,9 @@ export default function redirectForm() {
         try {
           await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/redirect/add/`, {
             credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
             method: 'POST',
             mode: 'cors',
             body: JSON.stringify(formData),
