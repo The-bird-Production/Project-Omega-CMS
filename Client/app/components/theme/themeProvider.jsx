@@ -37,9 +37,9 @@ export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(null); // { id, meta, components: { Button, Header, ... } }
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
 
-  // Détecter si l'URL commence par /admin (client-side only)
-  const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+  
 
   // const router = useRouter(); // Initialisation du router si besoin
 
@@ -121,13 +121,12 @@ export const ThemeProvider = ({ children }) => {
   }, []); // `loadTheme` ne dépend de rien car `themeIdentifier` est passé en paramètre
 
   // Effet initial pour charger le thème "current" au montage, sauf si /admin
+  // --- Important : on ne charge le thème **que si ce n’est pas /admin** ---
   useEffect(() => {
-    if (!isAdminRoute) {
-      loadTheme();
-    } else {
-      setIsLoading(false);
-    }
-  }, [loadTheme, isAdminRoute]);
+    if (isAdminRoute === null) return; // on attend la détection
+    if (!isAdminRoute) loadTheme();
+    else setIsLoading(false); // côté /admin, pas de thème
+  }, [isAdminRoute, loadTheme]);
 
   // Utilisation de useMemo pour optimiser la valeur du contexte
   // La valeur ne sera recalculée que si currentTheme, isLoading ou error changent
@@ -158,7 +157,7 @@ export const ThemeProvider = ({ children }) => {
 
   // Si on est sur /admin, ne pas charger de thème, juste rendre les enfants
   if (isAdminRoute) {
-    return <>{children}</>;
+    return children;
   }
 
   // Afficher un loader pendant le chargement initial

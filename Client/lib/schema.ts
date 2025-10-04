@@ -23,7 +23,7 @@ export const userSchema = z.object({
     .email("Must be a valid email")
     .or(z.literal(null)) 
     .optional(), 
-    roleId : z.number(), 
+    roleId : z.string(), 
     emailVerified: z.boolean().nullable().optional()
 })
 
