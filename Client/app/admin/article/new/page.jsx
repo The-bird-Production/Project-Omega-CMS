@@ -65,20 +65,17 @@ export default function Page({ params }) {
     event.preventDefault();
     try {
       const { data: session } = await authClient.getSession({});
-      if (!session?.user) return;
 
       const updatedFormData = { ...formData, authorId: session.user.id };
 
       // Validation
       articleSchema.parse(updatedFormData);
 
-      const token = session.access_token || session.user.token;
-
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/create/`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         method: 'POST',
         mode: 'cors',
         body: JSON.stringify(updatedFormData),
