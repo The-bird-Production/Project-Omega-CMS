@@ -56,9 +56,7 @@ export default function statsAdmin() {
                                 <div className='pt-2'>
                                 <NumberOfUser/>
                                 </div>
-                                <div className='pt-2'>
-                                <NumberOfRole/>
-                                </div>
+                                
                                 <div className='pt-2'>
                                 <NumberOfPage/>
                                 </div>

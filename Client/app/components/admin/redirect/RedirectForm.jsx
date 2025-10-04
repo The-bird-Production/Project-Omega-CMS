@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { redirectSchema } from '../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 
 export default function redirectForm() {
-  const { data: session, status } = useSession();
 
   const [formData, setFormData] = useState({ title: '', from: '', to: '' });
   const router = useRouter();
@@ -21,12 +19,12 @@ export default function redirectForm() {
     try {
       redirectSchema.parse(formData);
 
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      
+       
         try {
           await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/redirect/add/`, {
+            credentials: 'include',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
             method: 'POST',
@@ -40,7 +38,7 @@ export default function redirectForm() {
         } finally {
           router.refresh();
         }
-      }
+      
     } catch (e) {
       console.log(e);
     }

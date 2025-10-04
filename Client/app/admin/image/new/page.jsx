@@ -3,14 +3,11 @@ import Dashboard from '../../../components/admin/Dashboard';
 import AdminLayout from '../../../components/layout/AdminLayout';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function NewImage() {
-    const router = useRouter()
-  const { data: session, status } = useSession({
-    required: true,
-  });
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -34,7 +31,6 @@ export default function NewImage() {
     e.preventDefault();
 
     if (!file) {
-      
       return;
     }
 
@@ -43,34 +39,25 @@ export default function NewImage() {
     data.append('slug', formData.slug);
     data.append('alt', formData.alt);
     data.append('image', file);
-    
+
     try {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/create`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              
-            },
-            mode: 'cors',
-            body: data, // Envoi des données au serveur
-          }
-        );
-
-        if (response.ok) {
-          const result = await response.json();
-          router.push('/admin/image')
-          
-          
-        } else {
-          alert('Une erreur est survenue lors de l\'upload de l\'image.');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/create`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          mode: 'cors',
+          body: data, // Envoi des données au serveur
         }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        router.push('/admin/image');
       } else {
-        console.error('Erreur d\'authentification.');
+        alert("Une erreur est survenue lors de l'upload de l'image.");
       }
     } catch (error) {
       console.error('Erreur réseau :', error);

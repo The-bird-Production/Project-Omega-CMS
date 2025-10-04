@@ -1,12 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const ThemePage = () => {
-  const { data: session, status } = useSession({
-    required: true, // Redirige automatiquement si l'utilisateur n'est pas authentifié
-  });
+  
 
   const [themes, setThemes] = useState([]); // Plugins installés
   const [installableThemes, setInstallableThemes] = useState([]); // Plugins disponibles
@@ -16,15 +13,14 @@ const ThemePage = () => {
 
   useEffect(() => {
     const fetchThemes = async () => {
-      if (status === "authenticated") {
-        const token = session.accessToken || session.user.accessToken;
+     
 
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes`, {
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
+            credentials: "include",
             mode: "cors",
           });
 
@@ -42,23 +38,23 @@ const ThemePage = () => {
         } finally {
           setLoading(false);
         }
-      }
+      
     };
 
     fetchThemes();
-  }, [session, status]);
+  }, []);
 
   const checkUpdate = async () => {
-    if (status === "authenticated") {
+    
       setLoading(true);
-      const token = session.accessToken || session.user.accessToken;
+      
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/all`, {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          credentials: "include",
           mode: "cors",
         });
 
@@ -89,20 +85,20 @@ const ThemePage = () => {
       } finally {
         setLoading(false);
       }
-    }
+    
   };
 
   const UpdateTheme = async (id) => {
-    if (status === "authenticated") {
-      const token = session.accessToken || session.user.accessToken;
+   
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/update/${id}`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
+
             "Content-Type": "application/json",
           },
+          credentials: "include",
           mode: "cors",
         });
 
@@ -120,7 +116,7 @@ const ThemePage = () => {
         setError(err.message);
         console.error("Erreur lors de la mise à jour du thèmes :", err);
       }
-    }
+    
   };
 
   if (loading) return <div>Chargement des thèmes...</div>;

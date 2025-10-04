@@ -1,29 +1,31 @@
-const GetPermissionByRoleId = require("../Functions/GetPermissionByroleId");
-const jwt = require("jsonwebtoken");
+import { auth } from "../lib/auth.js";
 
-const VerifyPermission = (permission) => {
+const VerifyPermission = (role) => {
   return async function (req, res, next) {
     try {
-      if (process.env.NODE_ENV == "test") {
-        return next();
-      }
-      const authHeader = req.headers.authorization;
-      const token = authHeader.split(" ")[1];
-      const decode = jwt.decode(token);
-      const { permissions } = await GetPermissionByRoleId(decode.user.roleId);
+      if (process.env.NODE_ENV === "test") return next();
+
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session) return res.status(401).json({ code: 401, message: "Unauthorized" });
+
+      const canAcess = await auth.api.userHasPermission({
+        body: {
+          userId: session.user.id,
+          permission: {"administration": ["viewDashboard"] }
+        },
+      });
       
-      if (permissions["admin"] || permissions[permission]) {
-        next();
-      } else {
-        res.status(403).json({ code: 403, message: "Forbidden " });
-      }
+
+      if (!canAcess) return res.status(403).json({ code: 403, message: "Forbidden" });
+
+      return next();
     } catch (e) {
-      console.log(e)
+      console.error("VerifyPermission error:", e);
       return res
         .status(500)
-        .json({ code: 500, message: "Internal Server Error: " + e });
+        .json({ code: 500, message: "Internal Server Error: " + e.message });
     }
   };
 };
 
-module.exports = VerifyPermission;
+export default VerifyPermission;

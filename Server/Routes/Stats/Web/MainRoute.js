@@ -1,23 +1,9 @@
-const express = require("express");
+import * as express from "express";
+import VerifyPermissions from "../../../Middleware/VerifyPermissions.js";
+import { GetAllStats, GetStatsByDate } from "../../../Controllers/Stats/Web/GetStatsController.js";
+import AddStats from "../../../Controllers/Stats/Web/AddStatsController.js";
 const router = express.Router();
-
-
-const VerifyPermissions = require("../../../Middleware/VerifyPermissions");
-const Auth = require("../../../Middleware/Auth");
-// Importing the controllers of this module
-const {
-  GetAllStats,
-  GetStatsByDate,
-} = require("../../../Controllers/Stats/Web/GetStatsController");
-const AddStats = require("../../../Controllers/Stats/Web/AddStatsController");
-
-router.get("/all", Auth, GetAllStats); // Getting all stats data
-router.get(
-  "/date",
-  Auth,
-  VerifyPermissions("canViewStats"),
-  GetStatsByDate
-); // Getting stats by date
+router.get("/all",  GetAllStats); // Getting all stats data
+router.get("/date",  VerifyPermissions("admin"), GetStatsByDate); // Getting stats by date
 router.post("/add", AddStats);
-
-module.exports = router;
+export default router;

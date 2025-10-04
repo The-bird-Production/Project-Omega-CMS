@@ -2,17 +2,13 @@
 import AdminLayout from '../../../components/layout/AdminLayout';
 import Dashboard from '../../../components/admin/Dashboard';
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Editor } from '@tinymce/tinymce-react';
 
-
 export default function Page({ params }) {
-  const { data: session, status } = useSession();
-
   const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
   const [data, setData] = useState(null);
   const router = useRouter();
@@ -25,26 +21,24 @@ export default function Page({ params }) {
     try {
       pageSchema.parse(formData);
 
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
-        try {
-          await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/create/`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(formData),
-          });
+      
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/create/`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          method: 'POST',
+          mode: 'cors',
+          body: JSON.stringify(formData),
+        });
 
-          router.push('/admin/page');
-        } catch (e) {
-          console.log(e);
-        }
+        router.push('/admin/page');
+      } catch (e) {
+        console.log(e);
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   };
 
@@ -100,8 +94,8 @@ export default function Page({ params }) {
                   onEditorChange={handleEditorChange}
                 />
               </div>
-              <div className='mb-3'>
-              <label htmlFor="pageSlug" className="form-label">
+              <div className="mb-3">
+                <label htmlFor="pageSlug" className="form-label">
                   Url de la page : http://yoursite.com/
                 </label>
                 <input
@@ -112,9 +106,8 @@ export default function Page({ params }) {
                   onChange={handleChange}
                 />
               </div>
-              <div className='mb-3'>
-                <button className='btn btn-primary'>Submit</button>
-
+              <div className="mb-3">
+                <button className="btn btn-primary">Submit</button>
               </div>
             </form>
           </div>

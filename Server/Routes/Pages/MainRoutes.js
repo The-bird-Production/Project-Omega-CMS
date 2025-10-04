@@ -1,38 +1,15 @@
-const express = require("express");
+import * as express from "express";
+import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
+import GetPage from "../../Controllers/Pages/GetPageController.js";
+import UpdatePage from "../../Controllers/Pages/UpdatePageController.js";
+import DeletePage from "../../Controllers/Pages/DeletePageController.js";
+import CreatePage from "../../Controllers/Pages/CreatePageController.js";
+import AddLogs from "../../Functions/AddLogs.js";
+import { GetAllPage } from "../../Controllers/Pages/GetAllPageController.js";
 const router = express.Router();
-
-//Security MiddleWare
-
-const Auth = require("../../Middleware/Auth");
-const VerifyPermissions = require("../../Middleware/VerifyPermissions");
-
-//Controllers
-const GetPage = require("../../Controllers/Pages/GetPageController");
-const UpdatePage = require("../../Controllers/Pages/UpdatePageController");
-const DeletePage = require("../../Controllers/Pages/DeletePageController");
-const CreatePage = require("../../Controllers/Pages/CreatePageController");
-
-const AddLogs = require('../../Functions/AddLogs');
-const { GetAllPage } = require("../../Controllers/Pages/GetAllPageController");
 router.get('/get/all', GetAllPage);
 router.get("/get/:slug", GetPage);
-
-router.delete(
-  "/delete/:id",
-  Auth,
-  VerifyPermissions("canManagePages"),
-  AddLogs("Delete Page", "red"),
-  DeletePage,
-  
-);
-router.post(
-  "/update/:id",
-  Auth,
-  VerifyPermissions("canManagePages"),
-  AddLogs("Update page", "green"),
-  UpdatePage,
-  
-);
-router.post("/create", Auth, VerifyPermissions("canManagePages"),AddLogs("Create page", "green"), CreatePage);
-
-module.exports = router;
+router.delete("/delete/:id",  VerifyPermissions("admin"), AddLogs("Delete Page", "red"), DeletePage);
+router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update page", "green"), UpdatePage);
+router.post("/create",  VerifyPermissions("admin"), AddLogs("Create page", "green"), CreatePage);
+export default router;

@@ -18,12 +18,12 @@ export const pageSchema = z.object({
 })
 
 export const userSchema = z.object({
-    username: z.string().min(3, "Username is required").max(10, "Lenght is to mutch").nullable().optional(),
+    name: z.string().min(3, "Username is required").max(10, "Lenght is to mutch").nullable().optional(),
     email: z.string()
     .email("Must be a valid email")
     .or(z.literal(null)) 
     .optional(), 
-    roleId : z.number(), 
+    role : z.string(), 
     emailVerified: z.boolean().nullable().optional()
 })
 

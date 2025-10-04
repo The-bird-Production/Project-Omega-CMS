@@ -1,12 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 const pluginsInstallable = () => {
-  const { data: session, status } = useSession({
-    required: true, // Redirige automatiquement si l'utilisateur n'est pas authentifié
-  });
+ 
 
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,17 +11,16 @@ const pluginsInstallable = () => {
 
   useEffect(() => {
     const fetchPlugins = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
+      
 
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/installable`,
             {
               headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
               },
+              credentials: 'include',
               mode: 'cors', // Permet les requêtes cross-origin
             }
           );
@@ -41,18 +37,17 @@ const pluginsInstallable = () => {
         } finally {
           setLoading(false);
         }
-      }
+      
     };
 
     fetchPlugins();
-  }, [session, status]);
+  }, []);
 
   if (loading) return <div>Chargement des plugins...</div>;
   if (error) return <div>Erreur : {error}</div>;
 
   const installPlugin = async (id) => {
-    if (status === 'authenticated') {
-      const token = session.accessToken || session.user.accessToken;
+    
 
       try {
         const response = await fetch(
@@ -60,9 +55,9 @@ const pluginsInstallable = () => {
           {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
             mode: 'cors', // Permet les requêtes cross-origin
           }
         );
@@ -76,7 +71,7 @@ const pluginsInstallable = () => {
         setError(err.message);
         console.error("Erreur lors de l'installation du plugin :", err);
       }
-    }
+    
   };
 
   return (

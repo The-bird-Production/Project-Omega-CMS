@@ -1,17 +1,16 @@
-const { PrismaClient } = require("@prisma/client");
-
+import client from "@prisma/client";
+const { PrismaClient } = client;
 const prisma = new PrismaClient();
-
 const GetPermissionByRoleId = async (roleId) => {
-  try {
-    const data = await prisma.role.findFirst({
-      where: { id: roleId },
-      select: { permissions: true },
-    });
-    return data;
-  } catch (e) {
-    return e;
-  }
+    try {
+        const data = await prisma.role.findFirst({
+            where: { id: roleId },
+            select: { permissions: true },
+        });
+        return data;
+    }
+    catch (e) {
+        return e;
+    }
 };
-
-module.exports = GetPermissionByRoleId;
+export default GetPermissionByRoleId;

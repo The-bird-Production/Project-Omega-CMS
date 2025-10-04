@@ -1,19 +1,13 @@
-const express = require('express')
-const router = express.Router()
-
-const Auth = require("../../Middleware/Auth");
-const VerifyPermissions = require("../../Middleware/VerifyPermissions");
-const ThemesController = require('../../Controllers/Themes/ThemeController')
-const AddLogs = require('../../Functions/AddLogs')
-
-router.get("/", Auth, VerifyPermissions("canManagePlugins"), ThemesController.getThemeInstalled)
-router.get("/installable", Auth, VerifyPermissions("canManagePlugins"), ThemesController.getInstallableThemes)
-router.post("/install/:id", Auth, VerifyPermissions("canManagePlugins"),AddLogs("Install a new theme" , "green"), (req,res) => ThemesController.InstallTheme(req,res,router))
-router.get("/all", Auth, VerifyPermissions("canManagePlugins"), ThemesController.getAllThemes)
-router.post("/update/:id", Auth, VerifyPermissions("canManagePlugins"),AddLogs("Update plugin", "info"),  (req,res) => ThemesController.UpdateTheme(req,res,router))
-router.get("/current", ThemesController.getCurrentTheme)
-router.get("/default", ThemesController.getDefaultTheme)
-
-
-
-module.exports = router
+import * as express from "express";
+import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
+import * as ThemesController from "../../Controllers/Themes/ThemeController.js";
+import AddLogs from "../../Functions/AddLogs.js";
+const router = express.Router();
+router.get("/",  VerifyPermissions("admin"), ThemesController.getThemeInstalled);
+router.get("/installable",  VerifyPermissions("admin"), ThemesController.getInstallableThemes);
+router.post("/install/:id",  VerifyPermissions("admin"), AddLogs("Install a new theme", "green"), (req, res) => ThemesController.InstallTheme(req, res, router));
+router.get("/all",  VerifyPermissions("admin"), ThemesController.getAllThemes);
+router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update plugin", "info"), (req, res) => ThemesController.UpdateTheme(req, res, router));
+router.get("/current", ThemesController.getCurrentTheme);
+router.get("/default", ThemesController.getDefaultTheme);
+export default router;
