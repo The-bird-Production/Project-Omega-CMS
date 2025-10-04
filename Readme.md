@@ -10,9 +10,10 @@
 ✅ **Admin Dashboard** ergonomique avec stats et gestion du contenu.<br>
 ✅ **Mises à jour automatiques** depuis un repo GitHub privé.<br>
 ✅ **Système de thème** personnalisable depuis l'administration.<br>
+✅ **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
 
 ### 🏗 Fonctionnalités en cours de développement
-🚧 **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
+
 🚧 **Gestion des médias** (upload fichiers). <br>
 🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).<br>
 🚧 **Support multi-langues**.<br>
