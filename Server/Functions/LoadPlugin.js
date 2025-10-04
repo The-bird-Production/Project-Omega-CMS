@@ -1,48 +1,90 @@
 import fs from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
+import express from "express";
+
 // Dossier contenant les plugins
-const PLUGIN_DIR = path.join(process.cwd(), "Plugins");
-// Fonction pour charger un plugin spécifique
-const loadPlugin = (app, pluginId) => {
-    const pluginDir = path.join(PLUGIN_DIR, pluginId);
-    const pluginJsonPath = path.join(pluginDir, "plugin.json");
-    if (fs.existsSync(pluginJsonPath)) {
-        const pluginData = JSON.parse(fs.readFileSync(pluginJsonPath, "utf-8"));
-        const { id, url } = pluginData;
+const PLUGIN_DIR = path.resolve(process.cwd(), "Plugins");
+
+/**
+ * Vérifie qu'un nom de plugin est sûr (évite path traversal)
+ */
+function isSafePluginId(pluginId) {
+    return /^[a-zA-Z0-9_-]+$/.test(pluginId);
+}
+
+/**
+ * Charge un plugin spécifique
+ */
+export const loadPlugin = async (app, pluginId) => {
+    try {
+        if (!pluginId || typeof pluginId !== "string" || !isSafePluginId(pluginId)) {
+            console.warn(`❌ Plugin ID invalide ou non autorisé : ${pluginId}`);
+            return;
+        }
+
+        const pluginDir = path.join(PLUGIN_DIR, pluginId);
+        const pluginJsonPath = path.join(pluginDir, "plugin.json");
+
+        if (!fs.existsSync(pluginJsonPath)) {
+            console.warn(`⚠️ Le plugin "${pluginId}" n'a pas de fichier plugin.json.`);
+            return;
+        }
+
+        let pluginData;
         try {
-            // Charger les routes du plugin
-            const pluginRoutesPath = path.join(pluginDir, "Routes", "MainRoutes.js");
-            if (fs.existsSync(pluginRoutesPath)) {
-                app.use(url || `/${url}`, pluginRoutes); // Utiliser l'URL spécifiée dans le plugin.json
-                console.log(`Plugin chargé : ${id} avec l'URL ${url || `/${url}`}`);
-            }
-            else {
-                console.warn(`Le plugin "${id}" n'a pas de fichier routes.js.`);
-            }
+            const content = fs.readFileSync(pluginJsonPath, "utf-8");
+            pluginData = JSON.parse(content);
+        } catch (e) {
+            console.error(`❌ Fichier plugin.json corrompu pour "${pluginId}" :`, e);
+            return;
         }
-        catch (error) {
-            console.error(`Erreur lors du chargement du plugin "${id}" :`, error);
+
+        const { id, url } = pluginData;
+        const safeUrl = typeof url === "string" && url.startsWith("/") ? url : `/${pluginId}`;
+
+        const pluginRoutesPath = path.join(pluginDir, "Routes", "MainRoutes.js");
+
+        if (!fs.existsSync(pluginRoutesPath)) {
+            console.warn(`⚠️ Le plugin "${id}" n'a pas de fichier Routes/MainRoutes.js.`);
+            return;
         }
-    }
-    else {
-        console.warn(`Le plugin "${pluginName}" n'a pas de fichier plugin.json.`);
+
+        // ✅ Chargement dynamique sécurisé
+        const routesModule = await import(pathToFileURL(pluginRoutesPath).href);
+        const pluginRoutes = routesModule.default || routesModule.router || routesModule;
+
+        if (typeof pluginRoutes !== "function" && !(pluginRoutes instanceof express.Router)) {
+            console.warn(`⚠️ Le plugin "${id}" n'a pas exporté de route Express valide.`);
+            return;
+        }
+
+        app.use(safeUrl, pluginRoutes);
+        console.log(`✅ Plugin chargé : ${id} → ${safeUrl}`);
+    } catch (err) {
+        console.error(`❌ Erreur lors du chargement du plugin "${pluginId}" :`, err);
     }
 };
-// Fonction pour charger tous les plugins présents dans le dossier au démarrage
-const loadAllPlugins = (app) => {
-    const pluginDirs = fs.readdirSync(PLUGIN_DIR);
-    pluginDirs.forEach((pluginDir) => {
-        const pluginJsonPath = path.join(PLUGIN_DIR, pluginDir, "plugin.json");
-        if (fs.existsSync(pluginJsonPath)) {
-            const data = JSON.parse(fs.readFileSync(pluginJsonPath, "utf-8"));
-            const { id } = data;
-            loadPlugin(app, id);
-        }
-    });
+
+/**
+ * Charge tous les plugins présents dans le dossier
+ */
+export const loadAllPlugins = async (app) => {
+    if (!fs.existsSync(PLUGIN_DIR)) {
+        console.warn(`⚠️ Aucun dossier "Plugins" trouvé à ${PLUGIN_DIR}`);
+        return;
+    }
+
+    const pluginDirs = fs.readdirSync(PLUGIN_DIR, { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory() && isSafePluginId(dirent.name))
+        .map((dirent) => dirent.name);
+
+    for (const pluginId of pluginDirs) {
+        await loadPlugin(app, pluginId);
+    }
 };
-export { loadPlugin };
-export { loadAllPlugins };
+
 export default {
     loadPlugin,
-    loadAllPlugins
+    loadAllPlugins,
 };
