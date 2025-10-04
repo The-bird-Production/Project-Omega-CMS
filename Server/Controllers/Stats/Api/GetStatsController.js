@@ -3,7 +3,7 @@ const { PrismaClient } = client;
 const prisma = new PrismaClient();
 const GetAllStats = async (req, res) => {
     try {
-        const metrics = await prisma.stats_Api.findMany();
+        const metrics = await prisma.stats_api.findMany();
         res.status(200).json({ code: 200, data: metrics });
     }
     catch (e) {
@@ -16,7 +16,7 @@ const GetStatsByDate = async (req, res) => {
     let startDate = req.query.startDate;
     let endDate = req.query.endDate;
     try {
-        const metrics = await prisma.stats_Api.findMany({
+        const metrics = await prisma.stats_api.findMany({
             where: {
                 date: {
                     gte: new Date(startDate),

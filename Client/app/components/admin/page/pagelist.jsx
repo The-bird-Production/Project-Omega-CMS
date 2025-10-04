@@ -35,7 +35,7 @@ export default function PageList() {
     const intervalId = setInterval(fetchData, 15000);
 
     return () => clearInterval(intervalId);
-  }, [session, status]);
+  }, []);
 
   const editPage = (slug) => {
     router.push(`/admin/page/edit/${slug}`);

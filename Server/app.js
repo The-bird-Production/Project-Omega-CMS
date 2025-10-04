@@ -50,6 +50,7 @@ app.use("/image", ImageRoute);
 app.use("/logs", LogRoute);
 app.use("/web_stats", web_stats);
 app.use('/otherstats', OtherStats);
+app.use(Stats);
 app.use("/role", RoleRoute);
 app.use('/page', PageRoute);
 app.use('/plugins', PluginsRoute);
