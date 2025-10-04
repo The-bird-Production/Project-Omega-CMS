@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { ThemeProvider } from './components/theme/themeProvider';
 
+
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
@@ -25,5 +26,6 @@ export default function RootLayout({ children }) {
         )}
       </body>
     </html>
+
   );
 }

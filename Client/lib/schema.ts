@@ -14,7 +14,20 @@ export const AddRoleSchema = z.object({
 export const pageSchema = z.object({
     title: z.string().min(1, "Title is required"),
     slug: z.string().min(1, "Slug is required"),
-    body: z.string().min(1, "Body is required")
+    body: z.string().min(1, "Body is required"),
+})
+export const articleSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    slug: z.string().min(1, "Slug is required"),
+    body: z.string().min(1, "Body is required"),
+    authorId: z.string().min(1, "Author ID is required"),
+})
+export const articleDraftSchema = z.object({
+    title: z.string().optional().nullable(),
+    slug: z.string().optional().nullable(),
+    body: z.string().nullable(),
+    authorId: z.string().min(1, "Author ID is required"),
+    draftId: z.uuidv4()
 })
 
 export const userSchema = z.object({

@@ -140,7 +140,7 @@ model article {
   slug        String   @unique(map: "Article_slug_key")
   body        String   @db.Text
   image       String?
-  authorId    Int
+  authorId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   publishedAt DateTime
@@ -148,13 +148,14 @@ model article {
 
 model articleSaved {
   id          Int      @id @default(autoincrement())
-  title       String
-  slug        String   @unique(map: "ArticleSaved_slug_key")
-  body        String   @db.Text
+  draftId     String   @unique()
+  title       String?
+  slug        String?   
+  body        String?   @db.Text
   image       String?
-  authorId    Int
+  authorId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  publishedAt DateTime
+  publishedAt DateTime?
   
 }

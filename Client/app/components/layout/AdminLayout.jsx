@@ -5,6 +5,7 @@ import '../../../public/js/chart';
 
 
 import { useEffect } from 'react';
+import RootLayout from '../../layout';
 
 function Layout({ children }) {
   useEffect(() => {
@@ -13,9 +14,11 @@ function Layout({ children }) {
   });
   return (
     <>
+
       <div className="text-light">
         <div className="container">{children}</div>
       </div>
+
     </>
   );
 }
