@@ -15,11 +15,18 @@ jobs:
 
       - name: Install backend dependencies
         run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 20
           cd Server
           npm ci
 
       - name: Install and build frontend
         run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 20
+
           cd Client
           npm ci
           npm run build
