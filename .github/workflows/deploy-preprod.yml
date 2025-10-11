@@ -3,21 +3,20 @@ name: Deploy to Preprod
 on:
   push:
     branches:
-      - preprod  # branche de préproduction
+      - preprod # branche de préproduction
 
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Clean up old files
-        run : | 
+        run: |
           rm -rf Server Client 
           mkdir Server Client
-        
+
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install backend dependencies
         run: |
