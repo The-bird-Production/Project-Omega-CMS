@@ -13,6 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Clean up old files
+        run : | 
+          rm -rf Server Client 
+          mkdir Server Client
+        
+
       - name: Install backend dependencies
         run: |
           export NVM_DIR="$HOME/.nvm"
