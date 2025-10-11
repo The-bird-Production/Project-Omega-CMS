@@ -38,5 +38,5 @@ jobs:
 
       - name: Restart services
         run: |
-          sudo systemctl restart project-omega-backend
-          sudo systemctl restart project-omega-frontend
+           systemctl restart project-omega-backend
+           systemctl restart project-omega-frontend
