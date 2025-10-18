@@ -9,12 +9,11 @@ jobs:
   deploy:
     runs-on: self-hosted
 
+    defaults:
+      run:
+        shell: bash -l {0} # ← charge l’environnement complet (comme un vrai terminal)
+
     steps:
-      - name: Debug environment
-        run: |
-          whoami
-          sudo -l
-          sudo -V | grep -E "Sudoers path|TTY"
       - name: Clean up old files
         run: |
           rm -rf Server Client 
