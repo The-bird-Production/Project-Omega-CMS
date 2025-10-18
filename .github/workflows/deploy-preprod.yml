@@ -10,6 +10,11 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Debug environment
+        run: |
+          whoami
+          sudo -l
+          sudo -V | grep -E "Sudoers path|TTY"
       - name: Clean up old files
         run: |
           rm -rf Server Client 
@@ -38,5 +43,5 @@ jobs:
 
       - name: Restart services
         run: |
-           sudo systemctl restart project-omega-backend
-           sudo systemctl restart project-omega-frontend
+          sudo systemctl restart project-omega-backend
+          sudo systemctl restart project-omega-frontend
