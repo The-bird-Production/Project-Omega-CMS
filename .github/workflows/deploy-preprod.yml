@@ -41,6 +41,4 @@ jobs:
           npm run build
 
       - name: Restart services
-        run: |
-          sudo systemctl restart project-omega-backend
-          sudo systemctl restart project-omega-frontend
+        run: sudo /usr/local/bin/restart-omega.sh
