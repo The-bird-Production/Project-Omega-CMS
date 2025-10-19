@@ -7,7 +7,6 @@ import APIResponseTime from '../../components/admin/graph/APIResponseTime';
 import ConsultedPages from '../../components/admin/graph/ConsultedPages';
 import TotalViewedPages from '../../components/admin/graph/TotalViewedPages';
 import NumberOfUser from '../../components/admin/graph/NumberOfUser'
-import NumberOfRole from '../../components/admin/graph/NumberOfRole'
 import NumberOfPage from '../../components/admin/graph/NumberOfPages'
 
 export default function statsAdmin() {
