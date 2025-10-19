@@ -1,45 +1,69 @@
-// Next.js will invalidate the cache when a
-// request comes in, at most once every 60 seconds.
-
-
+// Next.js will invalidate the cache when a request comes in, at most once every 60 seconds.
 import Layout from "../components/layout/MainLayout"
+
 export const revalidate = 60
- 
-// We'll prerender only the params from `generateStaticParams` at build time.
-// If a request comes in for a path that hasn't been generated,
-// Next.js will server-render the page on-demand.
-export const dynamicParams = true // or false, to 404 on unknown paths
- 
+export const dynamicParams = true // Permet de générer à la volée si la page n’existe pas au build
+
 export async function generateStaticParams() {
-  const data = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/page/get/all').then((res) =>
-    res.json()
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/all`)
+    if (!res.ok) throw new Error("Erreur lors de la récupération des pages")
 
-  )
-  const pages = data.data
+    const data = await res.json()
+    const pages = data?.data ?? []
 
-  return pages.map((page) => ({
-    slug: String(page.slug),
-  }))
+    // Si aucune page, on renvoie un tableau vide (Next.js acceptera)
+    if (!Array.isArray(pages) || pages.length === 0) {
+      console.warn("⚠️ Aucune page trouvée, le build continuera sans pages statiques.")
+      return []
+    }
+
+    return pages.map((page) => ({
+      slug: String(page.slug),
+    }))
+  } catch (err) {
+    console.error("Erreur dans generateStaticParams:", err)
+    // On retourne un tableau vide pour ne pas bloquer le build
+    return []
+  }
 }
- 
-export default async function Page({ params }) {
-  const data = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL +`/page/get/${params.slug}`).then(
-    (res) => res.json()
-    
-  )
-  const page = await data.data
-  const body = {__html: `${page.body}`}
-  
-  
-  
-  return (
-    <Layout currentPage={page.title}>
-        <title>{page.title}</title>
-        <main dangerouslySetInnerHTML={body}>
-            
-        </main>
-        
 
-    </Layout>
-  )
+export default async function Page({ params }) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${params.slug}`)
+    if (!res.ok) throw new Error("Page non trouvée")
+
+    const data = await res.json()
+    const page = data?.data
+
+    if (!page) {
+      return (
+        <Layout currentPage="Page introuvable">
+          <main>
+            <h1>Page introuvable</h1>
+            <p>Le contenu demandé n'existe pas.</p>
+          </main>
+        </Layout>
+      )
+    }
+
+    const body = { __html: page.body ?? "" }
+
+    return (
+      <Layout currentPage={page.title}>
+        <title>{page.title}</title>
+        <main dangerouslySetInnerHTML={body} />
+      </Layout>
+    )
+  } catch (err) {
+    console.error("Erreur lors du rendu de la page :", err)
+    return (
+      <Layout currentPage="Erreur">
+        <main>
+          <h1>Erreur</h1>
+          <p>Impossible de charger cette page pour le moment.</p>
+        </main>
+      </Layout>
+    )
+  }
 }

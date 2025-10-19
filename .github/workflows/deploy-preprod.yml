@@ -1,0 +1,30 @@
+name: Deploy to Preprod
+
+on:
+  push:
+    branches:
+      - preprod  # branche de préproduction
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install backend dependencies
+        run: |
+          cd Server
+          npm ci
+
+      - name: Install and build frontend
+        run: |
+          cd Client
+          npm ci
+          npm run build
+
+      - name: Restart services
+        run: |
+          sudo systemctl restart project-omega-backend
+          sudo systemctl restart project-omega-frontend
