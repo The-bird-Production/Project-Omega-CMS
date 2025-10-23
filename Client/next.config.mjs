@@ -17,7 +17,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
-      {protocol: "http", hostname: "localhost:3001"}, 
+      { protocol: "http", hostname: "localhost:3001"}, 
     ],
   },
   reactStrictMode: true,

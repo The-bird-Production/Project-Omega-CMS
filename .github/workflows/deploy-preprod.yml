@@ -3,28 +3,42 @@ name: Deploy to Preprod
 on:
   push:
     branches:
-      - preprod  # branche de préproduction
+      - preprod # branche de préproduction
 
 jobs:
   deploy:
     runs-on: self-hosted
 
+    defaults:
+      run:
+        shell: bash -l {0} # ← charge l’environnement complet (comme un vrai terminal)
+
     steps:
+      - name: Clean up old files
+        run: |
+          rm -rf Server Client 
+          mkdir Server Client
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install backend dependencies
         run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 20
           cd Server
           npm ci
 
       - name: Install and build frontend
         run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 20
+
           cd Client
           npm ci
           npm run build
 
       - name: Restart services
-        run: |
-          sudo systemctl restart project-omega-backend
-          sudo systemctl restart project-omega-frontend
+        run: sudo /usr/local/bin/restart-omega.sh

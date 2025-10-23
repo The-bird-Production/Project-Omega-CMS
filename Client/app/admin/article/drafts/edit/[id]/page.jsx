@@ -6,9 +6,9 @@ import { useState } from 'react';
 import { pageSchema } from '../../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Editor } from '@tinymce/tinymce-react';
 import { authClient } from '../../../../../../lib/authClient';
 import { articleSchema } from '../../../../../../lib/schema';
+import TinyMCE from '../../../../../components/admin/article/tinyMCE';
 
 export default function Page({ params }) {
   const slug = params.id;
@@ -159,17 +159,7 @@ export default function Page({ params }) {
                 />
               </div>
               <div className="mb-3">
-                <Editor
-                  apiKey="75lpz4hm0dsvol63mjrqfdqcbrjsey6zewt4wpoi6eoq160r"
-                  init={{
-                    plugins:
-                      'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks',
-                    toolbar:
-                      'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-                  }}
-                  initialValue={data.body}
-                  onEditorChange={handleEditorChange}
-                />
+                <TinyMCE value={formData.body} onChange={handleEditorChange} />
               </div>
               <div className="mb-3">
                 <label htmlFor="pageSlug" className="form-label">
@@ -186,7 +176,12 @@ export default function Page({ params }) {
               </div>
               <div className="mb-3">
                 <button className="btn btn-primary">Update</button>
-                <button className="btn btn-primary mx-2" onClick={handlePublish}>Publish</button>
+                <button
+                  className="btn btn-primary mx-2"
+                  onClick={handlePublish}
+                >
+                  Publish
+                </button>
               </div>
             </form>
           </div>
