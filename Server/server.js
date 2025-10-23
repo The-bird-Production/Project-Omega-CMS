@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import  app from "./app.js";          // ton Express app
+import app from "./app.js"; // ton Express app
 import { app_port } from "./config/server.js";
 
 // Charge les variables d'environnement
