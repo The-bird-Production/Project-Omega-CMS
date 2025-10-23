@@ -24,6 +24,7 @@ import RedirectRoute from './Routes/Redirect/MainRoute.js';
 import ThemesRoute from './Routes/Themes/MainRoute.js';
 import UserRoute from './Routes/User/mainRoute.js';
 const app = express();
+app.use(cors(CORS));
 app.use(limiter);
 //Environnement
 if (process.env.NODE_ENV == "development") {
@@ -36,7 +37,6 @@ else if (process.env.NODE_ENV == "production") {
 }
 app.use(helmet());
 app.use(compression());
-app.use(cors(CORS));
 app.use(morgan("dev"));
 app.all('/api/auth/*', toNodeHandler(auth));
 //JSON
