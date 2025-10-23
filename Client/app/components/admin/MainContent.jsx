@@ -55,7 +55,7 @@ export default function Components() {
           <div className="col-lg-6 col-12 pt-5">
             <div className="card rounded-4 shadow bg-secondary text-light">
               <div className="card-body">
-                <h5 className="card-title">Pages consultés :</h5>
+                <h5 className="card-title">Pages consultées :</h5>
 
                 <Suspense
                   fallback={
