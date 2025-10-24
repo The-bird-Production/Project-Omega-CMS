@@ -11,7 +11,7 @@ function Layout({ children, currentPage }) {
       const formData = new URLSearchParams();
       formData.append("page", currentPage);
       // Envoi de la requête à votre API externe pour enregistrer que la page a été consultée
-      fetch("http://localhost:3001/web_stats/add", {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
