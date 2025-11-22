@@ -1,0 +1,78 @@
+services:
+  omega-client:
+    build:
+      context: ./client
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+    container_name: omega_client
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+    depends_on:
+      - omega-server
+    volumes:
+      - ./Server/Themes:/app/app/Themes
+      - ./Server/Plugins:/app/app/Plugins
+      - ./Client/public:/app/public
+      - ./Server/Themes_style:/app/public/themes
+
+  omega-server:
+    build: ./server
+    container_name: omega_server
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=mysql://user:password@omega-db:3306/omega
+      - NODE_ENV=production
+      - BETTER_AUTH_SECRET="your_secret_key_here"
+      - APP_PORT=4000
+    volumes:
+      - ./Server/Public:/app/Public
+      - ./Server/Themes:/app/Themes
+      - ./Server/Plugins:/app/Plugins
+      - ./Server/config:/app/config
+      - ./Server/Themes_style:/app/Themes_style
+    depends_on:
+      - omega-db
+    command: >
+      sh -c "echo 'Waiting for MySQL...' &&
+             until nc -z omega-db 3306; do sleep 1; done &&
+             echo 'MySQL ready, applying migrations...' &&
+             npx prisma migrate deploy &&
+             npx prisma generate &&
+             node server.js"
+
+  omega-db:
+    image: mysql:8.0
+    container_name: omega_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: omega
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: omega_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: omega-db
+      PMA_USER: user
+      PMA_PASSWORD: password
+      PMA_ABSOLUTE_URI: http://localhost:8080/
+    depends_on:
+      - omega-db
+
+volumes:
+  db_data:
