@@ -1,7 +1,8 @@
 services:
   omega-client:
     build:
-      context: ./client
+      context: .
+      dockerfile: apps/web/Dockerfile
       args:
         - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
     container_name: omega_client
@@ -13,13 +14,15 @@ services:
     depends_on:
       - omega-server
     volumes:
-      - ./Server/Themes:/app/app/Themes
-      - ./Server/Plugins:/app/app/Plugins
-      - ./Client/public:/app/public
-      - ./Server/Themes_style:/app/public/themes
+      - ./apps/api/Themes:/app/apps/web/app/Themes
+      - ./apps/api/Plugins:/app/apps/web/app/Plugins
+      - ./apps/web/public:/app/apps/web/public
+      - ./apps/api/Themes_style:/app/apps/web/public/themes
 
   omega-server:
-    build: ./server
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
     container_name: omega_server
     restart: always
     ports:
@@ -29,21 +32,22 @@ services:
       - NODE_ENV=production
       - BETTER_AUTH_SECRET="your_secret_key_here"
       - APP_PORT=4000
+      - ALLOWED_ORIGINS=http://localhost:3000
     volumes:
-      - ./Server/Public:/app/Public
-      - ./Server/Themes:/app/Themes
-      - ./Server/Plugins:/app/Plugins
-      - ./Server/config:/app/config
-      - ./Server/Themes_style:/app/Themes_style
+      - ./apps/api/Public:/app/apps/api/Public
+      - ./apps/api/Themes:/app/apps/api/Themes
+      - ./apps/api/Plugins:/app/apps/api/Plugins
+      - ./apps/api/config:/app/apps/api/config
+      - ./apps/api/Themes_style:/app/apps/api/Themes_style
     depends_on:
       - omega-db
     command: >
       sh -c "echo 'Waiting for MySQL...' &&
              until nc -z omega-db 3306; do sleep 1; done &&
              echo 'MySQL ready, applying migrations...' &&
-             npx prisma migrate deploy &&
-             npx prisma generate &&
-             node server.js"
+             pnpm --filter @omega/db run migrate:deploy &&
+             pnpm --filter @omega/db run generate &&
+             node apps/api/server.js"
 
   omega-db:
     image: mysql:8.0
