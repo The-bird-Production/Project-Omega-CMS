@@ -28,7 +28,8 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function Page({ params }) {
+export default async function Page(props) {
+  const params = await props.params;
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${params.slug}`)
     if (!res.ok) throw new Error("Page non trouvée")

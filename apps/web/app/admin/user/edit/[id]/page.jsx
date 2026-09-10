@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../components/admin/Dashboard';
 import Link from 'next/link';
@@ -8,7 +8,8 @@ import FormatedDate from '../../../../components/util/FormatedDate';
 import { userSchema } from '../../../../../lib/schema';
 import { authClient } from '../../../../../lib/authClient';
 
-export default function Page({ params }) {
+export default function Page(props) {
+  const params = use(props.params);
   const id = params.id;
   const [userData, setUserData] = useState({});
   const [formData, setFormData] = useState({});

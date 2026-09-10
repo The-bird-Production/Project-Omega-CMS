@@ -1,7 +1,7 @@
 'use client';
 import AdminLayout from '../../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../../components/admin/Dashboard';
-import { useEffect } from 'react';
+import { useEffect, use } from 'react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
@@ -10,7 +10,8 @@ import { authClient } from '../../../../../../lib/authClient';
 import { articleSchema } from '../../../../../../lib/schema';
 import TinyMCE from '../../../../../components/admin/article/tinyMCE';
 
-export default function Page({ params }) {
+export default function Page(props) {
+  const params = use(props.params);
   const slug = params.id;
 
   const [formData, setFormData] = useState({ title: '', body: '', slug: '' });

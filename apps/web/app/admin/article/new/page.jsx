@@ -9,7 +9,7 @@ import TinyMCE from '../../../components/admin/article/tinyMCE';
 import { v4 } from 'uuid';
 import { authClient } from '../../../../lib/authClient';
 
-export default function Page({ params }) {
+export default function Page() {
   const [formData, setFormData] = useState({
     title: '',
     body: '',
