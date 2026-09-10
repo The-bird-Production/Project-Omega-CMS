@@ -1,0 +1,9 @@
+**/node_modules
+**/.next
+**/temp
+**/backups
+.git
+*.md
+.env
+.env.*
+!.env.*.example
