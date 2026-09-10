@@ -1,23 +1,17 @@
 import { auth } from "../lib/auth.js";
 
-const VerifyPermission = (role) => {
+// requiredRole: the better-auth role a caller must have (e.g. "admin") to reach the route.
+const VerifyPermission = (requiredRole) => {
   return async function (req, res, next) {
     try {
-      if (process.env.NODE_ENV === "test") return next();
-
       const session = await auth.api.getSession({ headers: req.headers });
       if (!session) return res.status(401).json({ code: 401, message: "Unauthorized" });
 
-      const canAcess = await auth.api.userHasPermission({
-        body: {
-          userId: session.user.id,
-          permission: {"administration": ["viewDashboard"] }
-        },
-      });
-      
+      if (requiredRole && session.user.role !== requiredRole) {
+        return res.status(403).json({ code: 403, message: "Forbidden" });
+      }
 
-      if (!canAcess) return res.status(403).json({ code: 403, message: "Forbidden" });
-
+      req.session = session;
       return next();
     } catch (e) {
       console.error("VerifyPermission error:", e);

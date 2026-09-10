@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `user` MODIFY `roleId` INTEGER NULL DEFAULT 1;

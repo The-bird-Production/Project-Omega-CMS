@@ -53,3 +53,32 @@ jobs:
         run: |
           cd Server
           npm run test
+
+  frontend-checks:
+    name: 🖥️ Frontend Build & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install frontend dependencies
+        run: |
+          cd Client
+          npm install
+
+      - name: 🔍 Lint (non-blocking: pre-existing findings not yet triaged)
+        continue-on-error: true
+        run: |
+          cd Client
+          npm run lint
+
+      - name: 🏗 Build
+        run: |
+          cd Client
+          npm run build
