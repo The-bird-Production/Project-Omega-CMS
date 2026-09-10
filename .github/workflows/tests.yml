@@ -49,11 +49,6 @@ jobs:
         working-directory: apps/api
         run: cp .env.test.example .env.test
 
-      - name: 📝 Prepare test env file
-        run: |
-          cd Server
-          cp .env.test.example .env.test
-
       - name: 🔄 Setup test database
         working-directory: apps/api
         run: |
