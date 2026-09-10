@@ -1,14 +1,10 @@
 import fs from "fs";
 import path from "path";
 import express from "express";
+import { isSafePluginId } from "./pluginIdValidator.js";
 
 // Dossier contenant les plugins
 const PLUGIN_DIR = path.resolve(process.cwd(), "Plugins");
-
-// Validation stricte du pluginId (évite path traversal)
-function isSafePluginId(pluginId) {
-  return typeof pluginId === "string" && /^[a-zA-Z0-9_-]+$/.test(pluginId);
-}
 
 // Validation simple de l'URL de route
 function isSafeUrl(url) {

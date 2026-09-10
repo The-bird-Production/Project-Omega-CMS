@@ -7,11 +7,7 @@ import { PrismaClient } from "@prisma/client";
 import { fileURLToPath } from "url";
 import { loadPlugin } from "./LoadPlugin.js";
 import { warn } from "console";
-
-// ✅ Import ou redéfinition de la validation (copiez de LoadPlugin.js si besoin)
-function isSafePluginId(pluginId) {
-    return /^[a-zA-Z0-9_-]+$/.test(pluginId);
-}
+import { isSafePluginId } from "./pluginIdValidator.js";
 
 const prisma = new PrismaClient();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -106,8 +102,9 @@ export const InstallPlugins = async (pluginId, app, update) => {
             await new Promise((resolve, reject) => {
                 execFile(
                     "mysqldump",
-                    ["-u", db.username, `-p${db.password}`, "-h", db.hostname, "-P", db.port || "3306", db.pathname.replace("/", "")],
-                    { maxBuffer: 1024 * 1024 * 10 },
+                    ["-u", db.username, "-h", db.hostname, "-P", db.port || "3306", db.pathname.replace("/", "")],
+                    // Password passed via env (MYSQL_PWD) instead of argv so it never appears in `ps`/process listings.
+                    { maxBuffer: 1024 * 1024 * 10, env: { ...process.env, MYSQL_PWD: db.password } },
                     (error, stdout, stderr) => {
                         if (error || stderr) {
                             console.error("Erreur de sauvegarde MySQL :", error || stderr);

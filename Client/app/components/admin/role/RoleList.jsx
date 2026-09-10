@@ -1,43 +1,32 @@
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Component() {
-  const { data: session, status } = useSession({
-    required: true,
-  });
-
   const [rowData, setRowData] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status === 'authenticated') {
-        const token = session.accessToken || session.user.accessToken;
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/role/get/all`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              mode: 'cors',
-            }
-          );
-
-          if (res.ok) {
-            const data = await res.json();
-            const jsonData = data.data;
-
-            setRowData(jsonData);
-          } else {
-            console.error('Failed to fetch data:', res.statusText);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/role/get/all`,
+          {
+            credentials: 'include',
+            mode: 'cors',
           }
-        } catch (error) {
-          console.error('Error fetching data:', error);
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          const jsonData = data.data;
+
+          setRowData(jsonData);
+        } else {
+          console.error('Failed to fetch data:', res.statusText);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
 
@@ -46,36 +35,30 @@ export default function Component() {
     const intervalId = setInterval(fetchData, 15000);
 
     return () => clearInterval(intervalId);
-  }, [session, status]);
+  }, []);
 
   const editRole = (id) => {
     router.push(`/admin/role/edit/${id}`);
   }
 
   const delRole = async (id) => {
-    if (status === 'authenticated') {
-      const token = session.accessToken || session.user.accessToken;
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/role/remove/${id}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            mode: 'cors',
-          }
-        );
-
-        if (res.ok) {
-          setRowData((prevData) => prevData.filter((item) => item.id !== id));
-        } else {
-          console.error('Failed to delete image:', res.statusText);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/role/remove/${id}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          mode: 'cors',
         }
-      } catch (error) {
-        console.error('Error deleting image:', error);
-      } 
+      );
+
+      if (res.ok) {
+        setRowData((prevData) => prevData.filter((item) => item.id !== id));
+      } else {
+        console.error('Failed to delete image:', res.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
     }
   }
 
