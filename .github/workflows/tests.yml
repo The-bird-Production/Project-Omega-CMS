@@ -72,7 +72,7 @@ jobs:
           cd Client
           npm install
 
-      - name: 🔍 Lint (non-blocking: pre-existing findings not yet triaged)
+      - name: "🔍 Lint (non-blocking - pre-existing findings not yet triaged)"
         continue-on-error: true
         run: |
           cd Client
