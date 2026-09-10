@@ -1,12 +1,16 @@
-export const preset = "ts-jest";
-export const testEnvironment = "node";
-export const setupFilesAfterEnv = ["<rootDir>/tests/jest.setup.js"];
-export const testMatch = ["**/tests/**/*.test.js"];
-export const detectOpenHandles = true;
 export default {
-    preset,
-    testEnvironment,
-    setupFilesAfterEnv,
-    testMatch,
-    detectOpenHandles
+  testEnvironment: "node",
+  setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.js"],
+  testMatch: ["**/tests/**/*.test.js"],
+  detectOpenHandles: true,
+  extensionsToTreatAsEsm: [".ts"],
+  // TS source files are imported with a `.js` specifier (NodeNext convention:
+  // the specifier reflects the eventual compiled output, not the source file).
+  // This strips `.js` so Jest's own resolver can find the real `.ts` file.
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
+  transform: {
+    "^.+\\.ts$": ["ts-jest", { useESM: true, tsconfig: "tsconfig.json" }],
+  },
 };

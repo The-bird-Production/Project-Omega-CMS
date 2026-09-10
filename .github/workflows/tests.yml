@@ -45,6 +45,10 @@ jobs:
       - name: 📦 Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: 🔎 Typecheck
+        working-directory: apps/api
+        run: pnpm run typecheck
+
       - name: 📝 Prepare test env file
         working-directory: apps/api
         run: cp .env.test.example .env.test

@@ -47,7 +47,7 @@ services:
              echo 'MySQL ready, applying migrations...' &&
              pnpm --filter @omega/db run migrate:deploy &&
              pnpm --filter @omega/db run generate &&
-             node apps/api/server.js"
+             npx tsx server.js"
 
   omega-db:
     image: mysql:8.0
