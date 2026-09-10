@@ -34,86 +34,70 @@
  cd project-omega-cms
 ```
 
-### Installer les dépendances de chaque dossier (Server et Client)
+### Installer les dépendances (monorepo pnpm workspace)
+Le projet est un monorepo géré avec [pnpm](https://pnpm.io/) (`corepack enable` si `pnpm` n'est pas déjà disponible). Une seule commande installe les dépendances des trois packages (`apps/web`, `apps/api`, `packages/db`) :
 ```sh
-npm install
+corepack enable
+pnpm install
+pnpm --filter @omega/db run generate
 ```
 
 ### Configurer l'environnement
-Copiez le fichier d'exemple 
-Puis remplissez les variables selon votre configuration.
+Copiez les fichiers d'exemple (`.env.server.example` à la racine → `apps/api/.env`, `.env.client.example` à la racine → `apps/web/.env`) puis remplissez les variables selon votre configuration.
 
-### Lancer le projet en local Backend + Frontend séparés
-Front end /Client
+### Lancer le projet en local (Backend + Frontend séparés)
+Backend (`apps/api`)
 ```sh
-
-npm run dev
+pnpm --filter @omega/api dev
 ```
-Backend /Server
+Frontend (`apps/web`)
 ```sh
-
-nodemon server.js
+pnpm --filter @omega/web dev
 ```
-
 
 Le CMS est maintenant accessible sur `http://localhost:3000`.
 
 ## 🔧 Configuration
 
-- **Fichiers de configuration** : `config.json` (paramètres généraux), `.env` (variables sensibles).
-- **Base de données** : Prisma ORM est utilisé, les migrations peuvent être gérées avec :
+- **Fichiers de configuration** : `apps/api/config/` (paramètres généraux), `.env` (variables sensibles, voir `ALLOWED_ORIGINS`/`APP_URL` pour le CORS et les cookies).
+- **Base de données** : le schéma Prisma est centralisé dans `packages/db/prisma/schema.prisma` et partagé par les apps via le package `@omega/db`. Migrations :
   ```sh
-  npx prisma migrate dev
+  pnpm --filter @omega/db run migrate:dev
   ```
-- **Gestion des permissions** : Stockées en JSON et modifiables dans l'admin.
-- **Plugins** : Ajoutez vos propres plugins en les plaçant dans `plugins/`. Voir le repo github : `https://github.com/The-bird-Production/OmegaPlugin`
+- **Gestion des permissions** : gérées via better-auth (`packages` d'accès dans `apps/api/lib/permissions.js`), modifiables dans l'admin.
+- **Plugins** : Ajoutez vos propres plugins en les plaçant dans `apps/api/Plugins/`. Voir le repo github : `https://github.com/The-bird-Production/OmegaPlugin`
 
 ## 🏗 Structure du projet
 
 ```
-📦 Project Omega CMS
-├─ .gitignore
-├─ Client (Frontend - Next.js)
-│  ├─ Functions/
-│  ├─ app/
-│  │  ├─ [slug]/
-│  │  ├─ admin/
-│  │  │  ├─ image/
-│  │  │  ├─ log/
-│  │  │  ├─ page/
-│  │  │  ├─ plugins/
-│  │  │  ├─ role/
-│  │  │  ├─ stats/
-│  │  │  ├─ user/
-│  │  ├─ auth/
-│  │  ├─ components/
+📦 Project Omega CMS (pnpm workspace)
+├─ pnpm-workspace.yaml
+├─ package.json
+├─ apps/
+│  ├─ web/ (Frontend - Next.js)
+│  │  ├─ Functions/
+│  │  ├─ app/
+│  │  │  ├─ [slug]/
 │  │  │  ├─ admin/
 │  │  │  ├─ auth/
-│  │  │  ├─ layout/
-│  │  │  ├─ loader/
-│  │  │  ├─ plugin/
-│  │  │  └─ util/
-│  ├─ lib/
-│  ├─ pages/
-│  │  ├─ api/
-│  │  │  ├─ auth/
-│  │  │  └─ getRole.ts
-│  ├─ prisma/
-│  ├─ public/
-│  ├─ tsconfig.json
-│  ├─ package.json
-│  ├─ next.config.mjs
-│  └─ README.md
-├─ Server (Backend - Express.js)
-│  ├─ Controllers/
-│  ├─ Middleware/
-│  ├─ Routes/
-│  ├─ Functions/
-│  ├─ config/
-│  ├─ prisma/
-│  ├─ package.json
-│  ├─ server.js
-│  └─ app.js
+│  │  │  └─ components/
+│  │  ├─ lib/
+│  │  ├─ public/
+│  │  ├─ package.json
+│  │  └─ next.config.mjs
+│  └─ api/ (Backend - Express.js)
+│     ├─ Controllers/
+│     ├─ Middleware/
+│     ├─ Routes/
+│     ├─ Functions/
+│     ├─ config/
+│     ├─ tests/
+│     ├─ package.json
+│     ├─ server.js
+│     └─ app.js
+├─ packages/
+│  ├─ db/ (schéma Prisma unique + client partagé `@omega/db`)
+│  └─ config/ (tsconfig partagée)
 └─ cms.js
 ```
 

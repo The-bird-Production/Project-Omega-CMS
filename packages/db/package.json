@@ -1,0 +1,24 @@
+{
+  "name": "@omega/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "db:push": "prisma db push",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:reset": "prisma migrate reset --force",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.16.3"
+  }
+}

@@ -1,0 +1,210 @@
+import { prisma } from "@omega/db";
+export const createArticle = async (req, res) => {
+  try {
+    const { title, body, authorId, slug } = req.body;
+    // Validate input
+    if (!title || !body || !authorId || !slug) {
+      return res
+        .status(400)
+        .json({ message: "Title, content, and authorId are required" });
+    }
+    // Create article
+    const article = await prisma.article.create({
+      data: {
+        title,
+        body,
+        authorId,
+        slug,
+        image: req.file ? req.file.path : null,
+        publishedAt: req.body.publishedAt || new Date(), // Set the current date as publishedAt
+      },
+    });
+    res.status(201).json(article);
+  } catch (error) {
+    console.error("Error creating article:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const modifyArticle = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { title, body } = req.body;
+    // Validate input
+    if (!title && !content) {
+      return res.status(400).json({ message: "Title or content is required" });
+    }
+    // Update article
+    const article = await prisma.article.update({
+      where: { slug: slug },
+      data: {
+        title,
+        body,
+      },
+    });
+    res.status(200).json(article);
+  } catch (error) {
+    console.error("Error modifying article:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const saveDraft = async (req, res) => {
+  try {
+    const { draftId, title, body, authorId } = req.body;
+
+    // Vérification des champs requis
+    if (!title && !body) {
+      return res.status(400).json({ message: "Title or body is required" });
+    }
+
+    if (!draftId) {
+      return res.status(400).json({ message: "Draft ID is required" });
+    }
+
+    // Cherche le brouillon existant par draftId
+    const existingDraft = await prisma.articleSaved.findFirst({
+      where: { draftId },
+    });
+
+    let draft;
+    if (existingDraft) {
+      // Si existe, update
+      draft = await prisma.articleSaved.update({
+        where: { id: existingDraft.id },
+        data: {
+          title,
+          body,
+          authorId,
+          slug, 
+        },
+      });
+    } else {
+      // Sinon, create
+      draft = await prisma.articleSaved.create({
+        data: {
+          draftId,
+          title,
+          body,
+          authorId,
+            slug,
+        },
+      });
+    }
+
+    res.status(200).json(draft);
+  } catch (error) {
+    console.error("Error saving draft:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteArticle = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    await prisma.article.delete({
+      where: { slug: slug },
+    });
+    res.status(200).json({ message: "Article deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting article:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const deleteArticleDraft = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    await prisma.articleSaved.delete({
+      where: { draftId: slug },
+    });
+    res.status(200).json({ message: "Article draft deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting article draft:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getArticle = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const { id } = req.params;
+    const article = await prisma.article.findUnique({
+      where: {
+        id: parseInt(id),
+        publishedAt:
+          publishedAt.getTime() <= currentDate.getTime() ? publishedAt : null,
+      },
+    });
+    if (!article) {
+      return res.status(404).json({ message: "Article not found" });
+    }
+    res.status(200).json(article);
+  } catch (error) {
+    console.error("Error retrieving article:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getDraftById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const article = await prisma.articleSaved.findUnique({
+      where: {
+        draftId: id,
+      },
+    });
+    if (!article) {
+      return res.status(404).json({ message: "Article not found" });
+    }
+    res.status(200).json(article);
+  } catch (error) {
+    console.error("Error retrieving article:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getAllArticles = async (req, res) => {
+  const currentDate = new Date();
+  try {
+    const articles = await prisma.article.findMany({
+      where: { publishedAt: { lte: currentDate } },
+    });
+
+    if (articles.length === 0) {
+      return res.status(404).json({ message: "No articles found" });
+    }
+
+    res.status(200).json(articles);
+  } catch (error) {
+    console.error("Error retrieving articles:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getAllDrafts = async (req, res) => {
+  try {
+    const articles = await prisma.articleSaved.findMany();
+
+    if (articles.length === 0) {
+      return res.status(404).json({ message: "No articles found" });
+    }
+
+    res.status(200).json(articles);
+  } catch (error) {
+    console.error("Error retrieving articles:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getArticleBySlug = async (req, res) => {
+  const currentDate = new Date();
+  try {
+    const { slug } = req.params;
+    const article = await prisma.article.findUnique({
+      where: {
+        slug,
+        publishedAt: { lte: currentDate },
+      },
+    });
+    if (!article) {
+      return res.status(404).json({ message: "Article not found" });
+    }
+    res.status(200).json(article);
+  } catch (error) {
+    console.error("Error retrieving article by slug:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

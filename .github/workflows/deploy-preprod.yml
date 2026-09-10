@@ -11,34 +11,38 @@ jobs:
 
     defaults:
       run:
-        shell: bash -l {0} # ← charge l’environnement complet (comme un vrai terminal)
+        shell: bash -l {0} # ← charge l'environnement complet (comme un vrai terminal)
 
     steps:
       - name: Clean up old files
         run: |
-          rm -rf Server Client 
-          mkdir Server Client
+          rm -rf apps packages
+          mkdir -p apps packages
 
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install backend dependencies
+      - name: Install workspace dependencies
         run: |
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           nvm use 20
-          cd Server
-          npm ci
+          corepack enable
+          pnpm install --frozen-lockfile
 
-      - name: Install and build frontend
+      - name: Generate Prisma client
         run: |
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           nvm use 20
+          pnpm --filter @omega/db run generate
 
-          cd Client
-          npm ci
-          npm run build
+      - name: Build frontend
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 20
+          pnpm --filter @omega/web run build
 
       - name: Restart services
         run: sudo /usr/local/bin/restart-omega.sh

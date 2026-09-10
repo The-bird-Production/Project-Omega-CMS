@@ -5,10 +5,10 @@ on:
     branches:
       - main
       - dev
-  pull_request:
-    branches:
-      - main
-      - dev
+  # No branch filter here: this repo stacks feature PRs on top of each other
+  # (base branch isn't always main/dev), and every PR should still get CI
+  # regardless of what it targets.
+  pull_request: {}
 
 jobs:
   backend-tests:
@@ -31,54 +31,63 @@ jobs:
 
     steps:
       - name: 📥 Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: 🏗 Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
+          cache: pnpm
 
-      - name: 📦 Install backend dependencies
-        run: |
-          cd Server
-          npm install
+      - name: 📦 Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📝 Prepare test env file
+        working-directory: apps/api
+        run: cp .env.test.example .env.test
 
       - name: 🔄 Setup test database
+        working-directory: apps/api
         run: |
-          cd Server
-          npm run test:setup
-          npm run setup:test
+          pnpm run test:setup
+          pnpm run setup:test
 
       - name: 🧪 Run backend tests
-        run: |
-          cd Server
-          npm run test
+        working-directory: apps/api
+        run: pnpm run test
 
   frontend-checks:
     name: 🖥️ Frontend Build & Lint
     runs-on: ubuntu-latest
+    env:
+      # Without this, better-auth's client throws "Invalid base URL: undefined/api/auth/"
+      # during prerendering and the build fails on every admin/auth page.
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
 
     steps:
       - name: 📥 Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: 🏗 Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
+          cache: pnpm
 
-      - name: 📦 Install frontend dependencies
-        run: |
-          cd Client
-          npm install
+      - name: 📦 Install workspace dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: 🔍 Lint (non-blocking: pre-existing findings not yet triaged)
+      - name: "🔍 Lint (non-blocking - pre-existing findings not yet triaged)"
         continue-on-error: true
-        run: |
-          cd Client
-          npm run lint
+        working-directory: apps/web
+        run: pnpm run lint
 
       - name: 🏗 Build
-        run: |
-          cd Client
-          npm run build
+        working-directory: apps/web
+        run: pnpm run build
