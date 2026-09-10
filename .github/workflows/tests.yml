@@ -43,6 +43,11 @@ jobs:
           cd Server
           npm install
 
+      - name: 📝 Prepare test env file
+        run: |
+          cd Server
+          cp .env.test.example .env.test
+
       - name: 🔄 Setup test database
         run: |
           cd Server
@@ -57,6 +62,10 @@ jobs:
   frontend-checks:
     name: 🖥️ Frontend Build & Lint
     runs-on: ubuntu-latest
+    env:
+      # Without this, better-auth's client throws "Invalid base URL: undefined/api/auth/"
+      # during prerendering and the build fails on every admin/auth page.
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
 
     steps:
       - name: 📥 Checkout repository
@@ -72,7 +81,7 @@ jobs:
           cd Client
           npm install
 
-      - name: 🔍 Lint (non-blocking: pre-existing findings not yet triaged)
+      - name: "🔍 Lint (non-blocking - pre-existing findings not yet triaged)"
         continue-on-error: true
         run: |
           cd Client
