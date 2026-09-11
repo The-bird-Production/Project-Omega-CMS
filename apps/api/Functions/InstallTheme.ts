@@ -3,6 +3,7 @@ import path from "path";
 import AdmZip from "adm-zip";
 import axios from "axios";
 import sanitize from "sanitize-filename";
+import { prisma } from "@omega/db";
 
 // Throws if targetPath does not resolve to a location inside baseDir (path traversal / zip-slip guard).
 export function assertInside(baseDir: string, targetPath: string, label: string): string {
@@ -80,6 +81,30 @@ const InstallTheme = async (themeId: string, update: boolean): Promise<void> => 
 
       moveInto(path.join(themeDir, "asset"), path.join(safeStyleThemeDir, "asset"));
       moveInto(path.join(themeDir, "style"), safeStyleThemeDir);
+    }
+
+    // Suivi en base pour que l'admin/l'updater sachent ce qui est installé sans
+    // relire tous les theme.json — best-effort, ne doit pas faire échouer l'install.
+    try {
+      const manifestPath = path.join(themeDir, "theme.json");
+      if (fs.existsSync(manifestPath)) {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+        await prisma.theme.upsert({
+          where: { themeId: sanitizedThemeId },
+          create: {
+            themeId: sanitizedThemeId,
+            name: manifest.name ?? sanitizedThemeId,
+            version: manifest.version ?? "0.0.0",
+            source: "marketplace",
+          },
+          update: {
+            name: manifest.name ?? sanitizedThemeId,
+            version: manifest.version ?? "0.0.0",
+          },
+        });
+      }
+    } catch (dbErr) {
+      console.error("Impossible de synchroniser le thème dans la base :", dbErr);
     }
 
     console.log("✅ Thème installé avec succès.");

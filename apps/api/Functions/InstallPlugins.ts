@@ -136,6 +136,30 @@ export const InstallPlugins = async (pluginId: string, app: Application, update:
             warn("Aucun fichier de migration trouvé.");
         }
 
+        // Suivi en base pour que l'admin/l'updater sachent ce qui est installé sans
+        // relire tous les plugin.json — best-effort, ne doit pas faire échouer l'install.
+        try {
+            const manifestPath = path.join(safePluginDir, "plugin.json");
+            if (fs.existsSync(manifestPath)) {
+                const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+                await prisma.plugin.upsert({
+                    where: { pluginId: safePluginName },
+                    create: {
+                        pluginId: safePluginName,
+                        name: manifest.name ?? safePluginName,
+                        version: manifest.version ?? "0.0.0",
+                        source: "marketplace",
+                    },
+                    update: {
+                        name: manifest.name ?? safePluginName,
+                        version: manifest.version ?? "0.0.0",
+                    },
+                });
+            }
+        } catch (dbErr) {
+            console.error("Impossible de synchroniser le plugin dans la base :", dbErr);
+        }
+
         // ✅ Chargement du plugin
         loadPlugin(app, safePluginName);  // Utilisez safePluginName
         console.log(`✅ Plugin ${safePluginName} installé avec succès.`);

@@ -150,12 +150,49 @@ model articleSaved {
   id          Int      @id @default(autoincrement())
   draftId     String?   @unique()
   title       String?
-  slug        String?   
+  slug        String?
   body        String?   @db.Text
   image       String?
   authorId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   publishedAt DateTime?
-  
+
+}
+
+// Singleton row (id always 1) holding this instance's auto-update preferences.
+// Written/read by the update checker introduced in a later phase; the schema
+// lands now so the admin UI and updater can be built against a stable shape.
+model AppSettings {
+  id                Int       @id @default(1)
+  autoUpdateEnabled Boolean   @default(false)
+  updateChannel     String    @default("stable")
+  lastCheckedAt     DateTime?
+  lastVersionSeen   String?
+  updatedAt         DateTime  @updatedAt
+}
+
+// Tracks installed plugins so the admin dashboard / updater can tell what's
+// out of date without re-reading every plugin.json off disk. Populated by
+// InstallPlugins on install/update; the plugin.json manifest on disk stays
+// the source of truth for what actually gets loaded at runtime.
+model Plugin {
+  id          Int      @id @default(autoincrement())
+  pluginId    String   @unique
+  name        String
+  version     String
+  source      String?
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Same as Plugin, for installed themes.
+model Theme {
+  id          Int      @id @default(autoincrement())
+  themeId     String   @unique
+  name        String
+  version     String
+  source      String?
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

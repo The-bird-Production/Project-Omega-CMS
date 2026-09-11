@@ -6,6 +6,7 @@ export const getPluginsInstalled = (req, res) => {
     const plugins = fs.readdirSync(pluginsDir)
         .filter((plugin) => plugin.toLowerCase() !== "readme.md")
         .map((plugin) => {
+        const manifest = JSON.parse(fs.readFileSync(path.join(pluginsDir, plugin, "plugin.json")));
         return {
             name: manifest.name,
             id: manifest.id,
@@ -22,6 +23,7 @@ export const getInstallablePlugins = async (req, res) => {
     const installedPlugins = fs.readdirSync(pluginsDir)
         .filter((plugin) => plugin.toLowerCase() !== "readme.md")
         .map((plugin) => {
+        const manifest = JSON.parse(fs.readFileSync(path.join(pluginsDir, plugin, "plugin.json")));
         return manifest.id; // Comparaison via l'ID du plugin
     });
     try {
@@ -67,6 +69,7 @@ export const getUserRoutes = (req, res) => {
         .readdirSync(pluginsDir)
         .filter((plugin) => plugin.toLowerCase() !== "readme.md")
         .map((plugin) => {
+        const manifest = JSON.parse(fs.readFileSync(path.join(pluginsDir, plugin, "plugin.json")));
         return manifest.user?.routes || [];
     })
         .flat();
