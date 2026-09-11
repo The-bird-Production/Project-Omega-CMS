@@ -7,13 +7,14 @@
   "scripts": {
     "dev:api": "pnpm --filter @omega/api dev",
     "dev:web": "pnpm --filter @omega/web dev",
-    "build": "pnpm --filter @omega/db build && pnpm -r --filter=!@omega/db build",
+    "build": "pnpm --filter @omega/web run build",
     "test": "pnpm --filter @omega/api test",
+    "typecheck": "pnpm --filter @omega/api run typecheck",
     "lint": "pnpm --filter @omega/web lint"
   },
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=9"
+    "node": ">=22.13",
+    "pnpm": ">=11"
   },
   "packageManager": "pnpm@11.24.0"
 }

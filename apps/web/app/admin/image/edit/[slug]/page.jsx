@@ -1,14 +1,15 @@
 'use client';
 import AdminLayout from '../../../../components/layout/AdminLayout';
 import Dashboard from '../../../../components/admin/Dashboard';
-import { useEffect } from 'react';
+import { useEffect, use } from 'react';
 import { useState } from 'react';
 import { imageUpdateSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import Notification from '../../../../components/admin/image/ModifNotify';
 import Link from 'next/link';
 
-export default function Page({ params }) {
+export default function Page(props) {
+  const params = use(props.params);
   const slug = params.slug;
 
   const [errors, setErrors] = useState({ title: '', alt: '', slug: '' });

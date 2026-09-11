@@ -16,7 +16,8 @@ async function fetchArticle(slug) {
 }
 
 // Génère des métadonnées SEO pour la page d'article (Next.js App Router)
-export async function generateMetadata({ params }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
   const { slug } = params;
   try {
     const article = await fetchArticle(slug);
@@ -63,7 +64,8 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function ArticlePage({ params }) {
+export default async function ArticlePage(props) {
+  const params = await props.params;
   const { slug } = params;
   const data = await fetchArticle(slug);
 

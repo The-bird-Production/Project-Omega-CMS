@@ -5,7 +5,7 @@ import axios from "axios";
 import sanitize from "sanitize-filename";
 
 // Throws if targetPath does not resolve to a location inside baseDir (path traversal / zip-slip guard).
-export function assertInside(baseDir, targetPath, label) {
+export function assertInside(baseDir: string, targetPath: string, label: string): string {
   const resolvedBase = path.resolve(baseDir);
   const resolvedTarget = path.resolve(targetPath);
   if (resolvedTarget !== resolvedBase && !resolvedTarget.startsWith(resolvedBase + path.sep)) {
@@ -14,19 +14,19 @@ export function assertInside(baseDir, targetPath, label) {
   return resolvedTarget;
 }
 
-export function assertSafeZipEntries(zip, extractDir) {
+export function assertSafeZipEntries(zip: Pick<AdmZip, "getEntries">, extractDir: string): void {
   for (const entry of zip.getEntries()) {
     assertInside(extractDir, path.join(extractDir, entry.entryName), "d'entrée d'archive");
   }
 }
 
-function moveInto(srcDir, destDir) {
+function moveInto(srcDir: string, destDir: string): void {
   if (!fs.existsSync(srcDir)) return;
   fs.mkdirSync(path.dirname(destDir), { recursive: true });
   fs.renameSync(srcDir, destDir);
 }
 
-const InstallTheme = async (themeId, update) => {
+const InstallTheme = async (themeId: string, update: boolean): Promise<void> => {
   const isDev = process.env.NODE_ENV !== "production";
 
   const sanitizedThemeId = sanitize(themeId);
@@ -39,8 +39,8 @@ const InstallTheme = async (themeId, update) => {
   const tempDir = path.resolve(process.cwd(), "temp");
   const extractDir = assertInside(tempDir, path.join(tempDir, sanitizedThemeId), "temporaire");
 
-  let clientDir = null;
-  let styleDir;
+  let clientDir: string | null = null;
+  let styleDir: string;
   if (isDev) {
     const cms = await import("../../../cms.js");
     clientDir = path.resolve(cms.dirname, "apps", "web", "app", "Themes");
@@ -66,7 +66,7 @@ const InstallTheme = async (themeId, update) => {
     fs.renameSync(extractDir, themeDir);
 
     if (isDev) {
-      const safeClientThemeDir = assertInside(clientDir, path.join(clientDir, sanitizedThemeId), "client de thème");
+      const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, sanitizedThemeId), "client de thème");
       if (!update && !fs.existsSync(safeClientThemeDir)) {
         fs.mkdirSync(safeClientThemeDir, { recursive: true });
       }

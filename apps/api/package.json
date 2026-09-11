@@ -11,10 +11,11 @@
     "test": "tests"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "setup:test": "dotenv -e .env.test -- node ./Functions/setup.js",
-    "setup": "node ./Functions/setup.js",
+    "start": "tsx server.js",
+    "dev": "tsx watch server.js",
+    "typecheck": "tsc --noEmit",
+    "setup:test": "dotenv -e .env.test -- tsx ./Functions/setup.js",
+    "setup": "tsx ./Functions/setup.js",
     "test": "cross-env NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' jest --config=jest.config.js --passWithNoTests",
     "test:setup": "dotenv -e .env.test -- pnpm --filter @omega/db run migrate:reset && dotenv -e .env.test -- pnpm --filter @omega/db run db:push",
     "test:watch": "npm run test -- --watch"
@@ -33,15 +34,24 @@
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "helmet": "^7.1.0",
-    "jest": "^29.7.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
-    "sanitize-filename": "^1.6.3",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.2.6"
+    "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.0.0",
     "cross-env": "^7.0.3",
-    "dotenv-cli": "^8.0.0"
+    "dotenv-cli": "^8.0.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.6",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.0"
   }
 }

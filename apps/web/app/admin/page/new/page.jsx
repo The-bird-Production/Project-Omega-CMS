@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function Page({ params }) {
+export default function Page() {
   const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
   const [data, setData] = useState(null);
   const router = useRouter();

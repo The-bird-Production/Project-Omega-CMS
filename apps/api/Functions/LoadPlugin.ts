@@ -1,18 +1,18 @@
 import fs from "fs";
 import path from "path";
-import express from "express";
+import express, { type Application } from "express";
 import { isSafePluginId } from "./pluginIdValidator.js";
 
 // Dossier contenant les plugins
 const PLUGIN_DIR = path.resolve(process.cwd(), "Plugins");
 
 // Validation simple de l'URL de route
-function isSafeUrl(url) {
+function isSafeUrl(url: unknown): url is string {
   return typeof url === "string" && url.startsWith("/");
 }
 
 // Fonction pour charger un plugin spécifique
-const loadPlugin = async (app, pluginId) => {
+const loadPlugin = async (app: Application, pluginId: string): Promise<void> => {
   if (!isSafePluginId(pluginId)) {
     console.warn(`Plugin ID invalide ou non autorisé : ${pluginId}`);
     return;
@@ -34,7 +34,7 @@ const loadPlugin = async (app, pluginId) => {
     return;
   }
 
-  let pluginData;
+  let pluginData: { id?: unknown; url?: unknown };
   try {
     pluginData = JSON.parse(fs.readFileSync(pluginJsonPath, "utf-8"));
   } catch (err) {
@@ -66,7 +66,7 @@ const loadPlugin = async (app, pluginId) => {
       return;
     }
 
-  const pluginRoutes = await import(pluginRoutesPath).then(mod => mod.default ?? mod);
+    const pluginRoutes = await import(pluginRoutesPath).then((mod) => mod.default ?? mod);
 
     // Vérification que pluginRoutes est un middleware express valide
     if (typeof pluginRoutes !== "function" && !(pluginRoutes instanceof express.Router)) {
@@ -74,7 +74,7 @@ const loadPlugin = async (app, pluginId) => {
       return;
     }
 
-  app.use(safeUrl, pluginRoutes);
+    app.use(safeUrl, pluginRoutes);
 
     console.log(`Plugin chargé : ${id} avec l'URL ${safeUrl}`);
   } catch (error) {
@@ -83,15 +83,16 @@ const loadPlugin = async (app, pluginId) => {
 };
 
 // Fonction pour charger tous les plugins présents dans le dossier au démarrage
-const loadAllPlugins = async (app) => {
+const loadAllPlugins = async (app: Application): Promise<void> => {
   if (!fs.existsSync(PLUGIN_DIR)) {
     console.warn(`Dossier des plugins introuvable : ${PLUGIN_DIR}`);
     return;
   }
 
-  const pluginDirs = fs.readdirSync(PLUGIN_DIR, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory() && isSafePluginId(dirent.name))
-    .map(dirent => dirent.name);
+  const pluginDirs = fs
+    .readdirSync(PLUGIN_DIR, { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory() && isSafePluginId(dirent.name))
+    .map((dirent) => dirent.name);
 
   for (const pluginId of pluginDirs) {
     const pluginJsonPath = path.join(PLUGIN_DIR, pluginId, "plugin.json");
@@ -101,7 +102,7 @@ const loadAllPlugins = async (app) => {
       continue;
     }
 
-    let data;
+    let data: { id?: unknown };
     try {
       data = JSON.parse(fs.readFileSync(pluginJsonPath, "utf-8"));
     } catch (err) {

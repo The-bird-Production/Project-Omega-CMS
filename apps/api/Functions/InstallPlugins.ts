@@ -3,6 +3,7 @@ import path from "path";
 import AdmZip from "adm-zip";
 import axios from "axios";
 import { execFile } from "child_process";
+import type { Application } from "express";
 import { prisma } from "@omega/db";
 import { fileURLToPath } from "url";
 import { loadPlugin } from "./LoadPlugin.js";
@@ -11,7 +12,7 @@ import { isSafePluginId } from "./pluginIdValidator.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const InstallPlugins = async (pluginId, app, update) => {
+export const InstallPlugins = async (pluginId: string, app: Application, update: boolean): Promise<void> => {
     const pluginsDir = path.resolve(process.cwd(), "Plugins");
     const clientDir = path.resolve(__dirname, "../../../apps/web/app/components/plugin");
     const tempDir = path.resolve(process.cwd(), "temp");
@@ -98,7 +99,7 @@ export const InstallPlugins = async (pluginId, app, update) => {
         }
 
         if (process.env.NODE_ENV !== "development") {
-            await new Promise((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 execFile(
                     "mysqldump",
                     ["-u", db.username, "-h", db.hostname, "-P", db.port || "3306", db.pathname.replace("/", "")],
@@ -140,24 +141,24 @@ export const InstallPlugins = async (pluginId, app, update) => {
         console.log(`✅ Plugin ${safePluginName} installé avec succès.`);
     } catch (err) {
         console.error("❌ Erreur lors de l'installation du plugin :", err);
-        
+
         // ✅ Dans catch : Recalculez avec safePluginName pour éviter uncontrolled paths (lignes ~112-113)
         const safePluginDirCatch = path.join(pluginsDir, safePluginName);
         const safeClientDirCatch = path.join(clientDir, safePluginName);
-        
+
         if (fs.existsSync(safePluginDirCatch)) {
             fs.rmSync(safePluginDirCatch, { recursive: true, force: true });
         }
         if (fs.existsSync(safeClientDirCatch)) {
             fs.rmSync(safeClientDirCatch, { recursive: true, force: true });
         }
-        
+
         // Nettoyage temp si extraction a eu lieu
         const extractPathCatch = path.join(tempDir, safePluginName);
         if (fs.existsSync(extractPathCatch)) {
             fs.rmSync(extractPathCatch, { recursive: true, force: true });
         }
-        
+
         throw err;
     }
 };

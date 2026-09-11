@@ -26,7 +26,7 @@ jobs:
         run: |
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm use 20
+          nvm use 22
           corepack enable
           pnpm install --frozen-lockfile
 
@@ -34,14 +34,14 @@ jobs:
         run: |
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm use 20
+          nvm use 22
           pnpm --filter @omega/db run generate
 
       - name: Build frontend
         run: |
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm use 20
+          nvm use 22
           pnpm --filter @omega/web run build
 
       - name: Restart services
