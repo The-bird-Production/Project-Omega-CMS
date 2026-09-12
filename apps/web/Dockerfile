@@ -23,5 +23,10 @@ WORKDIR /repo
 COPY --from=build /repo ./
 WORKDIR /repo/apps/web
 
+# Set by the release pipeline (docker build --build-arg APP_VERSION=1.2.3);
+# defaults to "dev" for local builds.
+ARG APP_VERSION=dev
+LABEL org.opencontainers.image.version=$APP_VERSION
+
 EXPOSE 3000
 CMD ["pnpm", "start"]

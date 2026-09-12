@@ -23,5 +23,11 @@ WORKDIR /repo
 COPY --from=build /repo ./
 WORKDIR /repo/apps/api
 
+# Set by the release pipeline (docker build --build-arg APP_VERSION=1.2.3);
+# defaults to "dev" for local builds. Read at runtime from GET /system/version
+# via the root package.json, this label just makes it visible on the image itself.
+ARG APP_VERSION=dev
+LABEL org.opencontainers.image.version=$APP_VERSION
+
 EXPOSE 4000
 CMD ["npx", "tsx", "server.js"]
