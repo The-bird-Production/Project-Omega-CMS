@@ -10,6 +10,11 @@ on:
   # regardless of what it targets.
   pull_request: {}
 
+# None of these jobs push, release, or comment — read-only is sufficient
+# and is what CodeQL flags as missing otherwise.
+permissions:
+  contents: read
+
 jobs:
   backend-tests:
     name: ⚙️ Backend Tests

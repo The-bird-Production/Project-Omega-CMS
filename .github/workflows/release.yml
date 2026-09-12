@@ -1,14 +1,19 @@
 name: Release
 
 on:
-  # Fires after "CI - Tests Backend & Frontend" finishes, for any event that
-  # triggered it (push, pull_request, ...) — filtered below to only actually
-  # release on a successful push to main. This is what makes the release
-  # gate real: an image only ships once the exact commit that will land on
-  # main has passed backend tests, frontend build, and the Docker builds.
-  workflow_run:
-    workflows: ["CI - Tests Backend & Frontend"]
-    types: [completed]
+  # Deliberately NOT workflow_run: that trigger runs in the base repo's
+  # privileged context (secrets included) for *any* completion of "CI -
+  # Tests Backend & Frontend" — including runs triggered by a pull_request
+  # from a fork, since that workflow's own `pull_request: {}` trigger has no
+  # branch/fork restriction. Gating on event/branch fields inside an `if:`
+  # is exactly the "checkout of untrusted code in a privileged context"
+  # pattern CodeQL flags, and it's easy to get subtly wrong. Triggering on
+  # `push` to main instead sidesteps the whole class of problem: only
+  # trusted collaborators can push here, and main is protected (required
+  # PR review + required status checks), so by the time this fires, the
+  # exact commit has already passed CI as a precondition of being mergeable.
+  push:
+    branches: [main]
   # Manual escape hatch to test this pipeline (e.g. from a feature branch)
   # without waiting for a main push. Run with: gh workflow run release.yml
   workflow_dispatch: {}
@@ -20,11 +25,6 @@ permissions:
 
 jobs:
   release:
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main' &&
-       github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
@@ -34,8 +34,6 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: 🔖 Compute release metadata
         id: meta
