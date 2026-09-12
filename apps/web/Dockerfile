@@ -13,15 +13,22 @@ RUN pnpm install --frozen-lockfile --filter @omega/web...
 
 FROM deps AS build
 COPY apps/web apps/web
-ARG NEXT_PUBLIC_BACKEND_URL
+# Baked as a placeholder on purpose — see docker-entrypoint.sh. Pass a real
+# NEXT_PUBLIC_BACKEND_URL only when building a one-off image for yourself
+# (e.g. local `docker compose build`); the published GHCR image always uses
+# the placeholder + runtime substitution so the same image works for every
+# self-hosted domain.
+ARG NEXT_PUBLIC_BACKEND_URL=__NEXT_PUBLIC_BACKEND_URL_PLACEHOLDER__
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 RUN pnpm --filter @omega/web run build
 
 FROM node:22-alpine
 RUN corepack enable
 WORKDIR /repo
-COPY --from=build /repo ./
+COPY --from=build --chown=node:node /repo ./
 WORKDIR /repo/apps/web
+RUN chmod +x ./docker-entrypoint.sh
+USER node
 
 # Set by the release pipeline (docker build --build-arg APP_VERSION=1.2.3);
 # defaults to "dev" for local builds.
@@ -29,4 +36,7 @@ ARG APP_VERSION=dev
 LABEL org.opencontainers.image.version=$APP_VERSION
 
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:3000/ || exit 1
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["pnpm", "start"]

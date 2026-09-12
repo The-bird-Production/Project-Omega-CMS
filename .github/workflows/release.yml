@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  # Fires after "CI - Tests Backend & Frontend" finishes, for any event that
+  # triggered it (push, pull_request, ...) — filtered below to only actually
+  # release on a successful push to main. This is what makes the release
+  # gate real: an image only ships once the exact commit that will land on
+  # main has passed backend tests, frontend build, and the Docker builds.
+  workflow_run:
+    workflows: ["CI - Tests Backend & Frontend"]
+    types: [completed]
+  # Manual escape hatch to test this pipeline (e.g. from a feature branch)
+  # without waiting for a main push. Run with: gh workflow run release.yml
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  release:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      API_IMAGE: ghcr.io/the-bird-production/omega-api
+      WEB_IMAGE: ghcr.io/the-bird-production/omega-web
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: 🔖 Compute release metadata
+        id: meta
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION=$(node -p "require('./package.json').version")
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=build-${{ github.run_number }}-$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: 🏗 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔏 Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: 🐳 Build and push apps/api image
+        id: build-api
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+          tags: |
+            ${{ env.API_IMAGE }}:stable
+            ${{ env.API_IMAGE }}:sha-${{ steps.meta.outputs.short_sha }}
+
+      - name: ✍️ Sign apps/api image (keyless, via GitHub OIDC)
+        run: cosign sign --yes "${{ env.API_IMAGE }}@${{ steps.build-api.outputs.digest }}"
+
+      - name: 🐳 Build and push apps/web image
+        id: build-web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+          tags: |
+            ${{ env.WEB_IMAGE }}:stable
+            ${{ env.WEB_IMAGE }}:sha-${{ steps.meta.outputs.short_sha }}
+
+      - name: ✍️ Sign apps/web image (keyless, via GitHub OIDC)
+        run: cosign sign --yes "${{ env.WEB_IMAGE }}@${{ steps.build-web.outputs.digest }}"
+
+      - name: 📝 Write release manifest
+        run: |
+          cat > manifest.json <<EOF
+          {
+            "version": "${{ steps.meta.outputs.version }}",
+            "commit": "${{ steps.meta.outputs.short_sha }}",
+            "builtAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "images": {
+              "api": {
+                "ref": "${{ env.API_IMAGE }}:stable",
+                "digest": "${{ steps.build-api.outputs.digest }}"
+              },
+              "web": {
+                "ref": "${{ env.WEB_IMAGE }}:stable",
+                "digest": "${{ steps.build-web.outputs.digest }}"
+              }
+            }
+          }
+          EOF
+
+      - name: 🚀 Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.meta.outputs.tag }}" manifest.json \
+            --title "${{ steps.meta.outputs.tag }}" \
+            --target "$(git rev-parse HEAD)" \
+            --generate-notes

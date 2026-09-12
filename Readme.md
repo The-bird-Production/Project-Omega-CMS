@@ -57,6 +57,25 @@ pnpm --filter @omega/web dev
 
 Le CMS est maintenant accessible sur `http://localhost:3000`.
 
+## 🐳 Déploiement Docker
+
+Deux fichiers compose :
+- **`docker-compose.yml`** (officiel, pour l'auto-hébergement) : utilise les images publiées sur GHCR (`ghcr.io/the-bird-production/omega-api`/`omega-web:stable`) au lieu de builder depuis les sources.
+- **`docker-compose.dev.yml`** (contribution/dev local) : builde les images depuis les sources et ajoute phpMyAdmin + le port MySQL exposé. À utiliser en overlay : `docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build`.
+
+Pour un déploiement de prod :
+```sh
+cp .env.example .env   # puis remplir MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD, BETTER_AUTH_SECRET
+docker compose up -d
+```
+
+### Mises à jour automatiques (Watchtower)
+Chaque push sur `main` qui passe les tests déclenche `.github/workflows/release.yml`, qui build, signe (cosign, keyless) et publie de nouvelles images `:stable` sur GHCR. Pour que votre instance se mette à jour automatiquement dès qu'une nouvelle image est publiée, sans jamais avoir à vous connecter à votre propre serveur :
+```sh
+docker compose --profile watchtower up -d
+```
+[Watchtower](https://containrrr.dev/watchtower/) surveille uniquement les containers `omega-client`/`omega-server` (via le label `com.centurylinklabs.watchtower.enable`) et les recrée dès qu'un nouveau digest apparaît sur le tag `:stable` — c'est une vérification sortante uniquement, aucun accès entrant à votre infra n'est nécessaire. C'est un choix opt-in : sans le `--profile watchtower`, les mises à jour restent manuelles (`docker compose pull && docker compose up -d`).
+
 ## 🔧 Configuration
 
 - **Fichiers de configuration** : `apps/api/config/` (paramètres généraux), `.env` (variables sensibles, voir `ALLOWED_ORIGINS`/`APP_URL` pour le CORS et les cookies).

@@ -1,0 +1,33 @@
+# Local development / contributing override: builds images from source
+# instead of pulling from GHCR, exposes MySQL, and adds phpMyAdmin. Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  omega-client:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4000}
+
+  omega-server:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+
+  omega-db:
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: omega_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: omega-db
+      PMA_USER: user
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-password}
+      PMA_ABSOLUTE_URI: http://localhost:8080/
+    depends_on:
+      - omega-db

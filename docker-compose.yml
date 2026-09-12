@@ -1,44 +1,46 @@
+# Official self-hosting compose file: pulls prebuilt images from GHCR
+# (published by .github/workflows/release.yml on every green push to main)
+# instead of building from source. For local development/contributing, use:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Copy .env.example to .env and fill it in before running this.
 services:
   omega-client:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+    image: ghcr.io/the-bird-production/omega-web:stable
     container_name: omega_client
     restart: always
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+      - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4000}
     depends_on:
       - omega-server
     volumes:
-      - ./apps/api/Themes:/app/apps/web/app/Themes
-      - ./apps/api/Plugins:/app/apps/web/app/Plugins
-      - ./apps/web/public:/app/apps/web/public
-      - ./apps/api/Themes_style:/app/apps/web/public/themes
+      - ./apps/api/Themes:/repo/apps/web/app/Themes
+      - ./apps/api/Plugins:/repo/apps/web/app/Plugins
+      - ./apps/web/public:/repo/apps/web/public
+      - ./apps/api/Themes_style:/repo/apps/web/public/themes
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
   omega-server:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/the-bird-production/omega-api:stable
     container_name: omega_server
     restart: always
     ports:
       - "4000:4000"
     environment:
-      - DATABASE_URL=mysql://user:password@omega-db:3306/omega
+      - DATABASE_URL=mysql://user:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your .env file}@omega-db:3306/omega
       - NODE_ENV=production
-      - BETTER_AUTH_SECRET="your_secret_key_here"
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in your .env file}
       - APP_PORT=4000
-      - ALLOWED_ORIGINS=http://localhost:3000
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
     volumes:
-      - ./apps/api/Public:/app/apps/api/Public
-      - ./apps/api/Themes:/app/apps/api/Themes
-      - ./apps/api/Plugins:/app/apps/api/Plugins
-      - ./apps/api/config:/app/apps/api/config
-      - ./apps/api/Themes_style:/app/apps/api/Themes_style
+      - ./apps/api/Public:/repo/apps/api/Public
+      - ./apps/api/Themes:/repo/apps/api/Themes
+      - ./apps/api/Plugins:/repo/apps/api/Plugins
+      - ./apps/api/config:/repo/apps/api/config
+      - ./apps/api/Themes_style:/repo/apps/api/Themes_style
     depends_on:
       - omega-db
     command: >
@@ -48,35 +50,42 @@ services:
              pnpm --filter @omega/db run migrate:deploy &&
              pnpm --filter @omega/db run generate &&
              npx tsx server.js"
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
 
   omega-db:
     image: mysql:8.0
     container_name: omega_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your .env file}
       MYSQL_DATABASE: omega
       MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your .env file}
     volumes:
       - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
+    # No port published by default — MySQL only needs to be reachable from
+    # the other containers on this Docker network. Use docker-compose.dev.yml
+    # if you need to connect to it directly (e.g. from a local DB client).
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: omega_phpmyadmin
+  # Watches the omega-client/omega-server images (scoped via the
+  # com.centurylinklabs.watchtower.enable label above) and recreates them
+  # when a new digest is pushed to the :stable tag on GHCR — this is what
+  # delivers updates to self-hosted instances without anyone accessing the
+  # host. Opt-in: only starts with `docker compose --profile watchtower up`.
+  watchtower:
+    image: containrrr/watchtower
+    container_name: omega_watchtower
     restart: always
-    ports:
-      - "8080:80"
+    profiles: ["watchtower"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      PMA_HOST: omega-db
-      PMA_USER: user
-      PMA_PASSWORD: password
-      PMA_ABSOLUTE_URI: http://localhost:8080/
-    depends_on:
-      - omega-db
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_POLL_INTERVAL:-300}
+    command: --label-enable
 
 volumes:
   db_data:
