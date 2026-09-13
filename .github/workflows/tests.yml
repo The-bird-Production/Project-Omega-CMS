@@ -116,9 +116,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       # Build-only (no push): catches a broken Dockerfile before it ever
-      # reaches the release pipeline. NEXT_PUBLIC_BACKEND_URL is baked into
-      # the client bundle at build time, so it's a genuine self-host
-      # configuration value, not a secret — a placeholder is fine here.
+      # reaches the release pipeline. Deliberately does NOT override
+      # NEXT_PUBLIC_BACKEND_URL for the web image — the release pipeline
+      # doesn't either, so this exercises the exact same build-time default
+      # (the http://backend.invalid placeholder) that broke production once
+      # already when it wasn't a syntactically valid URL.
       - name: 🐳 Build ${{ matrix.image }} image
         uses: docker/build-push-action@v6
         with:
@@ -126,7 +128,6 @@ jobs:
           file: apps/${{ matrix.image }}/Dockerfile
           push: false
           build-args: |
-            NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
             APP_VERSION=ci-build
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
