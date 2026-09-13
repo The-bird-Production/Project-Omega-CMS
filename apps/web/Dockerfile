@@ -13,12 +13,18 @@ RUN pnpm install --frozen-lockfile --filter @omega/web...
 
 FROM deps AS build
 COPY apps/web apps/web
-# Baked as a placeholder on purpose — see docker-entrypoint.sh. Pass a real
-# NEXT_PUBLIC_BACKEND_URL only when building a one-off image for yourself
-# (e.g. local `docker compose build`); the published GHCR image always uses
-# the placeholder + runtime substitution so the same image works for every
-# self-hosted domain.
-ARG NEXT_PUBLIC_BACKEND_URL=__NEXT_PUBLIC_BACKEND_URL_PLACEHOLDER__
+# Baked as a placeholder on purpose — see docker-entrypoint.sh. Must be a
+# *syntactically valid* URL: Next's prerendering (and better-auth's client,
+# constructed at module-eval time) actually parses this with `new URL()`
+# during the build, so a non-URL token like "__PLACEHOLDER__" throws
+# ERR_INVALID_URL and fails the build outright. `.invalid` is a reserved
+# TLD (RFC 2606) guaranteed to never resolve, so at build time this just
+# degrades to the already-handled "fetch failed, render dynamically" path.
+# Pass a real NEXT_PUBLIC_BACKEND_URL only when building a one-off image for
+# yourself (e.g. local `docker compose build`); the published GHCR image
+# always uses the placeholder + runtime substitution so the same image works
+# for every self-hosted domain.
+ARG NEXT_PUBLIC_BACKEND_URL=http://backend.invalid
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 RUN pnpm --filter @omega/web run build
 

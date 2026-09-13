@@ -9,7 +9,8 @@
 # without a custom server or `output: "standalone"` + a JS entrypoint).
 set -e
 
-PLACEHOLDER="__NEXT_PUBLIC_BACKEND_URL_PLACEHOLDER__"
+# Must match the ARG default in apps/web/Dockerfile exactly.
+PLACEHOLDER="http://backend.invalid"
 
 if [ -n "$NEXT_PUBLIC_BACKEND_URL" ]; then
   grep -rl "$PLACEHOLDER" .next 2>/dev/null | while IFS= read -r file; do
