@@ -3,7 +3,7 @@ import path from "path";
 import AdmZip from "adm-zip";
 import axios from "axios";
 import { execFile } from "child_process";
-import type { Application } from "express";
+import type { Application, Router } from "express";
 import { prisma } from "@omega/db";
 import { fileURLToPath } from "url";
 import { loadPlugin } from "./LoadPlugin.js";
@@ -12,7 +12,7 @@ import { isSafePluginId } from "./pluginIdValidator.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const InstallPlugins = async (pluginId: string, app: Application, update: boolean): Promise<void> => {
+export const InstallPlugins = async (pluginId: string, app: Application | Router, update: boolean): Promise<void> => {
     const pluginsDir = path.resolve(process.cwd(), "Plugins");
     const clientDir = path.resolve(__dirname, "../../../apps/web/app/components/plugin");
     const tempDir = path.resolve(process.cwd(), "temp");
