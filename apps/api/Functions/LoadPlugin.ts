@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import express, { type Application } from "express";
+import express, { type Application, type Router } from "express";
 import { isSafePluginId } from "./pluginIdValidator.js";
 
 // Dossier contenant les plugins
@@ -12,7 +12,7 @@ function isSafeUrl(url: unknown): url is string {
 }
 
 // Fonction pour charger un plugin spécifique
-const loadPlugin = async (app: Application, pluginId: string): Promise<void> => {
+const loadPlugin = async (app: Application | Router, pluginId: string): Promise<void> => {
   if (!isSafePluginId(pluginId)) {
     console.warn(`Plugin ID invalide ou non autorisé : ${pluginId}`);
     return;
@@ -83,7 +83,7 @@ const loadPlugin = async (app: Application, pluginId: string): Promise<void> => 
 };
 
 // Fonction pour charger tous les plugins présents dans le dossier au démarrage
-const loadAllPlugins = async (app: Application): Promise<void> => {
+const loadAllPlugins = async (app: Application | Router): Promise<void> => {
   if (!fs.existsSync(PLUGIN_DIR)) {
     console.warn(`Dossier des plugins introuvable : ${PLUGIN_DIR}`);
     return;

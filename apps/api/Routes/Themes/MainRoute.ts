@@ -1,0 +1,13 @@
+import * as express from "express";
+import VerifyPermissions from "../../Middleware/VerifyPermissions.js";
+import * as ThemesController from "../../Controllers/Themes/ThemeController.js";
+import AddLogs from "../../Functions/AddLogs.js";
+const router = express.Router();
+router.get("/",  VerifyPermissions("admin"), ThemesController.getThemeInstalled);
+router.get("/installable",  VerifyPermissions("admin"), ThemesController.getInstallableThemes);
+router.post("/install/:id",  VerifyPermissions("admin"), AddLogs("Install a new theme", "green"), ThemesController.InstallTheme);
+router.get("/all",  VerifyPermissions("admin"), ThemesController.getAllThemes);
+router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update plugin", "info"), ThemesController.UpdateTheme);
+router.get("/current", ThemesController.getCurrentTheme);
+router.get("/default", ThemesController.getDefaultTheme);
+export default router;

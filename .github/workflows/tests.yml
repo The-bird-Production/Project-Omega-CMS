@@ -60,9 +60,7 @@ jobs:
 
       - name: 🔄 Setup test database
         working-directory: apps/api
-        run: |
-          pnpm run test:setup
-          pnpm run setup:test
+        run: pnpm run test:setup
 
       - name: 🧪 Run backend tests
         working-directory: apps/api
