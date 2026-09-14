@@ -126,11 +126,11 @@ export default function Page(props) {
                   </div>
                   <div className="col-12 col-lg-6">
                     <div className="card card-body bg-secondary rounded">
-                      <h3>Modification de l'image</h3>
+                      <h3>Modification de l&apos;image</h3>
                       <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                           <label for="ImageTitle" className="form-label">
-                            Titre de l'image
+                            Titre de l&apos;image
                           </label>
                           <input
                             type="text"

@@ -85,7 +85,7 @@ export default function NewImage() {
             <form onSubmit={handleSubmit} encType="multipart/form-data">
               <div className="mb-3">
                 <label htmlFor="pageTitle" className="form-label">
-                  Titre de l'image
+                  Titre de l&apos;image
                 </label>
                 <input
                   type="text"

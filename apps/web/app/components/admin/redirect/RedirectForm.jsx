@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { redirectSchema } from '../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 
-export default function redirectForm() {
+export default function RedirectForm() {
 
   const [formData, setFormData] = useState({ title: '', from: '', to: '' });
   const router = useRouter();

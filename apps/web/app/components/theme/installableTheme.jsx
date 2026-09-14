@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
-const themesInstallable = () => {
+const ThemesInstallable = () => {
  
 
   const [themes, setThemes] = useState([]);
@@ -108,4 +108,4 @@ const themesInstallable = () => {
   );
 };
 
-export default themesInstallable;
+export default ThemesInstallable;
