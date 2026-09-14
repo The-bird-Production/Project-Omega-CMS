@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function articleList() {
+export default function ArticleList() {
   
   const [rowData, setRowData] = useState([]);
   const router = useRouter();

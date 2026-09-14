@@ -8,7 +8,7 @@ import RedirectForm from '../../components/admin/redirect/RedirectForm';
 
 
 
-export default function redirectAdmin() {
+export default function RedirectAdmin() {
 
   const [newForm , setNewForm] = useState(false);
   return (

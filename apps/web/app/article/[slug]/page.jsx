@@ -73,7 +73,7 @@ export default async function ArticlePage(props) {
     return (
       <Layout currentPage={"ArticleDetail"}>
         <div className="container mt-4">
-          <div className="alert alert-danger">Erreur lors du chargement de l'article : {String(data.error.message || data.error)}</div>
+          <div className="alert alert-danger">Erreur lors du chargement de l&apos;article : {String(data.error.message || data.error)}</div>
         </div>
       </Layout>
     );

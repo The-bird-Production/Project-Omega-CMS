@@ -42,7 +42,7 @@ export default async function Page(props) {
         <Layout currentPage="Page introuvable">
           <main>
             <h1>Page introuvable</h1>
-            <p>Le contenu demandé n'existe pas.</p>
+            <p>Le contenu demandé n&apos;existe pas.</p>
           </main>
         </Layout>
       )
