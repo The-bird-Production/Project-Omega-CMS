@@ -2,7 +2,7 @@
 # the shared @omega/db package) — build with:
 #   docker build -f apps/api/Dockerfile .
 
-FROM node:22-alpine AS base
+FROM node:26-alpine AS base
 RUN corepack enable
 WORKDIR /repo
 
@@ -17,7 +17,7 @@ COPY packages/db packages/db
 COPY apps/api apps/api
 RUN pnpm --filter @omega/db run generate
 
-FROM node:22-alpine
+FROM node:26-alpine
 RUN apk add --no-cache su-exec
 RUN corepack enable
 WORKDIR /repo
