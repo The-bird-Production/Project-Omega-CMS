@@ -76,6 +76,10 @@ docker compose --profile watchtower up -d
 ```
 [Watchtower](https://containrrr.dev/watchtower/) surveille uniquement les containers `omega-client`/`omega-server` (via le label `com.centurylinklabs.watchtower.enable`) et les recrée dès qu'un nouveau digest apparaît sur le tag `:stable` — c'est une vérification sortante uniquement, aucun accès entrant à votre infra n'est nécessaire. C'est un choix opt-in : sans le `--profile watchtower`, les mises à jour restent manuelles (`docker compose pull && docker compose up -d`).
 
+## 🖥️ Déploiement bare-metal (sans Docker)
+
+Sans Docker, `apps/api` embarque son propre vérificateur/applicateur de mise à jour (basé sur `git`, pas de téléchargement de tarball ni de signature séparée à gérer) — même principe de sortie uniquement, désactivé par défaut. Voir [`docs/deploy/bare-metal.md`](docs/deploy/bare-metal.md) pour les unités systemd et comment l'activer.
+
 ## 🔧 Configuration
 
 - **Fichiers de configuration** : `apps/api/config/` (paramètres généraux), `.env` (variables sensibles, voir `ALLOWED_ORIGINS`/`APP_URL` pour le CORS et les cookies).
