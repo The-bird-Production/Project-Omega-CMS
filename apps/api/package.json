@@ -36,6 +36,7 @@
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
+    "node-cron": "^4.6.0",
     "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {

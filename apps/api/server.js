@@ -1,9 +1,12 @@
 import { config } from "dotenv";
 import app from "./app.js"; // ton Express app
 import { app_port } from "./config/server.js";
+import { startUpdateScheduler } from "./Functions/Updater/scheduler.js";
 
 // Charge les variables d'environnement
 config();
+
+startUpdateScheduler();
 
 // Middleware global de gestion des erreurs
 app.use((err, req, res, next) => {
