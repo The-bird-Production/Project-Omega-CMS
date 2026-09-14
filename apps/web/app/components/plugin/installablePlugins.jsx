@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const pluginsInstallable = () => {
+const PluginsInstallable = () => {
  
 
   const [plugins, setPlugins] = useState([]);
@@ -107,4 +107,4 @@ const pluginsInstallable = () => {
   );
 };
 
-export default pluginsInstallable;
+export default PluginsInstallable;

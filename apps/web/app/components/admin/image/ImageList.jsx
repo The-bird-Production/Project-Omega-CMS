@@ -131,7 +131,7 @@ export default function Component() {
           </li>
         ))}
       </ul>
-      <p>Nombre d'image : {rowData.length}</p>
+      <p>Nombre d&apos;image : {rowData.length}</p>
     </div>
   );
 }

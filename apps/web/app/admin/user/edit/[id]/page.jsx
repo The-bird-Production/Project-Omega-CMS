@@ -131,7 +131,7 @@ export default function Page(props) {
             <div className="card">
               <div className="card-body bg-secondary rounded border border-secondary">
                 <h2 className="card-title text-light">
-                  Modification d'utilisateur :{' '}
+                  Modification d&apos;utilisateur :{' '}
                 </h2>
                 <form onSubmit={handleSubmit}>
                   <div className="text-white container row pt-3 ">

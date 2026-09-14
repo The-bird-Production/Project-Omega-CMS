@@ -122,7 +122,7 @@ export default function Page(props) {
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="pageTitle" className="form-label">
-                  Titre de l'article
+                  Titre de l&apos;article
                 </label>
                 <input
                   type="text"
@@ -138,7 +138,7 @@ export default function Page(props) {
               </div>
               <div className="mb-3">
                 <label htmlFor="pageSlug" className="form-label">
-                  Url de l'article : http://yoursite.com/article/
+                  Url de l&apos;article : http://yoursite.com/article/
                 </label>
                 <input
                   type="text"
