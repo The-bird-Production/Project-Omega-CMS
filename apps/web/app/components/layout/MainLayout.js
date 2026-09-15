@@ -3,6 +3,7 @@
 import fetch from "isomorphic-fetch";
 import { useEffect } from "react";
 import { ThemeProvider } from "../theme/themeProvider";
+import { getOrCreateVisitorId, getReferrerHostname } from "../../../lib/analytics";
 
 function Layout({ children, currentPage }) {
   useEffect(() => {
@@ -14,6 +15,9 @@ function Layout({ children, currentPage }) {
       // strings ("ArticleDetail", "ArticleList", ...), making it impossible
       // to tell which article was actually viewed.
       formData.append("page", window.location.pathname);
+      formData.append("visitorId", getOrCreateVisitorId());
+      formData.append("referrer", getReferrerHostname());
+      formData.append("userAgent", navigator.userAgent);
       // Envoi de la requête à votre API externe pour enregistrer que la page a été consultée
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/add`, {
         method: "POST",

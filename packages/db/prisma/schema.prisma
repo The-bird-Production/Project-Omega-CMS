@@ -138,14 +138,25 @@ model stats_api {
 // ("ArticleList", "ArticleDetail", ...) for most routes instead of the
 // actual URL, making every article's views indistinguishable from every
 // other's — MainLayout.js now sends the real pathname.
+//
+// visitorId is a random id from a first-party cookie the browser sets
+// itself (lib/analytics.js) — never derived from the IP address, so this
+// stays anonymous. Session duration/bounce rate aren't stored columns:
+// they're derived by grouping a visitor's rows into sessions (a gap of
+// 30+ minutes starts a new one) at query time in GetAudience.
 model stats_web {
-  id    Int      @id @default(autoincrement())
-  count Int      @default(1)
-  page  String
-  date  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  count     Int      @default(1)
+  page      String
+  date      DateTime @default(now())
+  visitorId String?
+  referrer  String?
+  device    String?
+  browser   String?
 
   @@index([date])
   @@index([page])
+  @@index([visitorId])
 }
 
 model article {
