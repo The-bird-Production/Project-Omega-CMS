@@ -1,108 +1,75 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const PluginsInstallable = () => {
- 
-
-  const [plugins, setPlugins] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [repo, setRepo] = useState('');
+  const [installing, setInstalling] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  useEffect(() => {
-    const fetchPlugins = async () => {
-      
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setInstalling(true);
 
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/installable`,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              credentials: 'include',
-              mode: 'cors', // Permet les requêtes cross-origin
-            }
-          );
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/install-from-github`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        mode: 'cors',
+        body: JSON.stringify({ repo }),
+      });
 
-          if (!response.ok) {
-            throw new Error(`Erreur : ${response.statusText}`);
-          }
+      const data = await response.json().catch(() => ({}));
 
-          const data = await response.json();
-          setPlugins(data);
-        } catch (err) {
-          setError(err.message);
-          console.error('Erreur lors de la récupération des plugins :', err);
-        } finally {
-          setLoading(false);
-        }
-      
-    };
-
-    fetchPlugins();
-  }, []);
-
-  if (loading) return <div>Chargement des plugins...</div>;
-  if (error) return <div>Erreur : {error}</div>;
-
-  const installPlugin = async (id) => {
-    
-
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/plugins/install/${id}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            mode: 'cors', // Permet les requêtes cross-origin
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Erreur : ${response.statusText}`);
-        }
-
-        alert('Plugin installé avec succès !');
-      } catch (err) {
-        setError(err.message);
-        console.error("Erreur lors de l'installation du plugin :", err);
+      if (!response.ok) {
+        throw new Error(data.error || `Erreur : ${response.statusText}`);
       }
-    
+
+      setSuccess('Plugin installé avec succès !');
+      setRepo('');
+      router.refresh();
+    } catch (err) {
+      setError(err.message);
+      console.error("Erreur lors de l'installation du plugin :", err);
+    } finally {
+      setInstalling(false);
+    }
   };
 
   return (
-    <div className="container mt-5 bg-secondary p-4 rounded border border-secondary">
-      <h1 className="mb-4">Liste des Plugins Disponibles</h1>
-      {!plugins || plugins.length === 0 ? (
-        <div className="alert alert-warning" role="alert">
-          Aucun plugin disponible.
+    <div className="card card-body bg-secondary">
+      <h5 className="card-title">Installer un plugin depuis GitHub</h5>
+      <p className="text-muted">
+        Le dépôt doit être public et avoir au moins une release GitHub. Un asset nommé{' '}
+        <code>plugin.zip</code> est utilisé s&apos;il existe, sinon l&apos;archive source de la
+        release est utilisée.
+      </p>
+
+      {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+
+      <form onSubmit={handleSubmit} className="row g-2">
+        <div className="col-md-9">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="owner/repo ou https://github.com/owner/repo"
+            value={repo}
+            onChange={(e) => setRepo(e.target.value)}
+            required
+          />
         </div>
-      ) : (
-        <ul className="list-group">
-          {plugins.map((plugin) => (
-            <li
-              key={plugin.folder}
-              className="list-group-item bg-primary text-light border border-primary"
-            >
-              <h2 className="h5">{plugin.name}</h2>
-              <p>{plugin.description}</p>
-              <p>
-                <strong>Version :</strong> {plugin.version}
-              </p>
-              <button
-                className="btn btn-secondary"
-                onClick={() => installPlugin(plugin.id)}
-              >
-                Install
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+        <div className="col-md-3">
+          <button type="submit" className="btn btn-primary w-100" disabled={installing}>
+            {installing ? 'Installation...' : 'Installer'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

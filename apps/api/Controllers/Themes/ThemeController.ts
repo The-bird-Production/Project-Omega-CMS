@@ -1,101 +1,98 @@
 import type { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
+import { prisma } from "@omega/db";
 import InstallTheme from "../../Functions/InstallTheme.js";
+import { fetchLatestRelease, repoFromSource } from "../../Functions/githubRelease.js";
 
-export const getThemeInstalled = (req: Request, res: Response) => {
+function readInstalledThemes(): { name: string; id: string; version: string; description: string; folder: string }[] {
     const themeDir = path.resolve(process.cwd(), "Themes");
-    const themes = fs.readdirSync(themeDir).filter((theme) => theme.toLowerCase() !== "readme.md").map((theme) => {
-        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
-        return {
-            name: manifest.name,
-            id: manifest.id,
-            version: manifest.version,
-            description: manifest.description,
-            folder: manifest.folder,
-        };
-    });
-    res.json(themes);
-};
-export const getInstallableThemes = async (req: Request, res: Response) => {
-    const themeDir = path.resolve(process.cwd(), "Themes");
-    // Récupérer les thèmes déjà installés
-    const installedTheme = fs.readdirSync(themeDir).filter((theme) => theme.toLowerCase() !== "readme.md").map((theme) => {
-        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
-        return manifest.id; // Comparaison via l'ID du theme
-    });
-    try {
-        // Récupérer les plugins disponibles sur le marketplace
-        const response = await fetch("https://omega.marketplace.thebirdproduction.fr/themes");
-        if (!response.ok) {
-            return res
-                .status(500)
-                .json({
-                error: "Erreur lors de la récupération des themes disponibles",
-            });
-        }
-        const availableThemes = (await response.json()) as any;
-        // Filtrer les plugins déjà installés
-        const nonInstalledTheme = availableThemes.themes.filter((theme: any) => !installedTheme.includes(theme.id));
-        res.json(nonInstalledTheme);
-    }
-    catch (err) {
-        console.error("Erreur lors de la récupération des themes : ", err);
-        res
-            .status(500)
-            .json({
-            error: "Erreur lors de la récupération des themes disponibles",
+    if (!fs.existsSync(themeDir)) return [];
+    return fs
+        .readdirSync(themeDir)
+        .filter((theme) => fs.existsSync(path.join(themeDir, theme, "theme.json")))
+        .map((theme) => {
+            const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
+            return {
+                name: manifest.name,
+                id: manifest.id,
+                version: manifest.version,
+                description: manifest.description,
+                folder: manifest.folder,
+            };
         });
+}
+
+export const getThemeInstalled = async (req: Request, res: Response) => {
+    try {
+        const installed = readInstalledThemes();
+        const rows = await prisma.theme.findMany();
+        const withRepo = installed.map((theme) => {
+            const row = rows.find((r: { themeId: string }) => r.themeId === theme.id);
+            return { ...theme, repo: repoFromSource(row?.source) };
+        });
+        res.json(withRepo);
+    } catch (err) {
+        console.error("Erreur lors de la lecture des thèmes installés :", err);
+        res.status(500).json({ error: "Erreur lors de la lecture des thèmes installés" });
     }
 };
-const InstallTheme$0 = async (req: Request, res: Response) => {
-    const themeId = req.params.id;
-    try {
-        await InstallTheme(themeId, false);
-        res
-            .status(200)
-            .json({ success: true, message: "Theme installé avec succès" });
+
+export const InstallThemeFromGithub = async (req: Request, res: Response) => {
+    const { repo } = req.body ?? {};
+    if (!repo || typeof repo !== "string") {
+        return res.status(400).json({ error: "Le champ 'repo' (owner/repo GitHub) est requis." });
     }
-    catch (err) {
+    try {
+        await InstallTheme(repo, false);
+        res.status(200).json({ success: true, message: "Theme installé avec succès" });
+    } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Erreur lors de l'installation du theme" });
+        res.status(500).json({ error: `Erreur lors de l'installation du thème : ${(err as Error).message}` });
     }
 };
-export const getAllThemes = async (req: Request, res: Response) => {
-    try {
-        const response = await fetch("https://omega.marketplace.thebirdproduction.fr/themes");
-        if (!response.ok) {
-            return res
-                .status(500)
-                .json({
-                error: "Erreur lors de la récupération des themes disponibles",
-            });
-        }
-        const availableTheme = await response.json();
-        res.json({ code: 200, availableTheme });
-    }
-    catch (err) {
-        console.error("Erreur lors de la récupération des themes : ", err);
-        res
-            .status(500)
-            .json({
-            error: "Erreur lors de la récupération des themes disponibles",
-        });
-    }
-};
+
 export const UpdateTheme = async (req: Request, res: Response) => {
     const themeId = req.params.id;
     try {
-        await InstallTheme(themeId, true);
-        res
-            .status(200)
-            .json({ success: true, message: "mis à jour avec succès" });
-    }
-    catch (err) {
+        const row = await prisma.theme.findUnique({ where: { themeId } });
+        const repo = repoFromSource(row?.source);
+        if (!repo) {
+            return res.status(400).json({
+                error: "Ce thème n'a pas de dépôt GitHub associé — impossible de le mettre à jour automatiquement.",
+            });
+        }
+        await InstallTheme(repo, true);
+        res.status(200).json({ success: true, message: "mis à jour avec succès" });
+    } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Erreur lors de l'installation du plugin" });
+        res.status(500).json({ error: `Erreur lors de la mise à jour du thème : ${(err as Error).message}` });
     }
 };
+
+export const CheckThemeUpdate = async (req: Request, res: Response) => {
+    const themeId = req.params.id;
+    try {
+        const row = await prisma.theme.findUnique({ where: { themeId } });
+        const repo = repoFromSource(row?.source);
+        if (!repo) {
+            return res.json({ updateAvailable: false, reason: "no-github-source" });
+        }
+        const release = await fetchLatestRelease(repo);
+        if (!release) {
+            return res.json({ updateAvailable: false, reason: "no-release" });
+        }
+        res.json({
+            updateAvailable: release.tagName !== row?.version,
+            latestVersion: release.tagName,
+            currentVersion: row?.version,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: `Erreur lors de la vérification de mise à jour : ${(err as Error).message}` });
+    }
+};
+
 export const getCurrentTheme = async (req: Request, res: Response) => {
     const themeDir = path.resolve(process.cwd(), "Themes");
     // Récupérer le thème actuellement utilisé
@@ -120,4 +117,3 @@ export const getDefaultTheme = async (req: Request, res: Response) => {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
     res.json(manifest);
 };
-export { InstallTheme$0 as InstallTheme };

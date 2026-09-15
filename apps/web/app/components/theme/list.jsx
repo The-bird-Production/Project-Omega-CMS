@@ -3,57 +3,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 const ThemePage = () => {
-  
-
-  const [themes, setThemes] = useState([]); // Plugins installés
-  const [installableThemes, setInstallableThemes] = useState([]); // Plugins disponibles
-  const [updates, setUpdates] = useState({}); // Stocke les mises à jour disponibles
+  const [themes, setThemes] = useState([]);
+  const [updates, setUpdates] = useState({}); // { [themeId]: latestVersion }
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchThemes = async () => {
-     
-
-        try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes`, {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            mode: "cors",
-          });
-
-          if (!response.ok) {
-            throw new Error(`Erreur : ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          
-          setThemes(data);
-          
-        } catch (err) {
-          setError(err.message);
-          console.error("Erreur lors de la récupération des thèmes :", err);
-        } finally {
-          setLoading(false);
-        }
-      
-    };
-
-    fetchThemes();
-  }, []);
-
-  const checkUpdate = async () => {
-    
-      setLoading(true);
-      
-
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/all`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes`, {
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
           mode: "cors",
         });
@@ -63,75 +23,86 @@ const ThemePage = () => {
         }
 
         const data = await response.json();
-        
-        setInstallableThemes(data.themes);
-
-        // Comparaison des versions pour détecter les mises à jour disponibles
-
-        const updatesAvailable = {};
-          data.themes.forEach((installableThemes) => {
-            const installedThemes = themes.find((t) => t.id === installableThemes.id);
-            if (installedThemes && installedThemes.version !== installableThemes.version) {
-              updatesAvailable[installableThemes.id] = installableThemes;
-            }
-          });
-        
-
-        setUpdates(updatesAvailable);
-        console.log("Mises à jour disponibles :", updates);
+        setThemes(data);
       } catch (err) {
         setError(err.message);
-        console.error("Erreur lors de la récupération des mises à jour :", err);
+        console.error("Erreur lors de la récupération des thèmes :", err);
       } finally {
         setLoading(false);
       }
-    
+    };
+
+    fetchThemes();
+  }, []);
+
+  const checkUpdates = async () => {
+    setCheckingUpdates(true);
+    try {
+      const results = await Promise.all(
+        themes.map(async (theme) => {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/check-update/${theme.id}`,
+            { credentials: "include", mode: "cors" }
+          );
+          if (!response.ok) return null;
+          const data = await response.json();
+          return data.updateAvailable ? { id: theme.id, latestVersion: data.latestVersion } : null;
+        })
+      );
+
+      const updatesAvailable = {};
+      for (const result of results) {
+        if (result) updatesAvailable[result.id] = result.latestVersion;
+      }
+      setUpdates(updatesAvailable);
+    } catch (err) {
+      setError(err.message);
+      console.error("Erreur lors de la vérification des mises à jour :", err);
+    } finally {
+      setCheckingUpdates(false);
+    }
   };
 
-  const UpdateTheme = async (id) => {
-   
+  const updateTheme = async (id) => {
+    if (!window.confirm(`Mettre à jour le thème "${id}" maintenant ?`)) return;
 
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/update/${id}`, {
-          method: "POST",
-          headers: {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/update/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        mode: "cors",
+      });
 
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          mode: "cors",
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erreur : ${response.statusText}`);
-        }
-
-        alert("Plugin mis à jour avec succès !");
-        setUpdates((prevUpdates) => {
-          const newUpdates = { ...prevUpdates };
-          delete newUpdates[id];
-          return newUpdates;
-        });
-      } catch (err) {
-        setError(err.message);
-        console.error("Erreur lors de la mise à jour du thèmes :", err);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `Erreur : ${response.statusText}`);
       }
-    
+
+      setUpdates((prevUpdates) => {
+        const newUpdates = { ...prevUpdates };
+        delete newUpdates[id];
+        return newUpdates;
+      });
+    } catch (err) {
+      setError(err.message);
+      console.error("Erreur lors de la mise à jour du thème :", err);
+    }
   };
 
   if (loading) return <div>Chargement des thèmes...</div>;
-  if (error) return <div>Erreur : {error}</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div className="container mt-5 bg-secondary p-4 rounded border border-secondary">
-      <h1 className="mb-4">Liste des Themes Installés</h1>
-      <button className="btn btn-primary mb-3" onClick={checkUpdate}>
-        Vérifier les mises à jour
+    <div className="card card-body bg-secondary">
+      <h5 className="card-title">Liste des Thèmes Installés</h5>
+      <button className="btn btn-primary mb-3" onClick={checkUpdates} disabled={checkingUpdates || themes.length === 0}>
+        {checkingUpdates ? "Vérification..." : "Vérifier les mises à jour"}
       </button>
-      
+
       {themes.length === 0 ? (
         <div className="alert alert-warning" role="alert">
-          Aucun Themes installé.
+          Aucun thème installé.
         </div>
       ) : (
         <ul className="list-group">
@@ -139,20 +110,27 @@ const ThemePage = () => {
             <li key={theme.id} className="list-group-item bg-primary text-light border border-primary">
               <h2 className="h5">{theme.name}</h2>
               <p>{theme.description}</p>
-              <p>
+              <p className="mb-1">
                 <strong>Version :</strong> {theme.version}
               </p>
+              {theme.repo && (
+                <p className="mb-2">
+                  <small>
+                    Source :{" "}
+                    <a href={`https://github.com/${theme.repo}`} target="_blank" rel="noreferrer">
+                      {theme.repo}
+                    </a>
+                  </small>
+                </p>
+              )}
               <Link href={`/admin/themes/${theme.id}`} className="btn btn-secondary">
                 Settings
               </Link>
 
-              {/* Affichage du bouton Mettre à jour si une mise à jour est disponible */}
               {updates[theme.id] && (
                 <div className="mt-2">
-                  <p className="text-warning">
-                    Nouvelle version disponible : {updates[theme.id].version}
-                  </p>
-                  <button className="btn btn-warning" onClick={() => UpdateTheme(theme.id)}>
+                  <p className="text-warning mb-1">Nouvelle version disponible : {updates[theme.id]}</p>
+                  <button className="btn btn-warning" onClick={() => updateTheme(theme.id)}>
                     Mettre à jour
                   </button>
                 </div>

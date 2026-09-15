@@ -1,44 +1,57 @@
 import fs from "fs";
 import path from "path";
-import AdmZip from "adm-zip";
-import axios from "axios";
 import { execFile } from "child_process";
 import type { Application, Router } from "express";
 import { prisma } from "@omega/db";
 import { fileURLToPath } from "url";
 import { loadPlugin } from "./LoadPlugin.js";
 import { warn } from "console";
+import { assertSafeZipEntries } from "./zipSafety.js";
+import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isSafePluginId } from "./pluginIdValidator.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const InstallPlugins = async (pluginId: string, app: Application | Router, update: boolean): Promise<void> => {
+// repo: a GitHub "owner/repo" (or full github.com URL) whose latest release
+// is downloaded and installed as a plugin. The local plugin id is always
+// derived from the repo, deterministically, so re-installing (update=true)
+// the same repo lands on the same plugin directory/DB row.
+export const InstallPlugins = async (repo: string, app: Application | Router, update: boolean): Promise<void> => {
     const pluginsDir = path.resolve(process.cwd(), "Plugins");
     const clientDir = path.resolve(__dirname, "../../../apps/web/app/components/plugin");
     const tempDir = path.resolve(process.cwd(), "temp");
     const BACKUP_DIR = path.resolve(process.cwd(), "backups");
 
-    // ✅ Utilisez une variable safe pour basename dès le début
-    const safePluginName = path.basename(pluginId);  // Limite à un nom sûr
+    const normalizedRepo = parseRepoInput(repo);
+    // path.basename() is a no-op here in practice (repoToLocalId already
+    // never produces "/"), but makes the sanitization explicit at the exact
+    // value every filesystem path below is built from.
+    const safePluginName = path.basename(repoToLocalId(normalizedRepo));
 
     try {
-        if (!pluginId || typeof pluginId !== "string" || !isSafePluginId(safePluginName)) {
+        if (!isSafePluginId(safePluginName)) {
             throw new Error("Plugin ID invalide ou non autorisé.");
         }
 
         if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
         if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
 
-        // ✅ Validation stricte de l’URL (déjà bonne)
-        const allowedHost = "omega.marketplace.thebirdproduction.fr";
-        const downloadUrl = new URL(`https://${allowedHost}/download/${encodeURIComponent(pluginId)}`);
+        const release = await fetchLatestRelease(normalizedRepo);
+        if (!release) {
+            throw new Error(`Aucune release trouvée pour ${normalizedRepo}. Le dépôt doit avoir au moins une release GitHub.`);
+        }
 
-        console.log(`Téléchargement sécurisé du plugin : ${downloadUrl.href}`);
-        const { data } = await axios.get(downloadUrl.href, { responseType: "arraybuffer", timeout: 10000 });
+        console.log(`Téléchargement du plugin depuis ${normalizedRepo} (${release.tagName})`);
+        const extractPath = path.join(tempDir, safePluginName);
 
-        const zip = new AdmZip(data);
-        const extractPath = path.join(tempDir, safePluginName);  // Utilisez safePluginName
+        const { zip, needsUnwrap } = await downloadReleaseArchive(release, "plugin.zip");
+        // Zip-slip guard: every entry must resolve inside extractPath before
+        // extraction ever runs — this was previously missing here entirely
+        // (unlike the theme installer), so a crafted plugin archive could
+        // write files anywhere the process had permissions for.
+        assertSafeZipEntries(zip, extractPath);
         zip.extractAllTo(extractPath, true);
+        if (needsUnwrap) unwrapSingleTopLevelDir(extractPath);
 
         // ✅ Construction et vérification de confinement pour pluginDir (ligne ~43)
         const pluginDir = path.resolve(pluginsDir, safePluginName);
@@ -140,22 +153,21 @@ export const InstallPlugins = async (pluginId: string, app: Application | Router
         // relire tous les plugin.json — best-effort, ne doit pas faire échouer l'install.
         try {
             const manifestPath = path.join(safePluginDir, "plugin.json");
-            if (fs.existsSync(manifestPath)) {
-                const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-                await prisma.plugin.upsert({
-                    where: { pluginId: safePluginName },
-                    create: {
-                        pluginId: safePluginName,
-                        name: manifest.name ?? safePluginName,
-                        version: manifest.version ?? "0.0.0",
-                        source: "marketplace",
-                    },
-                    update: {
-                        name: manifest.name ?? safePluginName,
-                        version: manifest.version ?? "0.0.0",
-                    },
-                });
-            }
+            const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, "utf-8")) : {};
+            await prisma.plugin.upsert({
+                where: { pluginId: safePluginName },
+                create: {
+                    pluginId: safePluginName,
+                    name: manifest.name ?? safePluginName,
+                    version: release.tagName,
+                    source: `github:${normalizedRepo}`,
+                },
+                update: {
+                    name: manifest.name ?? safePluginName,
+                    version: release.tagName,
+                    source: `github:${normalizedRepo}`,
+                },
+            });
         } catch (dbErr) {
             console.error("Impossible de synchroniser le plugin dans la base :", dbErr);
         }

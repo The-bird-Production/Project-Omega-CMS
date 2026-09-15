@@ -1,25 +1,9 @@
 import fs from "fs";
 import path from "path";
-import AdmZip from "adm-zip";
-import axios from "axios";
 import sanitize from "sanitize-filename";
 import { prisma } from "@omega/db";
-
-// Throws if targetPath does not resolve to a location inside baseDir (path traversal / zip-slip guard).
-export function assertInside(baseDir: string, targetPath: string, label: string): string {
-  const resolvedBase = path.resolve(baseDir);
-  const resolvedTarget = path.resolve(targetPath);
-  if (resolvedTarget !== resolvedBase && !resolvedTarget.startsWith(resolvedBase + path.sep)) {
-    throw new Error(`Chemin ${label} hors dossier autorisé : ${resolvedTarget}`);
-  }
-  return resolvedTarget;
-}
-
-export function assertSafeZipEntries(zip: Pick<AdmZip, "getEntries">, extractDir: string): void {
-  for (const entry of zip.getEntries()) {
-    assertInside(extractDir, path.join(extractDir, entry.entryName), "d'entrée d'archive");
-  }
-}
+import { assertInside, assertSafeZipEntries } from "./zipSafety.js";
+import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 
 function moveInto(srcDir: string, destDir: string): void {
   if (!fs.existsSync(srcDir)) return;
@@ -27,10 +11,15 @@ function moveInto(srcDir: string, destDir: string): void {
   fs.renameSync(srcDir, destDir);
 }
 
-const InstallTheme = async (themeId: string, update: boolean): Promise<void> => {
+// repo: a GitHub "owner/repo" (or full github.com URL) whose latest release
+// is downloaded and installed as a theme. The local theme id is always
+// derived from the repo, deterministically, so re-installing (update=true)
+// the same repo lands on the same theme directory/DB row.
+const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
   const isDev = process.env.NODE_ENV !== "production";
 
-  const sanitizedThemeId = sanitize(themeId);
+  const normalizedRepo = parseRepoInput(repo);
+  const sanitizedThemeId = sanitize(repoToLocalId(normalizedRepo));
   if (!sanitizedThemeId) {
     throw new Error("Theme ID invalide ou non autorisé.");
   }
@@ -51,17 +40,19 @@ const InstallTheme = async (themeId: string, update: boolean): Promise<void> => 
   }
 
   try {
-    console.log(`Installing theme in ${isDev ? "development" : "production"} mode...`);
+    console.log(`Installing theme from ${normalizedRepo} in ${isDev ? "development" : "production"} mode...`);
 
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-    const allowedHost = "omega.marketplace.thebirdproduction.fr";
-    const downloadUrl = new URL(`https://${allowedHost}/download/theme/${encodeURIComponent(sanitizedThemeId)}`);
-    const { data } = await axios.get(downloadUrl.href, { responseType: "arraybuffer", timeout: 10000 });
+    const release = await fetchLatestRelease(normalizedRepo);
+    if (!release) {
+      throw new Error(`Aucune release trouvée pour ${normalizedRepo}. Le dépôt doit avoir au moins une release GitHub.`);
+    }
 
-    const zip = new AdmZip(data);
+    const { zip, needsUnwrap } = await downloadReleaseArchive(release, "theme.zip");
     assertSafeZipEntries(zip, extractDir);
     zip.extractAllTo(extractDir, true);
+    if (needsUnwrap) unwrapSingleTopLevelDir(extractDir);
 
     if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
     fs.renameSync(extractDir, themeDir);
@@ -87,22 +78,21 @@ const InstallTheme = async (themeId: string, update: boolean): Promise<void> => 
     // relire tous les theme.json — best-effort, ne doit pas faire échouer l'install.
     try {
       const manifestPath = path.join(themeDir, "theme.json");
-      if (fs.existsSync(manifestPath)) {
-        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-        await prisma.theme.upsert({
-          where: { themeId: sanitizedThemeId },
-          create: {
-            themeId: sanitizedThemeId,
-            name: manifest.name ?? sanitizedThemeId,
-            version: manifest.version ?? "0.0.0",
-            source: "marketplace",
-          },
-          update: {
-            name: manifest.name ?? sanitizedThemeId,
-            version: manifest.version ?? "0.0.0",
-          },
-        });
-      }
+      const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, "utf-8")) : {};
+      await prisma.theme.upsert({
+        where: { themeId: sanitizedThemeId },
+        create: {
+          themeId: sanitizedThemeId,
+          name: manifest.name ?? sanitizedThemeId,
+          version: release.tagName,
+          source: `github:${normalizedRepo}`,
+        },
+        update: {
+          name: manifest.name ?? sanitizedThemeId,
+          version: release.tagName,
+          source: `github:${normalizedRepo}`,
+        },
+      });
     } catch (dbErr) {
       console.error("Impossible de synchroniser le thème dans la base :", dbErr);
     }
