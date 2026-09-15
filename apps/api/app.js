@@ -15,6 +15,7 @@ import FileRoute from "./Routes/Files/MainRoute.js";
 import ImageRoute from "./Routes/Images/MainRoute.js";
 import LogRoute from "./Routes/LogRoute/MainRoute.js";
 import Stats from "./Routes/Stats/Api/MainRoute.js";
+import trackApiRequest from "./Middleware/ApiStats.js";
 import web_stats from "./Routes/Stats/Web/MainRoute.js";
 import OtherStats from './Routes/Stats/Other/MainRoute.js';
 import PageRoute from './Routes/Pages/MainRoutes.js';
@@ -38,11 +39,15 @@ else if (process.env.NODE_ENV == "production") {
 app.use(helmet());
 app.use(compression());
 app.use(morgan("dev"));
+// Tracks every request regardless of which route below eventually handles
+// it — previously this ran as part of the /stats router itself, mounted
+// mid-chain, so requests handled by routes registered before it (user,
+// file, image, logs, web_stats, otherstats) were silently never tracked.
+app.use(trackApiRequest);
 app.all('/api/auth/*', toNodeHandler(auth));
 //JSON
 app.use(json());
 app.use(_urlencoded({ extended: true }));
-//app.use(Stats);
 //app.use("/auth", AuthRoute);
 app.use("/user", UserRoute);
 app.use("/file", FileRoute);
@@ -50,7 +55,7 @@ app.use("/image", ImageRoute);
 app.use("/logs", LogRoute);
 app.use("/web_stats", web_stats);
 app.use('/otherstats', OtherStats);
-app.use(Stats);
+app.use('/stats', Stats);
 app.use('/page', PageRoute);
 app.use('/plugins', PluginsRoute);
 app.use('/redirect', RedirectRoute);

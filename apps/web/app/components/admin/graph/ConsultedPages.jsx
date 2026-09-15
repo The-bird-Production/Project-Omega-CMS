@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-export default function Components() {
+export default function ConsultedPages({ startDate, endDate }) {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const [data, setData] = useState(null);
@@ -11,42 +11,37 @@ export default function Components() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
+        const params = new URLSearchParams({ limit: '8' });
+        if (startDate) params.set('startDate', startDate);
+        if (endDate) params.set('endDate', endDate);
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/all`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/top-pages?${params.toString()}`,
           {
             credentials: 'include',
             mode: 'cors',
           }
         );
         const jsonData = await res.json();
-        const rowData = jsonData.data;
+        if (!res.ok) throw new Error(jsonData.message || 'Erreur lors du chargement');
 
-        const pageCounts = rowData.reduce((acc, curr) => {
-          if (!acc[curr.page]) {
-            acc[curr.page] = 0;
-          }
-          acc[curr.page] += curr.count;
-          return acc;
-        }, {});
-
-        const labels = Object.keys(pageCounts);
-        const data = labels.map((label) => pageCounts[label]);
-        setLabels(labels);
-        setData(data);
-
+        const rows = jsonData.data ?? [];
+        setLabels(rows.map((r) => r.page));
+        setData(rows.map((r) => r.views));
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError(error.message);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.message);
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [startDate, endDate]);
 
   useEffect(() => {
+    if (!data || !labels) return;
     require('../../../../public/js/chart');
 
     if (chartInstanceRef.current) {
@@ -94,10 +89,7 @@ export default function Components() {
                 data.forEach((item) => {
                   total += item;
                 });
-                let percentage = (
-                  (data[tooltipItem.dataIndex] / total) *
-                  100
-                ).toFixed(2);
+                let percentage = total > 0 ? ((data[tooltipItem.dataIndex] / total) * 100).toFixed(2) : '0.00';
                 return labels[tooltipItem.dataIndex] + ': ' + percentage + '%';
               },
             },
@@ -112,7 +104,7 @@ export default function Components() {
         chartInstanceRef.current.destroy();
       }
     };
-  }, [data]);
+  }, [data, labels]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -120,6 +112,10 @@ export default function Components() {
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (!labels || labels.length === 0) {
+    return <p className="text-muted mb-0">Aucune vue enregistrée pour cette période.</p>;
   }
 
   return (

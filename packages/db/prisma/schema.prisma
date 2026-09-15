@@ -117,21 +117,35 @@ model redirect {
 }
 
 
+// One row per API request (previously one row per request but holding
+// process-lifetime CUMULATIVE counters — every stored row duplicated the
+// previous one plus a bit more, so date-range queries returned meaningless
+// ever-growing snapshots instead of per-period figures). Real per-request
+// values now, aggregated on demand by GetStatsController.
 model stats_api {
-  id                  Int      @id @default(autoincrement())
-  timestamp           DateTime @default(now())
-  totalRequests       Int
-  averageResponseTime Float
-  statusCodeCounts    Json
-  averageResponseSize Float
-  date                DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  method       String
+  path         String
+  statusCode   Int
+  responseTime Float // ms
+  responseSize Int // bytes
+  date         DateTime @default(now())
+
+  @@index([date])
 }
 
+// One row per page view. `page` used to receive a hardcoded generic label
+// ("ArticleList", "ArticleDetail", ...) for most routes instead of the
+// actual URL, making every article's views indistinguishable from every
+// other's — MainLayout.js now sends the real pathname.
 model stats_web {
   id    Int      @id @default(autoincrement())
-  count Int
+  count Int      @default(1)
   page  String
   date  DateTime @default(now())
+
+  @@index([date])
+  @@index([page])
 }
 
 model article {
