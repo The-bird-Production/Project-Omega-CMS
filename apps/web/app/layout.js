@@ -1,13 +1,23 @@
-'use client';
+import ClientChrome from './components/layout/ClientChrome';
 
-import { usePathname } from 'next/navigation';
-import { ThemeProvider } from './components/theme/themeProvider';
+const siteName = "Omega CMS";
+const siteDescription = "Site propulsé par Omega CMS.";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
+export const metadata = {
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+  title: {
+    default: siteName,
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  openGraph: {
+    siteName,
+    type: "website",
+  },
+};
 
 export default function RootLayout({ children }) {
-  const pathname = usePathname();
-  const isAdminRoute = pathname.startsWith('/admin');
-
   return (
     <html lang="en">
       <head>
@@ -15,17 +25,11 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         />
-        {isAdminRoute && <link rel="stylesheet" href="/css/admin.css" />}
       </head>
 
       <body>
-        {isAdminRoute ? (
-          <>{children}</>
-        ) : (
-          <ThemeProvider>{children}</ThemeProvider>
-        )}
+        <ClientChrome>{children}</ClientChrome>
       </body>
     </html>
-
   );
 }

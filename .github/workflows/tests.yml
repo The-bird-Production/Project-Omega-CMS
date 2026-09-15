@@ -73,6 +73,9 @@ jobs:
       # Without this, better-auth's client throws "Invalid base URL: undefined/api/auth/"
       # during prerendering and the build fails on every admin/auth page.
       NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+      # Exercises the metadataBase/sitemap/robots code paths during the build
+      # (see apps/web/app/layout.js, sitemap.js, robots.js).
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
     steps:
       - name: 📥 Checkout repository

@@ -26,6 +26,13 @@ COPY apps/web apps/web
 # for every self-hosted domain.
 ARG NEXT_PUBLIC_BACKEND_URL=http://backend.invalid
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+
+# Same placeholder mechanism as above — the public URL of the site itself,
+# used for the sitemap/robots.txt and canonical/Open Graph URLs. Also a
+# reserved .invalid domain so it stays a syntactically valid URL at build
+# time (see layout.js's `new URL(siteUrl)` for metadataBase).
+ARG NEXT_PUBLIC_SITE_URL=http://site.invalid
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 RUN pnpm --filter @omega/web run build
 
 FROM node:22-alpine
