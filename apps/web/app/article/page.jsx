@@ -8,6 +8,16 @@ export const metadata = {
   description: "Tous les articles publiés.",
 };
 
+function stripHtml(html) {
+  let text = html || "";
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]*>/g, "");
+  } while (text !== previous);
+  return text;
+}
+
 async function fetchJson(url) {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
@@ -75,7 +85,7 @@ export default async function ArticleListPage(props) {
                   <h5 className="mb-1">{a.title}</h5>
                   <small>{a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : ""}</small>
                 </div>
-                <p className="mb-1">{(a.body || "").replace(/<[^>]+>/g, "").slice(0, 200)}{(a.body || "").length > 200 ? "..." : ""}</p>
+                <p className="mb-1">{stripHtml(a.body).slice(0, 200)}{(a.body || "").length > 200 ? "..." : ""}</p>
                 <small>
                   By {a.authorId || 'unknown'}
                   {a.category ? ` · ${a.category}` : ""}
