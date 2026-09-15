@@ -4,6 +4,7 @@ import * as ThemesController from "../../Controllers/Themes/ThemeController.js";
 import AddLogs from "../../Functions/AddLogs.js";
 const router = express.Router();
 router.get("/",  VerifyPermissions("admin"), ThemesController.getThemeInstalled);
+router.get("/catalog", VerifyPermissions("admin"), ThemesController.getThemesCatalog);
 router.post("/install-from-github", VerifyPermissions("admin"), AddLogs("Install a new theme", "green"), ThemesController.InstallThemeFromGithub);
 router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update plugin", "info"), ThemesController.UpdateTheme);
 router.get("/check-update/:id", VerifyPermissions("admin"), ThemesController.CheckThemeUpdate);

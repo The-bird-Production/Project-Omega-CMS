@@ -4,6 +4,7 @@ import path from "path";
 import { prisma } from "@omega/db";
 import InstallTheme from "../../Functions/InstallTheme.js";
 import { fetchLatestRelease, repoFromSource } from "../../Functions/githubRelease.js";
+import { fetchCatalog } from "../../Functions/catalog.js";
 
 function readInstalledThemes(): { name: string; id: string; version: string; description: string; folder: string }[] {
     const themeDir = path.resolve(process.cwd(), "Themes");
@@ -90,6 +91,16 @@ export const CheckThemeUpdate = async (req: Request, res: Response) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: `Erreur lors de la vérification de mise à jour : ${(err as Error).message}` });
+    }
+};
+
+export const getThemesCatalog = async (req: Request, res: Response) => {
+    try {
+        const catalog = await fetchCatalog("themes");
+        res.json(catalog);
+    } catch (err) {
+        console.error("Erreur lors de la lecture du catalogue de thèmes :", err);
+        res.status(500).json({ error: "Erreur lors de la lecture du catalogue de thèmes" });
     }
 };
 

@@ -4,6 +4,7 @@ import path from "path";
 import { prisma } from "@omega/db";
 import InstallPlugins from "../../Functions/InstallPlugins.js";
 import { fetchLatestRelease, repoFromSource } from "../../Functions/githubRelease.js";
+import { fetchCatalog } from "../../Functions/catalog.js";
 
 function readInstalledPlugins(): { name: string; id: string; version: string; description: string; folder: string }[] {
     const pluginsDir = path.resolve(process.cwd(), "Plugins");
@@ -90,6 +91,16 @@ export const CheckPluginUpdate = async (req: Request, res: Response) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: `Erreur lors de la vérification de mise à jour : ${(err as Error).message}` });
+    }
+};
+
+export const getPluginsCatalog = async (req: Request, res: Response) => {
+    try {
+        const catalog = await fetchCatalog("plugins");
+        res.json(catalog);
+    } catch (err) {
+        console.error("Erreur lors de la lecture du catalogue de plugins :", err);
+        res.status(500).json({ error: "Erreur lors de la lecture du catalogue de plugins" });
     }
 };
 
