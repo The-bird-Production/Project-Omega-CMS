@@ -9,7 +9,11 @@ function Layout({ children, currentPage }) {
     // Vérification si l'effet est exécuté côté client
     if (typeof window !== "undefined") {
       const formData = new URLSearchParams();
-      formData.append("page", currentPage);
+      // The real URL, not the generic per-template label (currentPage) —
+      // every article/page used to report the same handful of hardcoded
+      // strings ("ArticleDetail", "ArticleList", ...), making it impossible
+      // to tell which article was actually viewed.
+      formData.append("page", window.location.pathname);
       // Envoi de la requête à votre API externe pour enregistrer que la page a été consultée
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/add`, {
         method: "POST",
