@@ -1,46 +1,21 @@
 'use client';
-import dynamic from 'next/dynamic';
-import Dashboard from '../../../components/admin/Dashboard';
+import Breadcrumb from '../../../components/admin/ui/Breadcrumb';
 import ThemesInstallable from '../../../components/theme/installableTheme';
-import Link from 'next/link';
-
-
-const AdminLayout = dynamic(() => import('../../../components/layout/AdminLayout'), {
-  ssr: false,
-});
-
-
 
 export default function InstallPlugin() {
   return (
     <>
-      <AdminLayout>
-        <Dashboard>
-        <nav aria-label="breadcrumb" className="text-light pt-5 mt-5">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link href="/admin">Dashboard</Link>
-              </li>
-              <li className="breadcrumb-item" aria-current="page">
-                <Link href="/admin/themes">Thèmes</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                Install
-              </li>
-            </ol>
-          </nav>
-            <div className=''>
-                <h1>Install thèmes</h1>
-                <ThemesInstallable />
-
-                
-                
-            
-
-            </div>
-          
-        </Dashboard>
-      </AdminLayout>
+      <Breadcrumb
+        items={[
+          { label: 'Dashboard', href: '/admin' },
+          { label: 'Thèmes', href: '/admin/themes' },
+          { label: 'Install' },
+        ]}
+      />
+      <div className="card card-body bg-secondary">
+        <h5 className="card-title">Install thèmes</h5>
+        <ThemesInstallable />
+      </div>
     </>
   );
 }

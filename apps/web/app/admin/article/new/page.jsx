@@ -1,10 +1,8 @@
 'use client';
-import AdminLayout from '../../../components/layout/AdminLayout';
-import Dashboard from '../../../components/admin/Dashboard';
+import Breadcrumb from '../../../components/admin/ui/Breadcrumb';
 import { useEffect, useState, useRef } from 'react';
 import { articleSchema, articleDraftSchema } from '../../../../lib/schema';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import TinyMCE from '../../../components/admin/article/tinyMCE';
 import { v4 } from 'uuid';
 import { authClient } from '../../../../lib/authClient';
@@ -101,23 +99,16 @@ export default function Page() {
   };
 
   return (
-    <AdminLayout>
-      <Dashboard>
-        <div className="pt-5 mt-5">
-          <nav aria-label="breadcrumb" className="text-light">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link href="/admin">Dashboard</Link>
-              </li>
-              <li className="breadcrumb-item">
-                <Link href="/admin/article">Article</Link>
-              </li>
-              <li className="breadcrumb-item active">New</li>
-            </ol>
-          </nav>
-        </div>
+    <>
+      <Breadcrumb
+        items={[
+          { label: 'Dashboard', href: '/admin' },
+          { label: 'Article', href: '/admin/article' },
+          { label: 'New' },
+        ]}
+      />
 
-        <div className="card card-body bg-secondary">
+      <div className="card card-body bg-secondary">
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="articleTitle" className="form-label">
@@ -184,7 +175,6 @@ export default function Page() {
             </div>
           </form>
         </div>
-      </Dashboard>
-    </AdminLayout>
+    </>
   );
 }
