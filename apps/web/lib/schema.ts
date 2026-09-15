@@ -21,6 +21,8 @@ export const articleSchema = z.object({
     slug: z.string().min(1, "Slug is required"),
     body: z.string().min(1, "Body is required"),
     authorId: z.string().min(1, "Author ID is required"),
+    category: z.string().optional().nullable(),
+    tags: z.string().optional().nullable(),
 })
 export const articleDraftSchema = z.object({
     title: z.string().optional().nullable(),
@@ -28,6 +30,8 @@ export const articleDraftSchema = z.object({
     body: z.string().nullable(),
     authorId: z.string().min(1, "Author ID is required"),
     draftId: z.string(),
+    category: z.string().optional().nullable(),
+    tags: z.string().optional().nullable(),
 })
 
 export const userSchema = z.object({

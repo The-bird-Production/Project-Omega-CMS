@@ -12,7 +12,7 @@ export default function Page(props) {
   const params = use(props.params);
   const slug = params.slug;
 
-  const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
+  const [formData, setFormData] = useState({ title: '', body: '', slug: '', category: '', tags: '' });
   const [data, setData] = useState(null);
 
   const router = useRouter();
@@ -40,6 +40,8 @@ export default function Page(props) {
             title: jsonData.title,
             body: jsonData.body,
             slug: jsonData.slug,
+            category: jsonData.category || '',
+            tags: jsonData.tags || '',
           });
         } else {
           console.error('Failed to fetch data:', res.statusText);
@@ -147,6 +149,32 @@ export default function Page(props) {
                   name="slug"
                   onChange={handleChange}
                   value={formData.slug}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="articleCategory" className="form-label">
+                  Catégorie
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="articleCategory"
+                  name="category"
+                  onChange={handleChange}
+                  value={formData.category}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="articleTags" className="form-label">
+                  Tags (séparés par des virgules)
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="articleTags"
+                  name="tags"
+                  onChange={handleChange}
+                  value={formData.tags}
                 />
               </div>
               <div className="mb-3">

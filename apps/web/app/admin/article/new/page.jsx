@@ -15,6 +15,8 @@ export default function Page() {
     body: '',
     slug: '',
     authorId: '',
+    category: '',
+    tags: '',
     draftId: v4(),
   });
 
@@ -145,6 +147,34 @@ export default function Page() {
                 id="pageSlug"
                 name="slug"
                 value={formData.slug}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="articleCategory" className="form-label">
+                Catégorie
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="articleCategory"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="articleTags" className="form-label">
+                Tags (séparés par des virgules)
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="articleTags"
+                name="tags"
+                value={formData.tags}
                 onChange={handleChange}
               />
             </div>
