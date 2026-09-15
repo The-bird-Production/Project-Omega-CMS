@@ -3,7 +3,7 @@ import { prisma } from "@omega/db";
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
-    const { title, body, authorId, slug } = req.body;
+    const { title, body, authorId, slug, category, tags } = req.body;
     // Validate input
     if (!title || !body || !authorId || !slug) {
       return res
@@ -17,6 +17,8 @@ export const createArticle = async (req: Request, res: Response) => {
         body,
         authorId,
         slug,
+        category: category || null,
+        tags: tags || null,
         image: (req as any).file ? (req as any).file.path : null,
         publishedAt: req.body.publishedAt || new Date(), // Set the current date as publishedAt
       },
@@ -30,7 +32,7 @@ export const createArticle = async (req: Request, res: Response) => {
 export const modifyArticle = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, body } = req.body;
+    const { title, body, category, tags } = req.body;
     // Validate input
     if (!title && !body) {
       return res.status(400).json({ message: "Title or content is required" });
@@ -41,6 +43,8 @@ export const modifyArticle = async (req: Request, res: Response) => {
       data: {
         title,
         body,
+        category: category || null,
+        tags: tags || null,
       },
     });
     res.status(200).json(article);
@@ -171,6 +175,83 @@ export const getAllDrafts = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+export const searchArticles = async (req: Request, res: Response) => {
+  try {
+    const currentDate = new Date();
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    const category = typeof req.query.category === "string" ? req.query.category.trim() : "";
+    const tag = typeof req.query.tag === "string" ? req.query.tag.trim() : "";
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize as string, 10) || 10));
+
+    const where: Record<string, unknown> = { publishedAt: { lte: currentDate } };
+    if (category) where.category = category;
+    if (tag) where.tags = { contains: tag };
+    if (q) {
+      where.OR = [{ title: { contains: q } }, { body: { contains: q } }];
+    }
+
+    const [articles, total] = await Promise.all([
+      prisma.article.findMany({
+        where,
+        orderBy: { publishedAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.article.count({ where }),
+    ]);
+
+    res.status(200).json({
+      data: articles,
+      page,
+      pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    });
+  } catch (error) {
+    console.error("Error searching articles:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getArticleCategories = async (req: Request, res: Response) => {
+  try {
+    const currentDate = new Date();
+    const rows = await prisma.article.findMany({
+      where: { publishedAt: { lte: currentDate }, category: { not: null } },
+      select: { category: true },
+      distinct: ["category"],
+    });
+    const categories = rows.map((r: { category: string | null }) => r.category as string).sort();
+    res.status(200).json({ data: categories });
+  } catch (error) {
+    console.error("Error retrieving article categories:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getArticleTags = async (req: Request, res: Response) => {
+  try {
+    const currentDate = new Date();
+    const rows = await prisma.article.findMany({
+      where: { publishedAt: { lte: currentDate }, tags: { not: null } },
+      select: { tags: true },
+    });
+    const tagSet = new Set<string>();
+    for (const row of rows) {
+      (row.tags ?? "")
+        .split(",")
+        .map((t: string) => t.trim())
+        .filter(Boolean)
+        .forEach((t: string) => tagSet.add(t));
+    }
+    res.status(200).json({ data: Array.from(tagSet).sort() });
+  } catch (error) {
+    console.error("Error retrieving article tags:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const getArticleBySlug = async (req: Request, res: Response) => {
   const currentDate = new Date();
   try {

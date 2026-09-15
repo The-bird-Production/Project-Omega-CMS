@@ -1,8 +1,11 @@
 import * as express from "express";
 import VerifiyPermissions from "../../Middleware/VerifyPermissions.js";
-import { getAllArticles, createArticle, modifyArticle, deleteArticle, saveDraft, getArticleBySlug, getAllDrafts, deleteArticleDraft, getDraftById } from "../../Controllers/Article/ArticleController.js";
+import { getAllArticles, createArticle, modifyArticle, deleteArticle, saveDraft, getArticleBySlug, getAllDrafts, deleteArticleDraft, getDraftById, searchArticles, getArticleCategories, getArticleTags } from "../../Controllers/Article/ArticleController.js";
 const router = express.Router();
 router.get('/get/all', getAllArticles);
+router.get('/search', searchArticles);
+router.get('/categories', getArticleCategories);
+router.get('/tags', getArticleTags);
 router.post('/create', VerifiyPermissions("admin"), createArticle);
 router.put('/update/:slug', VerifiyPermissions("admin"), modifyArticle);
 router.delete('/delete/:slug', VerifiyPermissions("admin"), deleteArticle);

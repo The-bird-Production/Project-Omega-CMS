@@ -1,62 +1,101 @@
 import Link from "next/link";
 import Layout from "../components/layout/MainLayout";
+import ArticleFilters from "../components/article/ArticleFilters";
+import ArticlePagination from "../components/article/ArticlePagination";
 
 export const metadata = {
   title: "Articles",
   description: "Tous les articles publiés.",
 };
 
-async function fetchArticles() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/get/all`, {
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch articles: ${res.status}`);
-    }
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    console.error(err);
-    return { error: err };
-  }
+function stripHtml(html) {
+  let text = html || "";
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]*>/g, "");
+  } while (text !== previous);
+  return text;
 }
 
-export default async function ArticleListPage() {
-  const data = await fetchArticles();
+async function fetchJson(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+  return res.json();
+}
 
-  if (data && data.error) {
+async function fetchArticles(searchParams) {
+  const params = new URLSearchParams();
+  if (searchParams.q) params.set("q", searchParams.q);
+  if (searchParams.category) params.set("category", searchParams.category);
+  if (searchParams.tag) params.set("tag", searchParams.tag);
+  params.set("page", searchParams.page || "1");
+  params.set("pageSize", "10");
+
+  return fetchJson(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/search?${params.toString()}`);
+}
+
+async function fetchFilterOptions() {
+  const [categories, tags] = await Promise.all([
+    fetchJson(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/categories`).catch(() => ({ data: [] })),
+    fetchJson(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/tags`).catch(() => ({ data: [] })),
+  ]);
+  return { categories: categories.data ?? [], tags: tags.data ?? [] };
+}
+
+export default async function ArticleListPage(props) {
+  const searchParams = await props.searchParams;
+
+  let result;
+  let error;
+  try {
+    result = await fetchArticles(searchParams);
+  } catch (err) {
+    error = err;
+  }
+
+  const { categories, tags } = await fetchFilterOptions();
+
+  if (error) {
     return (
       <Layout currentPage={"ArticleList"}>
         <div className="container mt-4">
-          <div className="alert alert-danger">Erreur lors du chargement des articles : {String(data.error.message || data.error)}</div>
+          <div className="alert alert-danger">Erreur lors du chargement des articles : {String(error.message || error)}</div>
         </div>
       </Layout>
     );
   }
 
-  const articles = Array.isArray(data) ? data : data?.data ?? [];
+  const articles = result?.data ?? [];
+  const page = result?.page ?? 1;
+  const totalPages = result?.totalPages ?? 1;
 
   return (
     <Layout currentPage={"ArticleList"}>
       <div className="container mt-4">
         <h1>Articles</h1>
+        <ArticleFilters categories={categories} tags={tags} />
         {articles.length === 0 ? (
-          <p>Aucun article publié pour le moment.</p>
+          <p>Aucun article ne correspond à votre recherche.</p>
         ) : (
-          <div className="list-group">
+          <div className="list-group mb-4">
             {articles.map((a) => (
               <Link href={`/article/${a.slug}`} key={a.id} className="list-group-item list-group-item-action">
                 <div className="d-flex w-100 justify-content-between">
                   <h5 className="mb-1">{a.title}</h5>
                   <small>{a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : ""}</small>
                 </div>
-                <p className="mb-1">{(a.body || "").slice(0, 200)}{(a.body || "").length > 200 ? "..." : ""}</p>
-                <small>By {a.authorId || 'unknown'}</small>
+                <p className="mb-1">{stripHtml(a.body).slice(0, 200)}{(a.body || "").length > 200 ? "..." : ""}</p>
+                <small>
+                  By {a.authorId || 'unknown'}
+                  {a.category ? ` · ${a.category}` : ""}
+                  {a.tags ? ` · ${a.tags}` : ""}
+                </small>
               </Link>
             ))}
           </div>
         )}
+        <ArticlePagination page={page} totalPages={totalPages} searchParams={searchParams} />
       </div>
     </Layout>
   );
