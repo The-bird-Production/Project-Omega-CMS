@@ -66,6 +66,21 @@ jobs:
         working-directory: apps/api
         run: pnpm run test
 
+      # Every schema change before the baseline migration was applied with
+      # `prisma db push` (no tracked migrations existed) — this proves the
+      # migrate:deploy:safe wrapper actually auto-resolves the resulting
+      # P3005 ("database schema is not empty") against a real, freshly
+      # `db push`-ed MySQL database, since that's exactly the state every
+      # pre-existing self-hosted instance's database is in.
+      - name: 🧪 Verify migrate:deploy:safe auto-baselines a pre-existing (db push) database
+        working-directory: packages/db
+        env:
+          DATABASE_URL: mysql://root:password@127.0.0.1:3307/omega_baseline_test
+        run: |
+          mysql -h127.0.0.1 -P3307 -uroot -ppassword -e "CREATE DATABASE omega_baseline_test"
+          pnpm run db:push
+          pnpm run migrate:deploy:safe
+
   frontend-checks:
     name: 🖥️ Frontend Build & Lint
     runs-on: ubuntu-latest

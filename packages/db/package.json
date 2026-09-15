@@ -12,6 +12,7 @@
     "db:push": "prisma db push",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
+    "migrate:deploy:safe": "node scripts/safe-migrate-deploy.mjs",
     "migrate:reset": "prisma migrate reset --force",
     "studio": "prisma studio"
   },

@@ -139,7 +139,7 @@ export async function applyUpdate(): Promise<ApplyResult> {
 
     console.log("[updater] Regenerating Prisma client and applying migrations...");
     await run("pnpm", ["--filter", "@omega/db", "run", "generate"], REPO_ROOT);
-    await run("pnpm", ["--filter", "@omega/db", "run", "migrate:deploy"], REPO_ROOT);
+    await run("pnpm", ["--filter", "@omega/db", "run", "migrate:deploy:safe"], REPO_ROOT);
 
     // The rsync above already updated apps/web's code too (REPO_ROOT covers
     // the whole monorepo), but that's a separate process under its own
