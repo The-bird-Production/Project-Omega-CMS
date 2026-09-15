@@ -107,7 +107,7 @@ const PluginsPage = () => {
       ) : (
         <ul className="list-group">
           {plugins.map((plugin) => (
-            <li key={plugin.id} className="list-group-item bg-primary text-light border border-primary">
+            <li key={plugin.id} className="list-group-item bg-primary text-white border border-primary">
               <h2 className="h5">{plugin.name}</h2>
               <p>{plugin.description}</p>
               <p className="mb-1">

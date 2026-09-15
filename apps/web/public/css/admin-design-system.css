@@ -1,20 +1,35 @@
 /*
  * Design tokens and shared layout/component classes for the admin panel.
- * Loaded after admin.css (which already exposes Bootstrap 5's theme colors
- * as runtime --bs-* custom properties — --bs-primary/--bs-secondary already
- * carry Omega's navy/purple brand colors) so these rules can build on top of
- * the existing palette instead of re-theming Bootstrap from scratch.
+ * Loaded after admin.css (a vendored, pre-compiled Bootstrap build — its
+ * Sass source isn't in this repo, so it's never recompiled; retheming
+ * happens here, by overriding the runtime custom properties it already
+ * exposes). "Papier Indigo": a light, paper-like admin instead of the
+ * previous navy/purple dark theme.
+ *
+ * admin.css's own :root already ships light-mode-appropriate defaults for
+ * --bs-body-color/--bs-border-color/--bs-border-color-translucent/
+ * --bs-secondary-color (Bootstrap's stock light theme) — only the pieces
+ * this app explicitly recolored to navy/purple (or hardcoded dark) need
+ * overriding below: the forced dark `body` background, --bs-primary/
+ * --bs-secondary (and their -rgb pairs), --bs-link-color, --bs-light
+ * (repurposed admin-wide as the ".text-light" utility's actual ink color,
+ * since this codebase uses it as "readable foreground on a card" rather
+ * than literal Bootstrap light-gray), and .btn-primary/.btn-secondary
+ * (whose colors Bootstrap bakes as literal per-component custom
+ * properties, not the root --bs-primary/--bs-secondary vars).
  */
 :root {
-  --omega-bg: #0a0031;
-  --omega-surface: #170a45;
-  --omega-surface-alt: #250062;
-  --omega-border: rgba(255, 255, 255, 0.12);
-  --omega-text: #f5f3ff;
-  --omega-text-muted: rgba(245, 243, 255, 0.65);
+  --omega-bg: #eef0f7;
+  --omega-surface: #ffffff;
+  --omega-surface-alt: #f4f5fb;
+  --omega-border: rgba(23, 24, 45, 0.1);
+  --omega-text: #1c1f2e;
+  --omega-text-muted: rgba(28, 31, 46, 0.62);
+  --omega-accent: #4338ca;
+  --omega-accent-soft: rgba(67, 56, 202, 0.1);
   --omega-radius-sm: 0.5rem;
   --omega-radius: 1rem;
-  --omega-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --omega-shadow: 0 8px 24px rgba(23, 24, 45, 0.1);
   --omega-space-1: 0.25rem;
   --omega-space-2: 0.5rem;
   --omega-space-3: 1rem;
@@ -22,6 +37,56 @@
   --omega-space-5: 2.5rem;
   --omega-sidebar-width: 260px;
   --omega-topbar-height: 64px;
+
+  /* ---------- Bootstrap retint (see comment above) ---------- */
+  --bs-body-bg: var(--omega-bg);
+  --bs-body-color: var(--omega-text);
+  --bs-light: var(--omega-text);
+  --bs-light-rgb: 28, 31, 46;
+  --bs-primary: var(--omega-accent);
+  --bs-primary-rgb: 67, 56, 202;
+  --bs-secondary: var(--omega-surface);
+  --bs-secondary-rgb: 255, 255, 255;
+  --bs-link-color: var(--omega-accent);
+  --bs-link-color-rgb: 67, 56, 202;
+  --bs-link-hover-color: #372fa8;
+  --bs-link-hover-color-rgb: 55, 47, 168;
+}
+
+body {
+  background-color: var(--omega-bg) !important;
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #4338ca;
+  --bs-btn-border-color: #4338ca;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #372fa8;
+  --bs-btn-hover-border-color: #332d97;
+  --bs-btn-focus-shadow-rgb: 67, 56, 202;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #332d97;
+  --bs-btn-active-border-color: #2f2a8b;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #4338ca;
+  --bs-btn-disabled-border-color: #4338ca;
+}
+
+.btn-secondary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #64748b;
+  --bs-btn-border-color: #64748b;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #556276;
+  --bs-btn-hover-border-color: #505c6e;
+  --bs-btn-focus-shadow-rgb: 100, 116, 139;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #505c6e;
+  --bs-btn-active-border-color: #4b5567;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #64748b;
+  --bs-btn-disabled-border-color: #64748b;
 }
 
 /* ---------- Shell layout ---------- */
@@ -96,7 +161,7 @@
   border-radius: var(--omega-radius-sm);
 }
 .admin-sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--omega-accent-soft);
 }
 
 @media (max-width: 991.98px) {
@@ -115,7 +180,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(23, 24, 45, 0.35);
     z-index: 1025;
   }
 }
@@ -146,11 +211,12 @@
   text-decoration: none;
 }
 .admin-nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--omega-accent-soft);
   color: var(--omega-text);
 }
 .admin-nav-link.active {
-  background: var(--bs-primary);
+  background: var(--omega-accent);
+  color: #fff;
   box-shadow: inset 0 0 0 1px var(--omega-border);
 }
 
@@ -168,6 +234,14 @@
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: var(--omega-space-3);
+}
+
+/* Bootstrap's own .card only picks up --bs-card-bg (= --bs-body-bg, the
+   page background) — give the app's very common bare `.card` wrapper the
+   same subtle lift as .panel so its (usually bg-secondary) content reads
+   as a raised surface rather than flush with the page. */
+.admin-content .card {
+  box-shadow: var(--omega-shadow);
 }
 
 /* ---------- Empty state ---------- */
