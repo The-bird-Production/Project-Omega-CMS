@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import app from "./app.js"; // ton Express app
 import { app_port } from "./config/server.js";
 import { startUpdateScheduler } from "./Functions/Updater/scheduler.js";
+import { initSocket } from "./lib/socket.js";
 
 // Charge les variables d'environnement
 config();
@@ -15,6 +16,8 @@ app.use((err, req, res, next) => {
 });
 
 // Démarrage du serveur
-app.listen(app_port, () => {
+const server = app.listen(app_port, () => {
   console.log(`Backend started on http://localhost:${app_port}`);
 });
+
+initSocket(server);
