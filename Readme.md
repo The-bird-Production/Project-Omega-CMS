@@ -87,6 +87,7 @@ Sans Docker, `apps/api` embarque son propre vérificateur/applicateur de mise à
   ```sh
   pnpm --filter @omega/db run migrate:dev
   ```
+  En production (Docker et bare-metal), c'est `migrate:deploy:safe` qui s'exécute automatiquement à chaque mise à jour. Les instances déjà en place avant l'introduction des migrations trackées (schéma géré jusqu'ici avec `db push`) n'ont rien à faire : ce script détecte lui-même une base non vide sans historique de migration et la fait basculer sur le nouveau système sans intervention.
 - **Gestion des permissions** : gérées via better-auth (`packages` d'accès dans `apps/api/lib/permissions.js`), modifiables dans l'admin.
 - **Plugins** : Ajoutez vos propres plugins en les plaçant dans `apps/api/Plugins/`. Voir le repo github : `https://github.com/The-bird-Production/OmegaPlugin`
 

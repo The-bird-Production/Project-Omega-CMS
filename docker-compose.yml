@@ -48,7 +48,7 @@ services:
       sh -c "echo 'Waiting for MySQL...' &&
              until nc -z omega-db 3306; do sleep 1; done &&
              echo 'MySQL ready, applying migrations...' &&
-             pnpm --filter @omega/db run migrate:deploy &&
+             pnpm --filter @omega/db run migrate:deploy:safe &&
              pnpm --filter @omega/db run generate &&
              npx tsx server.js"
     labels:
