@@ -20,7 +20,7 @@ jobs:
           mkdir -p apps packages
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install workspace dependencies
         run: |
