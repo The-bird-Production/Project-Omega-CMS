@@ -2,7 +2,7 @@
 # build with:
 #   docker build -f apps/web/Dockerfile .
 
-FROM node:22-alpine AS base
+FROM node:26-alpine AS base
 RUN corepack enable
 WORKDIR /repo
 
@@ -35,7 +35,7 @@ ARG NEXT_PUBLIC_SITE_URL=http://site.invalid
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 RUN pnpm --filter @omega/web run build
 
-FROM node:22-alpine
+FROM node:26-alpine
 RUN corepack enable
 WORKDIR /repo
 COPY --from=build --chown=node:node /repo ./
