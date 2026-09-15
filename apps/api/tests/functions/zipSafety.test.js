@@ -1,6 +1,6 @@
 import path from "path";
 import AdmZip from "adm-zip";
-import { assertInside, assertSafeZipEntries } from "../../Functions/InstallTheme.js";
+import { assertInside, assertSafeZipEntries } from "../../Functions/zipSafety.js";
 
 describe("assertInside (path traversal guard)", () => {
   const base = path.resolve("/tmp/omega-themes");
