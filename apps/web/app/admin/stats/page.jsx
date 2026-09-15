@@ -1,83 +1,52 @@
 'use client';
-import AdminLayout from '../../components/layout/AdminLayout';
-import Dashboard from '../../components/admin/Dashboard';
-import Link from 'next/link';
 import { Suspense } from 'react';
+import Breadcrumb from '../../components/admin/ui/Breadcrumb';
+import LoadingSpinner from '../../components/admin/ui/LoadingSpinner';
 import APIResponseTime from '../../components/admin/graph/APIResponseTime';
 import ConsultedPages from '../../components/admin/graph/ConsultedPages';
 import TotalViewedPages from '../../components/admin/graph/TotalViewedPages';
-import NumberOfUser from '../../components/admin/graph/NumberOfUser'
-import NumberOfPage from '../../components/admin/graph/NumberOfPages'
+import NumberOfUser from '../../components/admin/graph/NumberOfUser';
+import NumberOfPage from '../../components/admin/graph/NumberOfPages';
 
 export default function statsAdmin() {
   return (
     <>
-      <AdminLayout>
-        <Dashboard>
-          <nav aria-label="breadcrumb" className="text-light pt-5 mt-5">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link href="/admin">Dashboard</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                Stats
-              </li>
-            </ol>
-          </nav>
-          <div className="pt-3 mt-3">
-            <div className="card border border-0 rounded">
-              <div className="card-body bg-secondary rounded ">
-                <h2 className="card-title text-light">Stats</h2>
-                <div>
-                     <Suspense fallback={<h1>Loading</h1>}> 
+      <Breadcrumb items={[{ label: 'Dashboard', href: '/admin' }, { label: 'Stats' }]} />
 
-                     <div className='container row text-light '>
-
-                        <div className='col-6'>
-                            <div className='card card-body bg-primary'>
-                            <h3>Api stats :</h3>
-                            <APIResponseTime/>
-                            </div>
-                            
-                        </div>
-                        <div className='col-6'>
-                            <div className='card card-body bg-primary'>
-                                <h3>Pages stats :</h3>
-                                <ConsultedPages/>
-                                <TotalViewedPages/>
-                            </div>
-
-                        </div>
-
-                        <div className='col-12 pt-3'>
-                            <div className='card card-body bg-primary'>
-                                <h3>Other stats :</h3>
-                                <div className='pt-2'>
-                                <NumberOfUser/>
-                                </div>
-                                
-                                <div className='pt-2'>
-                                <NumberOfPage/>
-                                </div>
-
-                                
-
-                            </div>
-
-                        </div>
-
-                     </div>
-                     
-                     
-                     </Suspense>
-                    
-
+      <Suspense fallback={<LoadingSpinner />}>
+        <div className="row g-3">
+          <div className="col-lg-6 col-12">
+            <div className="panel h-100">
+              <div className="panel-body">
+                <h3 className="panel-title">Api stats</h3>
+                <APIResponseTime />
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-6 col-12">
+            <div className="panel h-100">
+              <div className="panel-body">
+                <h3 className="panel-title">Pages stats</h3>
+                <ConsultedPages />
+                <TotalViewedPages />
+              </div>
+            </div>
+          </div>
+          <div className="col-12">
+            <div className="panel">
+              <div className="panel-body">
+                <h3 className="panel-title">Other stats</h3>
+                <div className="pt-2">
+                  <NumberOfUser />
+                </div>
+                <div className="pt-2">
+                  <NumberOfPage />
                 </div>
               </div>
             </div>
           </div>
-        </Dashboard>
-      </AdminLayout>
+        </div>
+      </Suspense>
     </>
   );
 }
