@@ -4,6 +4,42 @@ import Layout from "../components/layout/MainLayout"
 export const revalidate = 60
 export const dynamicParams = true // Permet de générer à la volée si la page n’existe pas au build
 
+async function fetchPage(slug) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}`)
+  if (!res.ok) return null
+  const data = await res.json()
+  return data?.data ?? null
+}
+
+export async function generateMetadata(props) {
+  const params = await props.params
+  try {
+    const page = await fetchPage(params.slug)
+    if (!page) {
+      return { title: "Page introuvable" }
+    }
+
+    const text = (page.body || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+    const description = text.length > 160 ? `${text.slice(0, 157)}...` : text
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ""
+    const pageUrl = siteUrl ? `${siteUrl.replace(/\/$/, "")}/${encodeURIComponent(params.slug)}` : undefined
+
+    return {
+      title: page.title,
+      description: description || page.title,
+      alternates: pageUrl ? { canonical: pageUrl } : undefined,
+      openGraph: {
+        title: page.title,
+        description: description || page.title,
+        url: pageUrl,
+      },
+    }
+  } catch {
+    return { title: "Page" }
+  }
+}
+
 export async function generateStaticParams() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/all`)
@@ -31,11 +67,7 @@ export async function generateStaticParams() {
 export default async function Page(props) {
   const params = await props.params;
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${params.slug}`)
-    if (!res.ok) throw new Error("Page non trouvée")
-
-    const data = await res.json()
-    const page = data?.data
+    const page = await fetchPage(params.slug)
 
     if (!page) {
       return (
@@ -52,7 +84,6 @@ export default async function Page(props) {
 
     return (
       <Layout currentPage={page.title}>
-        <title>{page.title}</title>
         <main dangerouslySetInnerHTML={body} />
       </Layout>
     )

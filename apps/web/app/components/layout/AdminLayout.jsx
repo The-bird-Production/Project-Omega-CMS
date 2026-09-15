@@ -5,7 +5,6 @@ import '../../../public/js/chart';
 
 
 import { useEffect } from 'react';
-import RootLayout from '../../layout';
 
 function Layout({ children }) {
   useEffect(() => {

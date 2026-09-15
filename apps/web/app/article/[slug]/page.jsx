@@ -38,6 +38,7 @@ export async function generateMetadata(props) {
     return {
       title: article.title || "Article",
       description: description || article.title || "Article",
+      alternates: pageUrl ? { canonical: pageUrl } : undefined,
       openGraph: {
         title: article.title || "Article",
         description: description || article.title || "Article",

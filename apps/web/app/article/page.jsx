@@ -1,6 +1,11 @@
 import Link from "next/link";
 import Layout from "../components/layout/MainLayout";
 
+export const metadata = {
+  title: "Articles",
+  description: "Tous les articles publiés.",
+};
+
 async function fetchArticles() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/get/all`, {

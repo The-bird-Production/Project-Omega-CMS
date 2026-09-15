@@ -9,12 +9,19 @@
 # without a custom server or `output: "standalone"` + a JS entrypoint).
 set -e
 
-# Must match the ARG default in apps/web/Dockerfile exactly.
-PLACEHOLDER="http://backend.invalid"
+# Must match the ARG defaults in apps/web/Dockerfile exactly.
+BACKEND_PLACEHOLDER="http://backend.invalid"
+SITE_PLACEHOLDER="http://site.invalid"
 
 if [ -n "$NEXT_PUBLIC_BACKEND_URL" ]; then
-  grep -rl "$PLACEHOLDER" .next 2>/dev/null | while IFS= read -r file; do
-    sed -i "s|$PLACEHOLDER|$NEXT_PUBLIC_BACKEND_URL|g" "$file"
+  grep -rl "$BACKEND_PLACEHOLDER" .next 2>/dev/null | while IFS= read -r file; do
+    sed -i "s|$BACKEND_PLACEHOLDER|$NEXT_PUBLIC_BACKEND_URL|g" "$file"
+  done
+fi
+
+if [ -n "$NEXT_PUBLIC_SITE_URL" ]; then
+  grep -rl "$SITE_PLACEHOLDER" .next 2>/dev/null | while IFS= read -r file; do
+    sed -i "s|$SITE_PLACEHOLDER|$NEXT_PUBLIC_SITE_URL|g" "$file"
   done
 fi
 
