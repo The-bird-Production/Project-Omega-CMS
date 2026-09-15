@@ -4,7 +4,9 @@ import { useEffect, use } from 'react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
-import TinyMCE from '../../../../components/admin/article/tinyMCE';
+import dynamic from 'next/dynamic';
+
+const BlockEditor = dynamic(() => import('../../../../components/admin/editor/BlockEditor'), { ssr: false });
 
 export default function Page(props) {
   const params = use(props.params);
@@ -126,7 +128,7 @@ export default function Page(props) {
                 />
               </div>
               <div className="mb-3">
-                <TinyMCE value={data.body} onChange={handleEditorChange} />
+                <BlockEditor value={data.body} onChange={handleEditorChange} />
               </div>
               <div className="mb-3">
                 <label htmlFor="pageSlug" className="form-label">

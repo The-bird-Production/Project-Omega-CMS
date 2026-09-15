@@ -18,6 +18,12 @@ const nextConfig = {
     ];
   },
   crossOrigin:"anonymous",
+  // BlockNote's server-side HTML renderer (used to render page/article body
+  // blocks — including plugin/theme-contributed ones — server-side) pulls
+  // in ProseMirror/Tiptap internals that don't play well with Next's
+  // default bundling of server code; keep them as real Node dependencies
+  // instead.
+  serverExternalPackages: ['@blocknote/core', '@blocknote/server-util', '@blocknote/react'],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
