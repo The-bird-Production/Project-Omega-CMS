@@ -5,8 +5,10 @@ packages:
 # generation, sharp's native binary, path resolution helpers) — all
 # well-known, required for the app to function.
 allowBuilds:
+  '@parcel/watcher': true
   '@prisma/client': true
   '@prisma/engines': true
+  '@swc/core': true
   esbuild: true
   prisma: true
   sharp: true

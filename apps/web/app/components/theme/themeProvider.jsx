@@ -10,6 +10,7 @@ import React, {
   useMemo,
 } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 // import { useRouter } from "next/navigation"; // Décommentez si vous utilisez l'App Router de Next.js et avez besoin de la redirection
 
 // --- 1. Définition du contexte ---
@@ -34,6 +35,7 @@ export const useTheme = () => {
 
 // --- 3. Le ThemeProvider principal ---
 export const ThemeProvider = ({ children }) => {
+  const t = useTranslations("Layout");
   const [currentTheme, setCurrentTheme] = useState(null); // { id, meta, components: { Button, Header, ... } }
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -164,15 +166,15 @@ export const ThemeProvider = ({ children }) => {
 
   // Afficher un loader pendant le chargement initial
   if (isLoading && !currentTheme) {
-    return <div>Chargement du thème...</div>; // Ou un spinner, une page de chargement complète
+    return <div>{t("themeLoading")}</div>; // Ou un spinner, une page de chargement complète
   }
 
   // Afficher un message d'erreur si le chargement initial a échoué
   if (error && !currentTheme) {
     return (
       <div>
-        <p>Erreur critique lors du chargement du thème initial: {error.message}</p>
-        <button onClick={() => loadTheme()}>Réessayer</button>
+        <p>{t("themeErrorTitle")} {error.message}</p>
+        <button onClick={() => loadTheme()}>{t("themeRetry")}</button>
       </div>
     );
   }

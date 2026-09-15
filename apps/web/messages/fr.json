@@ -1,0 +1,47 @@
+{
+  "Common": {
+    "loading": "Chargement..."
+  },
+  "Layout": {
+    "siteName": "Omega CMS",
+    "siteDescription": "Site propulsé par Omega CMS.",
+    "themeLoading": "Chargement du thème...",
+    "themeErrorTitle": "Erreur critique lors du chargement du thème initial :",
+    "themeRetry": "Réessayer"
+  },
+  "Home": {
+    "title": "Accueil",
+    "welcome": "Bienvenue sur Omega",
+    "startEditing": "Modifiez le code pour voir les changements."
+  },
+  "ArticleList": {
+    "title": "Articles",
+    "description": "Tous les articles publiés.",
+    "searchPlaceholder": "Rechercher un article...",
+    "allCategories": "Toutes les catégories",
+    "allTags": "Tous les tags",
+    "submit": "OK",
+    "noResults": "Aucun article ne correspond à votre recherche.",
+    "by": "Par",
+    "loadError": "Erreur lors du chargement des articles :",
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "ArticleDetail": {
+    "notFound": "Article introuvable",
+    "publishedOn": "Publié le",
+    "loadError": "Erreur lors du chargement de l'article :"
+  },
+  "Page": {
+    "notFound": "Page introuvable",
+    "notFoundBody": "Le contenu demandé n'existe pas.",
+    "genericError": "Erreur",
+    "loadError": "Impossible de charger cette page pour le moment."
+  },
+  "Admin": {
+    "checkingPermissions": "Vérification des permissions...",
+    "signOut": "Déconnexion",
+    "notificationsTitle": "Activité récente",
+    "noNotifications": "Aucune notification pour le moment."
+  }
+}

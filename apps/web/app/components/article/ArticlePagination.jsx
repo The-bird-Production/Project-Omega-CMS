@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export default function ArticlePagination({ page, totalPages, searchParams }) {
+  const t = useTranslations('ArticleList');
   if (totalPages <= 1) return null;
 
   const hrefForPage = (targetPage) => {
@@ -14,10 +16,10 @@ export default function ArticlePagination({ page, totalPages, searchParams }) {
       <ul className="pagination">
         <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
           {page <= 1 ? (
-            <span className="page-link">Précédent</span>
+            <span className="page-link">{t('previous')}</span>
           ) : (
             <Link className="page-link" href={hrefForPage(page - 1)}>
-              Précédent
+              {t('previous')}
             </Link>
           )}
         </li>
@@ -30,10 +32,10 @@ export default function ArticlePagination({ page, totalPages, searchParams }) {
         ))}
         <li className={`page-item ${page >= totalPages ? 'disabled' : ''}`}>
           {page >= totalPages ? (
-            <span className="page-link">Suivant</span>
+            <span className="page-link">{t('next')}</span>
           ) : (
             <Link className="page-link" href={hrefForPage(page + 1)}>
-              Suivant
+              {t('next')}
             </Link>
           )}
         </li>

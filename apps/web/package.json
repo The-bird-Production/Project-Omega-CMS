@@ -17,6 +17,7 @@
     "graceful-fs": "^4.2.11",
     "isomorphic-fetch": "^3.0.0",
     "next": "^15.0.0",
+    "next-intl": "^4.14.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.34.4",
