@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import AdminLayout from '../../../../components/layout/AdminLayout';
-import Dashboard from '../../../../components/admin/Dashboard';
-import Link from 'next/link';
+import Breadcrumb from '../../../../components/admin/ui/Breadcrumb';
+import LoadingSpinner from '../../../../components/admin/ui/LoadingSpinner';
 import FormatedDate from '../../../../components/util/FormatedDate';
 import { userSchema } from '../../../../../lib/schema';
 import { authClient } from '../../../../../lib/authClient';
@@ -31,7 +30,6 @@ export default function Page(props) {
           const jsonData = data;
 
           setUserData(jsonData);
-          console.log(jsonData);
         } else {
           console.error('Failed to fetch data:', res.statusText);
         }
@@ -49,7 +47,7 @@ export default function Page(props) {
         username: userData.username || userData.name || '',
         name: userData.name || '',
         email: userData.email || '',
-        emailVerified: userData.emailVerified || false, // Assure boolean false par défaut
+        emailVerified: userData.emailVerified || false,
         role: userData.role || '',
       });
     }
@@ -65,22 +63,19 @@ export default function Page(props) {
         return;
       }
 
-      const { isUpdated, error } = await authClient.admin.updateUser ({
+      const { error } = await authClient.admin.updateUser({
         userId: id,
         data: {
           name: formData.name,
           username: formData.username,
           email: formData.email,
-          emailVerified: formData.emailVerified, // Boolean true/false
+          emailVerified: formData.emailVerified,
           role: formData.role,
         },
       });
 
       if (error) {
         console.error('Update error:', error);
-      } else {
-        console.log('User  updated successfully');
-        // Optionnel : rediriger ou afficher un message de succès
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -88,138 +83,114 @@ export default function Page(props) {
   };
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    if (type === 'select-one') { // Correction : type pour <select> est 'select-one'
-      setFormData({ ...formData, [name]: value });
-    } else if (type === 'checkbox') {
-      // Pas besoin, car la checkbox a son propre onChange inline
-    } else {
-      setFormData({ ...formData, [name]: value });
-      console.log(formData);
-    }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  // État de chargement basique
+  const breadcrumb = (
+    <Breadcrumb
+      items={[
+        { label: 'Dashboard', href: '/admin' },
+        { label: 'Utilisateurs', href: '/admin/user' },
+        { label: userData.id || id },
+      ]}
+    />
+  );
+
   if (Object.keys(userData).length === 0) {
     return (
-      <AdminLayout>
-        <Dashboard>
-          <div>Chargement des données utilisateur...</div>
-        </Dashboard>
-      </AdminLayout>
+      <>
+        {breadcrumb}
+        <LoadingSpinner label="Chargement des données utilisateur..." />
+      </>
     );
   }
 
   return (
     <>
-      <AdminLayout>
-        <Dashboard>
-          <nav aria-label="breadcrumb" className="text-light pt-5 mt-5">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link href="/admin">Dashboard</Link>
-              </li>
-              <li className="breadcrumb-item" aria-current="page">
-                <Link href="/admin/user">Utilisateurs</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                {userData.id}
-              </li>
-            </ol>
-          </nav>
-          <div className="pt-3 mt-3">
-            <div className="card">
-              <div className="card-body bg-secondary rounded border border-secondary">
-                <h2 className="card-title text-light">
-                  Modification d&apos;utilisateur :{' '}
-                </h2>
-                <form onSubmit={handleSubmit}>
-                  <div className="text-white container row pt-3 ">
-                    <div className="col-6">
-                      <h2>
-                        {' '}
-                        <input
-                          type="text"
-                          name="name"
-                          onChange={handleChange}
-                          value={formData.name  || ''} // Contrôlé par formData
-                          className="form-control m-2"
-                        />
-                      </h2>
-                    </div>
-
-                    <div className="col-6">
-                      <h4>Profil picture : </h4>
-                      {/* <Image
-                        src={userData.image}
-                        width="125"
-                        height="125"
-                        className="img-fluid"
-                        alt="Profile Picture"
-                      /> */}
-                    </div>
-                    <div className="col-6">
-                      <h3 className="mb-3">Informations : </h3>
-                      <div className="m-3">
-                        <h4 className="mb-3">
-                          Email :{' '}
-                          <input
-                            className="form-control m-2"
-                            type="text"
-                            value={formData.email || ''} // Contrôlé par formData
-                            onChange={handleChange}
-                            name="email"
-                          />{' '}
-                        </h4>
-                        <h4 className="mb-3">
-                          Email verified :{' '}
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            checked={formData.emailVerified} // Corrigé : lié à formData
-                            onChange={(e) => {
-                              const { name, checked } = e.target;
-                              setFormData({ ...formData, [name]: checked });
-                            }}
-                            name="emailVerified"
-                          />
-                        </h4>
-                        <h4 className="mb-3">
-                          Role :{' '}
-                          <select
-                            className="form-select"
-                            aria-label="Default select example"
-                            name="role"
-                            value={formData.role || ''} // Contrôlé par formData (pré-sélectionne la valeur actuelle)
-                            onChange={handleChange}
-                          >
-                            <option value="">Choose a role</option> {/* value="" pour l'option par défaut */}
-                            <option value="admin">Admin</option>
-                            <option value="user">User </option>
-                          </select>
-                        </h4>
-                        <h5 className="mb-3">
-                          Creation date :{' '}
-                          <FormatedDate rowDate={userData.createdAt} />
-                        </h5>
-                        <h5 className="mb-3">
-                          Last update :{' '}
-                          <FormatedDate rowDate={userData.updatedAt} />
-                        </h5>
-                        <input
-                          type="submit"
-                          value="Save"
-                          className="btn btn-primary"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </form>{' '}
+      {breadcrumb}
+      <div className="card">
+        <div className="card-body bg-secondary rounded border border-secondary">
+          <h2 className="card-title text-light">Modification d&apos;utilisateur</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3 text-white pt-2">
+              <div className="col-md-6">
+                <label htmlFor="userName" className="form-label">
+                  Nom
+                </label>
+                <input
+                  id="userName"
+                  type="text"
+                  name="name"
+                  onChange={handleChange}
+                  value={formData.name || ''}
+                  className="form-control"
+                />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="userEmail" className="form-label">
+                  Email
+                </label>
+                <input
+                  id="userEmail"
+                  className="form-control"
+                  type="text"
+                  value={formData.email || ''}
+                  onChange={handleChange}
+                  name="email"
+                />
+              </div>
+              <div className="col-md-6">
+                <div className="form-check">
+                  <input
+                    id="userEmailVerified"
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={formData.emailVerified || false}
+                    onChange={(e) => {
+                      const { name, checked } = e.target;
+                      setFormData({ ...formData, [name]: checked });
+                    }}
+                    name="emailVerified"
+                  />
+                  <label htmlFor="userEmailVerified" className="form-check-label">
+                    Email vérifié
+                  </label>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="userRole" className="form-label">
+                  Rôle
+                </label>
+                <select
+                  id="userRole"
+                  className="form-select"
+                  name="role"
+                  value={formData.role || ''}
+                  onChange={handleChange}
+                >
+                  <option value="">Choose a role</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                </select>
+              </div>
+              <div className="col-md-6">
+                <p className="mb-1">
+                  Créé le : <FormatedDate rowDate={userData.createdAt} />
+                </p>
+                <p className="mb-0">
+                  Mis à jour le : <FormatedDate rowDate={userData.updatedAt} />
+                </p>
+              </div>
+              <div className="col-12">
+                <button type="submit" className="btn btn-primary">
+                  Save
+                </button>
               </div>
             </div>
-          </div>
-        </Dashboard>
-      </AdminLayout>
+          </form>
+        </div>
+      </div>
     </>
   );
 }

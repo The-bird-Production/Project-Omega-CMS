@@ -3,7 +3,7 @@ import { Editor } from '@tinymce/tinymce-react';
 export default function TinyMCE({ value, onChange }) {
   return (
     <Editor
-      apiKey="75lpz4hm0dsvol63mjrqfdqcbrjsey6zewt4wpoi6eoq160r"
+      apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "no-api-key"}
       init={{
         plugins:
           'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks',

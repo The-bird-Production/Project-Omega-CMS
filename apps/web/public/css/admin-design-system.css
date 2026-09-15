@@ -1,0 +1,189 @@
+/*
+ * Design tokens and shared layout/component classes for the admin panel.
+ * Loaded after admin.css (which already exposes Bootstrap 5's theme colors
+ * as runtime --bs-* custom properties — --bs-primary/--bs-secondary already
+ * carry Omega's navy/purple brand colors) so these rules can build on top of
+ * the existing palette instead of re-theming Bootstrap from scratch.
+ */
+:root {
+  --omega-bg: #0a0031;
+  --omega-surface: #170a45;
+  --omega-surface-alt: #250062;
+  --omega-border: rgba(255, 255, 255, 0.12);
+  --omega-text: #f5f3ff;
+  --omega-text-muted: rgba(245, 243, 255, 0.65);
+  --omega-radius-sm: 0.5rem;
+  --omega-radius: 1rem;
+  --omega-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --omega-space-1: 0.25rem;
+  --omega-space-2: 0.5rem;
+  --omega-space-3: 1rem;
+  --omega-space-4: 1.5rem;
+  --omega-space-5: 2.5rem;
+  --omega-sidebar-width: 260px;
+  --omega-topbar-height: 64px;
+}
+
+/* ---------- Shell layout ---------- */
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--omega-bg);
+  color: var(--omega-text);
+}
+
+.admin-sidebar {
+  width: var(--omega-sidebar-width);
+  flex-shrink: 0;
+  background: var(--omega-surface);
+  border-right: 1px solid var(--omega-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 1030;
+}
+
+.admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: var(--omega-space-4) var(--omega-space-3);
+  font-size: 1.15rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--omega-border);
+}
+
+.admin-sidebar-backdrop {
+  display: none;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  height: var(--omega-topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--omega-space-3);
+  padding: 0 var(--omega-space-4);
+  border-bottom: 1px solid var(--omega-border);
+  background: var(--omega-surface);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.admin-content {
+  padding: var(--omega-space-4);
+  flex: 1;
+}
+
+.admin-sidebar-toggle {
+  background: transparent;
+  border: none;
+  color: var(--omega-text);
+  font-size: 1.35rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--omega-radius-sm);
+}
+.admin-sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 991.98px) {
+  .admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--omega-shadow);
+  }
+  .admin-shell.sidebar-open .admin-sidebar {
+    transform: translateX(0);
+  }
+  .admin-shell.sidebar-open .admin-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1025;
+  }
+}
+
+@media (min-width: 992px) {
+  .admin-sidebar-toggle {
+    display: none;
+  }
+}
+
+/* ---------- Nav ---------- */
+.admin-nav-section {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--omega-text-muted);
+  padding: var(--omega-space-3) var(--omega-space-3) var(--omega-space-1);
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.1rem var(--omega-space-2);
+  padding: 0.55rem var(--omega-space-2);
+  border-radius: var(--omega-radius-sm);
+  color: var(--omega-text);
+  text-decoration: none;
+}
+.admin-nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--omega-text);
+}
+.admin-nav-link.active {
+  background: var(--bs-primary);
+  box-shadow: inset 0 0 0 1px var(--omega-border);
+}
+
+/* ---------- Panels / cards ---------- */
+.panel {
+  background: var(--omega-surface);
+  border: 1px solid var(--omega-border);
+  border-radius: var(--omega-radius);
+  box-shadow: var(--omega-shadow);
+}
+.panel-body {
+  padding: var(--omega-space-4);
+}
+.panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--omega-space-3);
+}
+
+/* ---------- Empty state ---------- */
+.admin-empty-state {
+  text-align: center;
+  padding: var(--omega-space-5) var(--omega-space-3);
+  color: var(--omega-text-muted);
+}
+.admin-empty-state i {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: var(--omega-space-2);
+  opacity: 0.6;
+}
+
+/* ---------- Breadcrumb ---------- */
+.admin-breadcrumb {
+  margin-bottom: var(--omega-space-4);
+}

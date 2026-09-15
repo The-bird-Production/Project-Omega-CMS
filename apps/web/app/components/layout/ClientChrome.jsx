@@ -9,7 +9,12 @@ export default function ClientChrome({ children }) {
 
   return (
     <>
-      {isAdminRoute && <link rel="stylesheet" href="/css/admin.css" />}
+      {isAdminRoute && (
+        <>
+          <link rel="stylesheet" href="/css/admin.css" />
+          <link rel="stylesheet" href="/css/admin-design-system.css" />
+        </>
+      )}
       {isAdminRoute ? (
         <>{children}</>
       ) : (

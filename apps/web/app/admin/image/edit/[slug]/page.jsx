@@ -1,12 +1,11 @@
 'use client';
-import AdminLayout from '../../../../components/layout/AdminLayout';
-import Dashboard from '../../../../components/admin/Dashboard';
+import Breadcrumb from '../../../../components/admin/ui/Breadcrumb';
+import LoadingSpinner from '../../../../components/admin/ui/LoadingSpinner';
 import { useEffect, use } from 'react';
 import { useState } from 'react';
 import { imageUpdateSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import Notification from '../../../../components/admin/image/ModifNotify';
-import Link from 'next/link';
 
 export default function Page(props) {
   const params = use(props.params);
@@ -97,95 +96,85 @@ export default function Page(props) {
 
   return (
     <>
-      <AdminLayout>
-        <Dashboard>
-          <div className="pt-5 mt-5">
-            <nav aria-label="breadcrumb" className="text-light">
-              <ol className="breadcrumb">
-                <li className="breadcrumb-item">
-                  <Link href="/admin">Dashboard</Link>
-                </li>
-                <li className="breadcrumb-item" aria-current="page">
-                  <Link href="/admin/image">Image</Link>
-                </li>
-                <li className="breadcrumb-item active">Edit / {params.slug}</li>
-              </ol>
-            </nav>
-            <div className="container row pt-5">
-              {!data ? (
-                <>Loading</>
-              ) : (
-                <>
-                  <div className="col-12 col-lg-6">
-                    <img
-                      className="img-fluid"
-                      crossOrigin="anonymous"
-                      src={data.path}
-                      alt={data.alt}
-                    ></img>
-                  </div>
-                  <div className="col-12 col-lg-6">
-                    <div className="card card-body bg-secondary rounded">
-                      <h3>Modification de l&apos;image</h3>
-                      <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                          <label for="ImageTitle" className="form-label">
-                            Titre de l&apos;image
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={formData.title}
-                            id="ImageTitle"
-                            name="title"
-                            onChange={handleChange}
-                          />
-                          {errors.title && <p>{errors.title}</p>}
-                        </div>
-                        <div className="mb-3">
-                          <label for="ImageAlt" className="form-label">
-                            Alt
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            id="ImageAlt"
-                            value={formData.alt}
-                            name="alt"
-                            onChange={handleChange}
-                          />
-                          {errors.alt && <p>{errors.alt}</p>}
-                        </div>
-                        <div className="mb-3">
-                          <label for="ImageSlug" className="form-label">
-                            Slug
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            id="ImageSlug"
-                            value={formData.slug}
-                            onChange={handleChange}
-                            name="slug"
-                          ></input>
-                          {errors.slug && <p>{errors.slug}</p>}
-                        </div>
-                        <button className="btn btn-primary" type="submit">
-                          Modifier
-                        </button>
-                        <Notification
-                          message="Modification effectuée avec succès"
-                          show={showNotification}
-                        />
-                      </form>
-                    </div>
-                  </div>
-                </>
-              )}
+      <Breadcrumb
+        items={[
+          { label: 'Dashboard', href: '/admin' },
+          { label: 'Image', href: '/admin/image' },
+          { label: `Edit / ${params.slug}` },
+        ]}
+      />
+      <div className="row">
+        {!data ? (
+          <LoadingSpinner />
+        ) : (
+          <>
+            <div className="col-12 col-lg-6">
+              <img
+                className="img-fluid"
+                crossOrigin="anonymous"
+                src={data.path}
+                alt={data.alt}
+              ></img>
             </div>
-          </div>
-        </Dashboard>
-      </AdminLayout>
+            <div className="col-12 col-lg-6">
+              <div className="card card-body bg-secondary rounded">
+                <h3>Modification de l&apos;image</h3>
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3">
+                    <label htmlFor="ImageTitle" className="form-label">
+                      Titre de l&apos;image
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={formData.title}
+                      id="ImageTitle"
+                      name="title"
+                      onChange={handleChange}
+                    />
+                    {errors.title && <p className="text-danger mb-0">{errors.title}</p>}
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="ImageAlt" className="form-label">
+                      Alt
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="ImageAlt"
+                      value={formData.alt}
+                      name="alt"
+                      onChange={handleChange}
+                    />
+                    {errors.alt && <p className="text-danger mb-0">{errors.alt}</p>}
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="ImageSlug" className="form-label">
+                      Slug
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="ImageSlug"
+                      value={formData.slug}
+                      onChange={handleChange}
+                      name="slug"
+                    ></input>
+                    {errors.slug && <p className="text-danger mb-0">{errors.slug}</p>}
+                  </div>
+                  <button className="btn btn-primary" type="submit">
+                    Modifier
+                  </button>
+                  <Notification
+                    message="Modification effectuée avec succès"
+                    show={showNotification}
+                  />
+                </form>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 }

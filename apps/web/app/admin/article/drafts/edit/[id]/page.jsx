@@ -1,13 +1,12 @@
 'use client';
-import AdminLayout from '../../../../../components/layout/AdminLayout';
-import Dashboard from '../../../../../components/admin/Dashboard';
+import Breadcrumb from '../../../../../components/admin/ui/Breadcrumb';
 import { useEffect, use } from 'react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { authClient } from '../../../../../../lib/authClient';
 import { articleSchema } from '../../../../../../lib/schema';
+import { confirmAction } from '../../../../../../lib/confirm';
 import TinyMCE from '../../../../../components/admin/article/tinyMCE';
 
 export default function Page(props) {
@@ -56,6 +55,9 @@ export default function Page(props) {
   });
   const handlePublish = async (event) => {
     event.preventDefault();
+    if (!confirmAction('Publier cet article maintenant ? Il deviendra visible publiquement.')) {
+      return;
+    }
     try {
       const { data: session } = await authClient.getSession({});
 
@@ -127,24 +129,14 @@ export default function Page(props) {
   }
   return (
     <>
-      <AdminLayout>
-        <Dashboard>
-          <div className="pt-5 mt-5">
-            <nav aria-label="breadcrumb" className="text-light">
-              <ol className="breadcrumb">
-                <li className="breadcrumb-item">
-                  <Link href="/admin">Dashboard</Link>
-                </li>
-                <li className="breadcrumb-item" aria-current="page">
-                  <Link href="/admin/article">Article</Link>
-                </li>
-                <li className="breadcrumb-item active">
-                  Edit / Draft / {params.id}
-                </li>
-              </ol>
-            </nav>
-          </div>
-          <div className="card card-body bg-secondary">
+      <Breadcrumb
+        items={[
+          { label: 'Dashboard', href: '/admin' },
+          { label: 'Article', href: '/admin/article' },
+          { label: `Edit / Draft / ${params.id}` },
+        ]}
+      />
+      <div className="card card-body bg-secondary">
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="pageTitle" className="form-label">
@@ -178,16 +170,14 @@ export default function Page(props) {
               <div className="mb-3">
                 <button className="btn btn-primary">Update</button>
                 <button
-                  className="btn btn-primary mx-2"
+                  className="btn btn-success mx-2"
                   onClick={handlePublish}
                 >
-                  Publish
+                  <i className="bi bi-send-check me-1" /> Publish
                 </button>
               </div>
             </form>
           </div>
-        </Dashboard>
-      </AdminLayout>
     </>
   );
 }

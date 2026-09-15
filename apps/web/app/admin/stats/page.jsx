@@ -6,8 +6,8 @@ import { Suspense, useState } from 'react';
 import APIResponseTime from '../../components/admin/graph/APIResponseTime';
 import ConsultedPages from '../../components/admin/graph/ConsultedPages';
 import TotalViewedPages from '../../components/admin/graph/TotalViewedPages';
-import NumberOfUser from '../../components/admin/graph/NumberOfUser'
-import NumberOfPage from '../../components/admin/graph/NumberOfPages'
+import NumberOfUser from '../../components/admin/graph/NumberOfUser';
+import NumberOfPage from '../../components/admin/graph/NumberOfPages';
 
 function toDateInputValue(date) {
   return date.toISOString().slice(0, 10);
@@ -117,8 +117,8 @@ export default function StatsAdmin() {
               </div>
             </div>
           </div>
-        </Dashboard>
-      </AdminLayout>
+        </div>
+      </Suspense>
     </>
   );
 }

@@ -4,11 +4,10 @@ import * as PluginsController from "../../Controllers/Plugins/PluginsController.
 import AddLogs from "../../Functions/AddLogs.js";
 import { loadAllPlugins } from "../../Functions/LoadPlugin.js";
 const router = express.Router();
-router.get("/",  VerifyPermissions("admin"), PluginsController.getPluginsInstalled);
-router.get("/installable", VerifyPermissions("admin"), PluginsController.getInstallablePlugins);
-router.post("/install/:id", VerifyPermissions("admin"), AddLogs("Install a new plugin", "green"), (req, res) => PluginsController.InstallPlugin(req, res, router));
-router.get("/all",  VerifyPermissions("admin"), PluginsController.getAllPlugins);
+router.get("/", VerifyPermissions("admin"), PluginsController.getPluginsInstalled);
+router.post("/install-from-github", VerifyPermissions("admin"), AddLogs("Install a new plugin", "green"), (req, res) => PluginsController.InstallPluginFromGithub(req, res, router));
 router.post("/update/:id", VerifyPermissions("admin"), AddLogs("Update plugin", "info"), (req, res) => PluginsController.UpdatePlugin(req, res, router));
+router.get("/check-update/:id", VerifyPermissions("admin"), PluginsController.CheckPluginUpdate);
 router.get("/user-routes", PluginsController.getUserRoutes);
 loadAllPlugins(router);
 export default router;
