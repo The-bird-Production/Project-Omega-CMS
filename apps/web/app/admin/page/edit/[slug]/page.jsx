@@ -5,7 +5,9 @@ import { useEffect, use } from 'react';
 import { useState } from 'react';
 import { pageSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
-import { Editor } from '@tinymce/tinymce-react';
+import dynamic from 'next/dynamic';
+
+const BlockEditor = dynamic(() => import('../../../../components/admin/editor/BlockEditor'), { ssr: false });
 
 export default function Page(props) {
   const params = use(props.params);
@@ -127,17 +129,7 @@ export default function Page(props) {
             />
           </div>
           <div className="mb-3">
-            <Editor
-              apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "no-api-key"}
-              init={{
-                plugins:
-                  'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks',
-                toolbar:
-                  'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-              }}
-              initialValue={data.body}
-              onEditorChange={handleEditorChange}
-            />
+            <BlockEditor value={data.body} onChange={handleEditorChange} />
           </div>
           <div className="mb-3">
             <label htmlFor="pageSlug" className="form-label">

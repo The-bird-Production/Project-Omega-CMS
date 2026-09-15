@@ -3,9 +3,11 @@ import Breadcrumb from '../../../components/admin/ui/Breadcrumb';
 import { useEffect, useState, useRef } from 'react';
 import { articleSchema, articleDraftSchema } from '../../../../lib/schema';
 import { useRouter } from 'next/navigation';
-import TinyMCE from '../../../components/admin/article/tinyMCE';
+import dynamic from 'next/dynamic';
 import { v4 } from 'uuid';
 import { authClient } from '../../../../lib/authClient';
+
+const BlockEditor = dynamic(() => import('../../../components/admin/editor/BlockEditor'), { ssr: false });
 
 export default function Page() {
   const [formData, setFormData] = useState({
@@ -93,7 +95,6 @@ export default function Page() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Gestion de TinyMCE
   const handleEditorChange = (content) => {
     setFormData((prev) => ({ ...prev, body: content }));
   };
@@ -125,7 +126,7 @@ export default function Page() {
             </div>
 
             <div className="mb-3">
-             <TinyMCE value={formData.body} onChange={handleEditorChange}/>
+             <BlockEditor value={formData.body} onChange={handleEditorChange}/>
             </div>
 
             <div className="mb-3">

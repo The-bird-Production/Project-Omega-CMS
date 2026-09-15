@@ -1,6 +1,8 @@
 import Layout from "../../components/layout/MainLayout";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import BlockContent from "../../components/BlockContent";
+import { blocksToPlainText } from "../../../lib/blocks/text";
 
 async function fetchArticle(slug) {
   try {
@@ -30,8 +32,7 @@ export async function generateMetadata(props) {
       };
     }
 
-    // Nettoyer le HTML pour créer une description
-    const text = (article.body || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    const text = blocksToPlainText(article.body);
     const description = (text && text.length > 160) ? `${text.slice(0, 157)}...` : text;
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "";
@@ -103,7 +104,7 @@ export default async function ArticlePage(props) {
           // Next/Image requires a remote pattern or loader configured; use a simple img fallback to be safe
           <img src={article.image} alt={article.title} className="img-fluid mb-3" />
         ) : null}
-        <div dangerouslySetInnerHTML={{ __html: article.body }} />
+        <BlockContent body={article.body} />
       </div>
     </Layout>
   );
