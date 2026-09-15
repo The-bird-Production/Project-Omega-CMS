@@ -11,15 +11,15 @@
 ✅ **Mises à jour automatiques** depuis un repo GitHub privé.<br>
 ✅ **Système de thème** personnalisable depuis l'administration.<br>
 ✅ **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
+✅ **Gestion des médias** (upload fichiers). <br>
+✅ **Optimisation SEO** : sitemap.xml et robots.txt générés automatiquement, balises meta/Open Graph sur toutes les pages publiques. <br>
 
 ### 🏗 Fonctionnalités en cours de développement
 
-🚧 **Gestion des médias** (upload fichiers). <br>
 🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).<br>
 🚧 **Support multi-langues**.<br>
 🚧 **Notifications en temps réel** (Socket.io) pour admins.<br>
 🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).<br>
-🚧 **Optimisation SEO** avec génération auto du sitemap et balises SEO.<br>
 
 
 ## 📦 Installation
