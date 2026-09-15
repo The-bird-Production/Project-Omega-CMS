@@ -42,6 +42,23 @@
     "checkingPermissions": "Vérification des permissions...",
     "signOut": "Déconnexion",
     "notificationsTitle": "Activité récente",
-    "noNotifications": "Aucune notification pour le moment."
+    "noNotifications": "Aucune notification pour le moment.",
+    "toggleSidebar": "Afficher/masquer le menu",
+    "nav": {
+      "site": "Site",
+      "dashboard": "Tableau de bord",
+      "stats": "Statistiques",
+      "content": "Contenu",
+      "articles": "Articles",
+      "pages": "Pages",
+      "images": "Images",
+      "users": "Utilisateurs",
+      "addons": "Extensions",
+      "plugins": "Plugins",
+      "themes": "Thèmes",
+      "other": "Autre",
+      "redirects": "Redirections",
+      "logs": "Journaux"
+    }
   }
 }
