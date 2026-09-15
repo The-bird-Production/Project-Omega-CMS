@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Layout from "../components/layout/MainLayout";
 import ArticleFilters from "../components/article/ArticleFilters";
 import ArticlePagination from "../components/article/ArticlePagination";
+import { blocksToPlainText } from "../../lib/blocks/text";
 
 export async function generateMetadata() {
   const t = await getTranslations("ArticleList");
@@ -10,16 +11,6 @@ export async function generateMetadata() {
     title: t("title"),
     description: t("description"),
   };
-}
-
-function stripHtml(html) {
-  let text = html || "";
-  let previous;
-  do {
-    previous = text;
-    text = text.replace(/<[^>]*>/g, "");
-  } while (text !== previous);
-  return text;
 }
 
 async function fetchJson(url) {
@@ -90,7 +81,7 @@ export default async function ArticleListPage(props) {
                   <h5 className="mb-1">{a.title}</h5>
                   <small>{a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : ""}</small>
                 </div>
-                <p className="mb-1">{stripHtml(a.body).slice(0, 200)}{(a.body || "").length > 200 ? "..." : ""}</p>
+                <p className="mb-1">{blocksToPlainText(a.body).slice(0, 200)}{blocksToPlainText(a.body).length > 200 ? "..." : ""}</p>
                 <small>
                   {t("by")} {a.authorId || 'unknown'}
                   {a.category ? ` · ${a.category}` : ""}

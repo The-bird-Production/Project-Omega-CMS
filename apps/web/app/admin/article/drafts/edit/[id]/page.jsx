@@ -7,7 +7,9 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '../../../../../../lib/authClient';
 import { articleSchema } from '../../../../../../lib/schema';
 import { confirmAction } from '../../../../../../lib/confirm';
-import TinyMCE from '../../../../../components/admin/article/tinyMCE';
+import dynamic from 'next/dynamic';
+
+const BlockEditor = dynamic(() => import('../../../../../components/admin/editor/BlockEditor'), { ssr: false });
 
 export default function Page(props) {
   const params = use(props.params);
@@ -152,7 +154,7 @@ export default function Page(props) {
                 />
               </div>
               <div className="mb-3">
-                <TinyMCE value={formData.body} onChange={handleEditorChange} />
+                <BlockEditor value={formData.body} onChange={handleEditorChange} />
               </div>
               <div className="mb-3">
                 <label htmlFor="pageSlug" className="form-label">

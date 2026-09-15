@@ -1,6 +1,8 @@
 // Next.js will invalidate the cache when a request comes in, at most once every 60 seconds.
 import { getTranslations } from "next-intl/server"
 import Layout from "../components/layout/MainLayout"
+import BlockContent from "../components/BlockContent"
+import { blocksToPlainText } from "../../lib/blocks/text"
 
 export const revalidate = 60
 export const dynamicParams = true // Permet de générer à la volée si la page n’existe pas au build
@@ -21,7 +23,7 @@ export async function generateMetadata(props) {
       return { title: t("notFound") }
     }
 
-    const text = (page.body || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+    const text = blocksToPlainText(page.body)
     const description = text.length > 160 ? `${text.slice(0, 157)}...` : text
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ""
@@ -83,11 +85,9 @@ export default async function Page(props) {
       )
     }
 
-    const body = { __html: page.body ?? "" }
-
     return (
       <Layout currentPage={page.title}>
-        <main dangerouslySetInnerHTML={body} />
+        <BlockContent as="main" body={page.body} />
       </Layout>
     )
   } catch (err) {

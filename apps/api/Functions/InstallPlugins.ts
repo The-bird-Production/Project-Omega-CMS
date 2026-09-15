@@ -79,6 +79,9 @@ export const InstallPlugins = async (repo: string, app: Application | Router, up
 
         const dashboardFile = path.join(safePluginDir, "admin", "dashboard.js");
         const publicComponent = path.join(safePluginDir, "public", "publicComponent.js");
+        // A plugin's block-editor contribution (see apps/web/lib/blocks/README.md)
+        // — optional, same as the two files above.
+        const blocksFile = path.join(safePluginDir, "public", "blocks.js");
 
         if (fs.existsSync(dashboardFile)) {
             fs.renameSync(dashboardFile, path.join(safeClientPluginDir, "dashboard.js"));
@@ -86,6 +89,10 @@ export const InstallPlugins = async (repo: string, app: Application | Router, up
 
         if (fs.existsSync(publicComponent)) {
             fs.renameSync(publicComponent, path.join(safeClientPluginDir, "publicComponent.js"));
+        }
+
+        if (fs.existsSync(blocksFile)) {
+            fs.renameSync(blocksFile, path.join(safeClientPluginDir, "blocks.js"));
         }
 
         // ✅ Suppression sécurisée (ajoutez check si besoin)

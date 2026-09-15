@@ -7,6 +7,7 @@ import ConsultedPages from '../../components/admin/graph/ConsultedPages';
 import TotalViewedPages from '../../components/admin/graph/TotalViewedPages';
 import NumberOfUser from '../../components/admin/graph/NumberOfUser';
 import NumberOfPage from '../../components/admin/graph/NumberOfPages';
+import AudienceStats from '../../components/admin/graph/AudienceStats';
 
 function toDateInputValue(date) {
   return date.toISOString().slice(0, 10);
@@ -70,6 +71,12 @@ export default function StatsAdmin() {
                   <h3>Pages stats :</h3>
                   <ConsultedPages startDate={startDate} endDate={endOfEndDate} />
                   <TotalViewedPages startDate={startDate} endDate={endOfEndDate} />
+                </div>
+              </div>
+              <div className="col-12 pt-3">
+                <div className="card card-body bg-primary text-white">
+                  <h3>Audience :</h3>
+                  <AudienceStats startDate={startDate} endDate={endOfEndDate} />
                 </div>
               </div>
               <div className="col-12 pt-3">
