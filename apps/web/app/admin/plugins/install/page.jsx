@@ -1,6 +1,7 @@
 'use client';
 import Breadcrumb from '../../../components/admin/ui/Breadcrumb';
 import PluginsInstallable from '../../../components/plugin/installablePlugins';
+import CatalogBrowser from '../../../components/catalog/CatalogBrowser';
 
 export default function InstallPlugin() {
   return (
@@ -12,6 +13,7 @@ export default function InstallPlugin() {
           { label: 'Install' },
         ]}
       />
+      <CatalogBrowser kind="plugins" />
       <div className="card card-body bg-secondary">
         <h5 className="card-title">Install Plugins</h5>
         <PluginsInstallable />

@@ -5,6 +5,7 @@ import AddLogs from "../../Functions/AddLogs.js";
 import { loadAllPlugins } from "../../Functions/LoadPlugin.js";
 const router = express.Router();
 router.get("/", VerifyPermissions("admin"), PluginsController.getPluginsInstalled);
+router.get("/catalog", VerifyPermissions("admin"), PluginsController.getPluginsCatalog);
 router.post("/install-from-github", VerifyPermissions("admin"), AddLogs("Install a new plugin", "green"), (req, res) => PluginsController.InstallPluginFromGithub(req, res, router));
 router.post("/update/:id", VerifyPermissions("admin"), AddLogs("Update plugin", "info"), (req, res) => PluginsController.UpdatePlugin(req, res, router));
 router.get("/check-update/:id", VerifyPermissions("admin"), PluginsController.CheckPluginUpdate);
