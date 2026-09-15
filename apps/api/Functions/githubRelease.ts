@@ -88,8 +88,14 @@ export function unwrapSingleTopLevelDir(dir: string): void {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   if (entries.length !== 1 || !entries[0].isDirectory()) return;
 
-  const nested = path.join(dir, entries[0].name);
-  for (const item of fs.readdirSync(nested)) {
+  // path.basename() strips any directory components a listed entry name
+  // could carry, so this can never resolve outside `dir`/`nested` even
+  // though these names ultimately originate from the downloaded archive's
+  // contents rather than from something this process generated itself.
+  const nestedName = path.basename(entries[0].name);
+  const nested = path.join(dir, nestedName);
+  for (const rawItem of fs.readdirSync(nested)) {
+    const item = path.basename(rawItem);
     fs.renameSync(path.join(nested, item), path.join(dir, item));
   }
   fs.rmdirSync(nested);

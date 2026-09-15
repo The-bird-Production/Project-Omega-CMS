@@ -23,7 +23,10 @@ export const InstallPlugins = async (repo: string, app: Application | Router, up
     const BACKUP_DIR = path.resolve(process.cwd(), "backups");
 
     const normalizedRepo = parseRepoInput(repo);
-    const safePluginName = repoToLocalId(normalizedRepo);
+    // path.basename() is a no-op here in practice (repoToLocalId already
+    // never produces "/"), but makes the sanitization explicit at the exact
+    // value every filesystem path below is built from.
+    const safePluginName = path.basename(repoToLocalId(normalizedRepo));
 
     try {
         if (!isSafePluginId(safePluginName)) {
