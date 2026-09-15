@@ -74,7 +74,7 @@ export default function ArticleList() {
     
   } 
   if (!rowData) {
-    return <div className="text-center text-white">No articles found.</div>;
+    return <div className="text-center">No articles found.</div>;
   }
   return rowData.map((item, index) => (
     <div className="card card-body m-3 bg-primary text-white" key={index}>

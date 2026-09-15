@@ -92,7 +92,7 @@ export default function CatalogBrowser({ kind }) {
           {entries.map((entry) => (
             <div
               key={entry.repo}
-              className="list-group-item bg-dark text-light d-flex justify-content-between align-items-center gap-3"
+              className="list-group-item d-flex justify-content-between align-items-center gap-3"
             >
               <div>
                 <div className="fw-semibold">{entry.name}</div>

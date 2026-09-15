@@ -107,7 +107,7 @@ const ThemePage = () => {
       ) : (
         <ul className="list-group">
           {themes.map((theme) => (
-            <li key={theme.id} className="list-group-item bg-primary text-light border border-primary">
+            <li key={theme.id} className="list-group-item bg-primary text-white border border-primary">
               <h2 className="h5">{theme.name}</h2>
               <p>{theme.description}</p>
               <p className="mb-1">

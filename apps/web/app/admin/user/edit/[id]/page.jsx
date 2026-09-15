@@ -113,7 +113,7 @@ export default function Page(props) {
         <div className="card-body bg-secondary rounded border border-secondary">
           <h2 className="card-title text-light">Modification d&apos;utilisateur</h2>
           <form onSubmit={handleSubmit}>
-            <div className="row g-3 text-white pt-2">
+            <div className="row g-3 pt-2">
               <div className="col-md-6">
                 <label htmlFor="userName" className="form-label">
                   Nom

@@ -145,7 +145,7 @@ export default function LogList() {
             checked={selectAll}
             onChange={handleSelectAll}
           />
-          <label className="form-check-label text-white">Tout sélectionner</label>
+          <label className="form-check-label">Tout sélectionner</label>
         </div>
 
         {rowData.map((item) => (
@@ -186,7 +186,7 @@ export default function LogList() {
         Supprimer les logs sélectionnés
       </button>
 
-      <div className="pagination-controls mt-3 text-white">
+      <div className="pagination-controls mt-3">
         <button
           disabled={currentPage === 1}
           onClick={handlePrevPage}

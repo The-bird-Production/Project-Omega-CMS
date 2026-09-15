@@ -60,20 +60,20 @@ export default function StatsAdmin() {
           <Suspense fallback={<LoadingSpinner />}>
             <div className="container row text-light">
               <div className="col-6">
-                <div className="card card-body bg-primary">
+                <div className="card card-body bg-primary text-white">
                   <h3>Api stats :</h3>
                   <APIResponseTime startDate={startDate} endDate={endOfEndDate} />
                 </div>
               </div>
               <div className="col-6">
-                <div className="card card-body bg-primary">
+                <div className="card card-body bg-primary text-white">
                   <h3>Pages stats :</h3>
                   <ConsultedPages startDate={startDate} endDate={endOfEndDate} />
                   <TotalViewedPages startDate={startDate} endDate={endOfEndDate} />
                 </div>
               </div>
               <div className="col-12 pt-3">
-                <div className="card card-body bg-primary">
+                <div className="card card-body bg-primary text-white">
                   <h3>Other stats :</h3>
                   <div className="pt-2">
                     <NumberOfUser />
