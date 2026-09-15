@@ -1,4 +1,5 @@
 // Next.js will invalidate the cache when a request comes in, at most once every 60 seconds.
+import { getTranslations } from "next-intl/server"
 import Layout from "../components/layout/MainLayout"
 
 export const revalidate = 60
@@ -13,10 +14,11 @@ async function fetchPage(slug) {
 
 export async function generateMetadata(props) {
   const params = await props.params
+  const t = await getTranslations("Page")
   try {
     const page = await fetchPage(params.slug)
     if (!page) {
-      return { title: "Page introuvable" }
+      return { title: t("notFound") }
     }
 
     const text = (page.body || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
@@ -66,15 +68,16 @@ export async function generateStaticParams() {
 
 export default async function Page(props) {
   const params = await props.params;
+  const t = await getTranslations("Page");
   try {
     const page = await fetchPage(params.slug)
 
     if (!page) {
       return (
-        <Layout currentPage="Page introuvable">
+        <Layout currentPage={t("notFound")}>
           <main>
-            <h1>Page introuvable</h1>
-            <p>Le contenu demandé n&apos;existe pas.</p>
+            <h1>{t("notFound")}</h1>
+            <p>{t("notFoundBody")}</p>
           </main>
         </Layout>
       )
@@ -90,10 +93,10 @@ export default async function Page(props) {
   } catch (err) {
     console.error("Erreur lors du rendu de la page :", err)
     return (
-      <Layout currentPage="Erreur">
+      <Layout currentPage={t("genericError")}>
         <main>
-          <h1>Erreur</h1>
-          <p>Impossible de charger cette page pour le moment.</p>
+          <h1>{t("genericError")}</h1>
+          <p>{t("loadError")}</p>
         </main>
       </Layout>
     )

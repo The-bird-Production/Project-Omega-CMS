@@ -1,12 +1,16 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import Layout from "../components/layout/MainLayout";
 import ArticleFilters from "../components/article/ArticleFilters";
 import ArticlePagination from "../components/article/ArticlePagination";
 
-export const metadata = {
-  title: "Articles",
-  description: "Tous les articles publiés.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("ArticleList");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 function stripHtml(html) {
   let text = html || "";
@@ -45,6 +49,7 @@ async function fetchFilterOptions() {
 
 export default async function ArticleListPage(props) {
   const searchParams = await props.searchParams;
+  const t = await getTranslations("ArticleList");
 
   let result;
   let error;
@@ -60,7 +65,7 @@ export default async function ArticleListPage(props) {
     return (
       <Layout currentPage={"ArticleList"}>
         <div className="container mt-4">
-          <div className="alert alert-danger">Erreur lors du chargement des articles : {String(error.message || error)}</div>
+          <div className="alert alert-danger">{t("loadError")} {String(error.message || error)}</div>
         </div>
       </Layout>
     );
@@ -73,10 +78,10 @@ export default async function ArticleListPage(props) {
   return (
     <Layout currentPage={"ArticleList"}>
       <div className="container mt-4">
-        <h1>Articles</h1>
+        <h1>{t("title")}</h1>
         <ArticleFilters categories={categories} tags={tags} />
         {articles.length === 0 ? (
-          <p>Aucun article ne correspond à votre recherche.</p>
+          <p>{t("noResults")}</p>
         ) : (
           <div className="list-group mb-4">
             {articles.map((a) => (
@@ -87,7 +92,7 @@ export default async function ArticleListPage(props) {
                 </div>
                 <p className="mb-1">{stripHtml(a.body).slice(0, 200)}{(a.body || "").length > 200 ? "..." : ""}</p>
                 <small>
-                  By {a.authorId || 'unknown'}
+                  {t("by")} {a.authorId || 'unknown'}
                   {a.category ? ` · ${a.category}` : ""}
                   {a.tags ? ` · ${a.tags}` : ""}
                 </small>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { authClient } from "../../../lib/authClient";
 
 const AdminHeader = dynamic(() => import("./AdminHeader"), { ssr: false });
@@ -10,6 +11,7 @@ const AdminNavBar = dynamic(() => import("./AdminNavBar"), { ssr: false });
 const AdminContentLayout = dynamic(() => import("./AdminContentLayout"), { ssr: false });
 
 export default function Layout({ children }) {
+  const t = useTranslations("Admin");
   const router = useRouter();
   const [canViewDashboard, setCanViewDashboard] = useState(null);
 
@@ -40,7 +42,7 @@ export default function Layout({ children }) {
 
   if (canViewDashboard === null) {
     // Loader temporaire pendant la vérification
-    return <div>Checking permissions...</div>;
+    return <div>{t("checkingPermissions")}</div>;
   }
 
   return (

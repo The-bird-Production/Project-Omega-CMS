@@ -13,13 +13,14 @@
 ✅ **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
 ✅ **Gestion des médias** (upload fichiers). <br>
 ✅ **Optimisation SEO** : sitemap.xml et robots.txt générés automatiquement, balises meta/Open Graph sur toutes les pages publiques. <br>
-✅ **Notifications en temps réel** (Socket.io) pour admins : plugins, thèmes, pages, redirections et médias notifient déjà en direct via le système de logs existant. <br>
+✅ **Support multi-langues** (interface) : socle next-intl en place, site public et chrome admin déjà traduits, français comme première langue supportée. <br>
 
 ### 🏗 Fonctionnalités en cours de développement
 
 🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).<br>
-🚧 **Support multi-langues**.<br>
-🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs) — nécessite d'abord un système de commentaires, qui n'existe pas encore.<br>
+🚧 **Multi-langues : reste du back-office** (formulaires admin article/page/image/utilisateur/plugin/thème) et **contenu multilingue** (plusieurs traductions d'un même article/page) — non couverts par le socle actuel.<br>
+🚧 **Notifications en temps réel** (Socket.io) pour admins.<br>
+🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).<br>
 
 
 ## 📦 Installation

@@ -1,25 +1,33 @@
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import ClientChrome from './components/layout/ClientChrome';
 
-const siteName = "Omega CMS";
-const siteDescription = "Site propulsé par Omega CMS.";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-export const metadata = {
-  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
-  title: {
-    default: siteName,
-    template: `%s | ${siteName}`,
-  },
-  description: siteDescription,
-  openGraph: {
-    siteName,
-    type: "website",
-  },
-};
+export async function generateMetadata() {
+  const t = await getTranslations('Layout');
+  const siteName = t('siteName');
 
-export default function RootLayout({ children }) {
+  return {
+    ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+    title: {
+      default: siteName,
+      template: `%s | ${siteName}`,
+    },
+    description: t('siteDescription'),
+    openGraph: {
+      siteName,
+      type: "website",
+    },
+  };
+}
+
+export default async function RootLayout({ children }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link
           rel="stylesheet"
@@ -28,7 +36,9 @@ export default function RootLayout({ children }) {
       </head>
 
       <body>
-        <ClientChrome>{children}</ClientChrome>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ClientChrome>{children}</ClientChrome>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

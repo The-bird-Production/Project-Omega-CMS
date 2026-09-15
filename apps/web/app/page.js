@@ -1,14 +1,17 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import Layout from "./components/layout/MainLayout";
 
 export default function Home() {
+  const t = useTranslations("Home");
+
   return (
     <>
       <Layout currentPage={"Default"}>
         <center className="m-5 p-5">
-          <h1>Welcome to Omega</h1>
+          <h1>{t("welcome")}</h1>
 
-          <h2>Start Editing to see your changes.</h2>
+          <h2>{t("startEditing")}</h2>
 
           <Image
             alt="Logo The bird productiob"

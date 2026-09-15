@@ -1,9 +1,11 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 export default function ArticleFilters({ categories, tags }) {
+  const t = useTranslations('ArticleList');
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -35,10 +37,10 @@ export default function ArticleFilters({ categories, tags }) {
         <input
           type="search"
           className="form-control"
-          placeholder="Rechercher un article..."
+          placeholder={t('searchPlaceholder')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          aria-label="Rechercher un article"
+          aria-label={t('searchPlaceholder')}
         />
       </div>
       <div className="col-md-3">
@@ -48,7 +50,7 @@ export default function ArticleFilters({ categories, tags }) {
           onChange={(e) => applyFilters({ category: e.target.value })}
           aria-label="Filtrer par catégorie"
         >
-          <option value="">Toutes les catégories</option>
+          <option value="">{t('allCategories')}</option>
           {categories.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -63,17 +65,17 @@ export default function ArticleFilters({ categories, tags }) {
           onChange={(e) => applyFilters({ tag: e.target.value })}
           aria-label="Filtrer par tag"
         >
-          <option value="">Tous les tags</option>
-          {tags.map((t) => (
-            <option key={t} value={t}>
-              {t}
+          <option value="">{t('allTags')}</option>
+          {tags.map((tagValue) => (
+            <option key={tagValue} value={tagValue}>
+              {tagValue}
             </option>
           ))}
         </select>
       </div>
       <div className="col-md-1">
         <button type="submit" className="btn btn-primary w-100">
-          OK
+          {t('submit')}
         </button>
       </div>
     </form>

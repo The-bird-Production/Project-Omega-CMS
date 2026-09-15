@@ -1,10 +1,12 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useSession, signOut } from "../../../lib/authClient";
 import AdminNotifications from "./notifications/AdminNotifications";
 export default function Components() {
+  const t = useTranslations();
   const {data, isPending} = useSession();
   if (isPending) {
-    return <div>Loading...</div>;
+    return <div>{t("Common.loading")}</div>;
   }
 
   return (
@@ -30,7 +32,7 @@ export default function Components() {
                 <ul className="dropdown-menu bg-secondary text-light">
                   <li className="dropdown-item">
                     <a onClick={() => signOut()} className="btn btn-primary">
-                      Sign out
+                      {t("Admin.signOut")}
                     </a>
                   </li>
                 </ul>

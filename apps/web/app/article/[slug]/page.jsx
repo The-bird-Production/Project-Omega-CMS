@@ -1,5 +1,6 @@
 import Layout from "../../components/layout/MainLayout";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 async function fetchArticle(slug) {
   try {
@@ -19,12 +20,13 @@ async function fetchArticle(slug) {
 export async function generateMetadata(props) {
   const params = await props.params;
   const { slug } = params;
+  const t = await getTranslations("ArticleDetail");
   try {
     const article = await fetchArticle(slug);
     if (!article || article.error) {
       return {
-        title: "Article introuvable",
-        description: "L'article demandé est introuvable.",
+        title: t("notFound"),
+        description: t("notFound"),
       };
     }
 
@@ -69,12 +71,13 @@ export default async function ArticlePage(props) {
   const params = await props.params;
   const { slug } = params;
   const data = await fetchArticle(slug);
+  const t = await getTranslations("ArticleDetail");
 
   if (data && data.error) {
     return (
       <Layout currentPage={"ArticleDetail"}>
         <div className="container mt-4">
-          <div className="alert alert-danger">Erreur lors du chargement de l&apos;article : {String(data.error.message || data.error)}</div>
+          <div className="alert alert-danger">{t("loadError")} {String(data.error.message || data.error)}</div>
         </div>
       </Layout>
     );
@@ -85,7 +88,7 @@ export default async function ArticlePage(props) {
     return (
       <Layout currentPage={"ArticleDetail"}>
         <div className="container mt-4">
-          <h2>Article introuvable</h2>
+          <h2>{t("notFound")}</h2>
         </div>
       </Layout>
     );
@@ -95,7 +98,7 @@ export default async function ArticlePage(props) {
     <Layout currentPage={"ArticleDetail"}>
       <div className="container mt-4">
         <h1>{article.title}</h1>
-        <p className="text-muted">Publié le {article.publishedAt ? new Date(article.publishedAt).toLocaleString() : ""}</p>
+        <p className="text-muted">{t("publishedOn")} {article.publishedAt ? new Date(article.publishedAt).toLocaleString() : ""}</p>
         {article.image ? (
           // Next/Image requires a remote pattern or loader configured; use a simple img fallback to be safe
           <img src={article.image} alt={article.title} className="img-fluid mb-3" />
