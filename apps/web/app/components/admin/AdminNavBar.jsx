@@ -64,6 +64,9 @@ export default function AdminNavBar() {
         <NavLink href="/admin/redirect" icon="bi-compass">
           {t('redirects')}
         </NavLink>
+        <NavLink href="/admin/menu" icon="bi-list-ul">
+          {t('menus')}
+        </NavLink>
         <NavLink href="/admin/log" icon="bi-newspaper">
           {t('logs')}
         </NavLink>

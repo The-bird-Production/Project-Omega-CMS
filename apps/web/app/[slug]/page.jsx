@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server"
 import Layout from "../components/layout/MainLayout"
 import BlockContent from "../components/BlockContent"
 import { blocksToPlainText } from "../../lib/blocks/text"
+import { getPageTemplateComponent } from "../../lib/pageTemplates/render"
 
 export const revalidate = 60
 export const dynamicParams = true // Permet de générer à la volée si la page n’existe pas au build
@@ -85,9 +86,15 @@ export default async function Page(props) {
       )
     }
 
+    // A theme-provided template (see apps/web/lib/pageTemplates/README.md)
+    // takes over rendering entirely when set and still available — falls
+    // back to the normal block rendering otherwise (template removed,
+    // theme changed, etc.), so a page never 404s just because of that.
+    const CustomTemplate = await getPageTemplateComponent(page.template)
+
     return (
       <Layout currentPage={page.title}>
-        <BlockContent as="main" body={page.body} />
+        {CustomTemplate ? <CustomTemplate page={page} /> : <BlockContent as="main" body={page.body} />}
       </Layout>
     )
   } catch (err) {
