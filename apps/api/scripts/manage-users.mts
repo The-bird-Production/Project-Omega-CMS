@@ -12,6 +12,14 @@
 //   pnpm run manage-users set-role <email> <admin|user>
 //   pnpm run manage-users set-password <email> <newPassword>
 //   pnpm run manage-users delete <email>
+//
+// Loads apps/api/.env itself (server.js does the same before importing
+// anything that touches @omega/db) since this script is meant to be run
+// standalone, e.g. via `docker compose exec omega-server pnpm --filter
+// @omega/api run manage-users ...` — a separate process from the main
+// server, so it doesn't inherit whatever that one set up at its own
+// startup.
+import "dotenv/config";
 import { randomUUID } from "crypto";
 import { prisma } from "@omega/db";
 import { hashPassword } from "better-auth/crypto";
