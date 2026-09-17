@@ -45,11 +45,15 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
   let clientDir: string | null = null;
   let styleDir: string;
   if (needsClientCopy) {
+    // Same reasoning as clientDir above: a bare-metal checkout (dev OR
+    // production) has apps/web right next to apps/api on the same
+    // filesystem, so the monorepo-relative path is correct either way —
+    // this used to only take that path for isDev, leaving a bare-metal
+    // production install's style/style.css copied to apps/api's own
+    // Themes_style instead of somewhere apps/web actually serves from.
     const cms = await import("../../../cms.js");
     clientDir = path.resolve(cms.dirname, "apps", "web", "app", "Themes");
-    styleDir = isDev
-      ? path.resolve(cms.dirname, "apps", "web", "public", "themes")
-      : path.resolve(process.cwd(), "Themes_style");
+    styleDir = path.resolve(cms.dirname, "apps", "web", "public", "themes");
   } else {
     styleDir = path.resolve(process.cwd(), "Themes_style");
   }
