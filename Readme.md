@@ -90,6 +90,15 @@ Sans Docker, `apps/api` embarque son propre vérificateur/applicateur de mise à
   ```
   En production (Docker et bare-metal), c'est `migrate:deploy:safe` qui s'exécute automatiquement à chaque mise à jour. Les instances déjà en place avant l'introduction des migrations trackées (schéma géré jusqu'ici avec `db push`) n'ont rien à faire : ce script détecte lui-même une base non vide sans historique de migration et la fait basculer sur le nouveau système sans intervention.
 - **Gestion des permissions** : gérées via better-auth (`packages` d'accès dans `apps/api/lib/permissions.js`), modifiables dans l'admin.
+- **Gestion des utilisateurs en CLI** (sans passer par phpMyAdmin) : `apps/api/scripts/manage-users.mts`, utile notamment pour créer le tout premier compte admin.
+  ```sh
+  pnpm --filter @omega/api run manage-users create admin@exemple.com motdepasse "Nom Complet" admin
+  pnpm --filter @omega/api run manage-users list
+  pnpm --filter @omega/api run manage-users set-role admin@exemple.com admin
+  pnpm --filter @omega/api run manage-users set-password admin@exemple.com nouveaumotdepasse
+  pnpm --filter @omega/api run manage-users delete admin@exemple.com
+  ```
+  Passe par les mêmes mécanismes que l'application (better-auth pour la création/le hash du mot de passe) plutôt que d'écrire en base à la main — évite en particulier un compte avec un `name` manquant, qui empêche ensuite la connexion.
 - **Plugins** : Ajoutez vos propres plugins en les plaçant dans `apps/api/Plugins/`. Voir le repo github : `https://github.com/The-bird-Production/OmegaPlugin`
 
 ## 🏗 Structure du projet
