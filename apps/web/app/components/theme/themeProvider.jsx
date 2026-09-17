@@ -79,19 +79,30 @@ export const ThemeProvider = ({ children }) => {
       }
       link.href = `/themes/${data.id}/style.css`; // Assurez-vous que ce chemin est public
 
-      // Charger dynamiquement tous les composants listés
+      // Charger dynamiquement tous les composants listés.
+      // Seuls Header/Footer/Button sont reconnus, et toujours à un chemin
+      // fixe `components/<Nom>.js` (la valeur de config.components.<Nom> n'est
+      // plus utilisée pour construire le chemin). C'est nécessaire pour que
+      // Webpack construise un "context" d'import dynamique étroit
+      // (`Themes/*/components/*.js`) : avec un chemin entièrement dérivé du
+      // JSON (comme avant), Webpack ne peut rien exclure statiquement et
+      // embarque TOUT `app/Themes/` dans le bundle client — y compris les
+      // templates de page (`components/pages/*.jsx`, voir
+      // lib/pageTemplates/render.js) qui importent du code serveur (`fs`
+      // via lib/blocks/discoverServer.js), faisant échouer le build client.
+      const KNOWN_THEME_COMPONENTS = ["Header", "Footer", "Button"];
       const componentsConfig = data.config?.components || {};
       const loadedComponents = {};
 
-      for (const [name, relativePath] of Object.entries(componentsConfig)) {
+      for (const name of Object.keys(componentsConfig)) {
+        if (!KNOWN_THEME_COMPONENTS.includes(name)) {
+          console.warn(`⚠️ Composant de thème "${name}" ignoré (non reconnu, attendu : ${KNOWN_THEME_COMPONENTS.join(", ")}).`);
+          continue;
+        }
         try {
-          // IMPORTANT : Le chemin d'importation doit être gérable par Webpack/Next.js.
-          // Ici, on suppose que vos thèmes sont dans `src/themes` et configurés avec un alias `@/themes`.
-          // Le `relativePath` doit être le chemin du composant DANS le dossier `components` de votre thème.
-          // Ex: relativePath = "Button.jsx" pour un composant dans src/themes/my-theme/components/Button.jsx
           const dynamicComponent = dynamic(
-            () => import(`../../Themes/${data.id}${relativePath}`).catch((err) => {
-              console.error(`❌ Erreur lors de l'importation du composant "${name}" depuis "${relativePath}":`, err);
+            () => import(`../../Themes/${data.id}/components/${name}.js`).catch((err) => {
+              console.error(`❌ Erreur lors de l'importation du composant "${name}" :`, err);
               return { default: () => <div>Erreur de chargement du composant {name}</div> }; // Retourne un composant d'erreur
             }),
             { ssr: false } // Toujours ssr: false pour les composants client-side dynamiques
