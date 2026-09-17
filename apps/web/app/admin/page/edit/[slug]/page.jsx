@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { pageSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { listPageTemplates } from '../../../../../lib/pageTemplates/discoverClient';
 
 const BlockEditor = dynamic(() => import('../../../../components/admin/editor/BlockEditor'), { ssr: false });
 
@@ -13,10 +14,15 @@ export default function Page(props) {
   const params = use(props.params);
   const slug = params.slug;
 
-  const [formData, setFormData] = useState({ title: '', body: '', slug: '' });
+  const [formData, setFormData] = useState({ title: '', body: '', slug: '', template: '' });
   const [data, setData] = useState(null);
+  const [templates, setTemplates] = useState([]);
 
   const router = useRouter();
+
+  useEffect(() => {
+    listPageTemplates().then(setTemplates);
+  }, []);
 
   useEffect(() => {
     const fetchdata = async (slug) => {
@@ -41,6 +47,7 @@ export default function Page(props) {
             title: jsonData.title,
             body: jsonData.body,
             slug: jsonData.slug,
+            template: jsonData.template || '',
           });
         } else {
           console.error('Failed to fetch data:', res.statusText);
@@ -128,6 +135,30 @@ export default function Page(props) {
               value={formData.title}
             />
           </div>
+          {templates.length > 0 && (
+            <div className="mb-3">
+              <label htmlFor="pageTemplate" className="form-label">
+                Modèle de page
+              </label>
+              <select
+                id="pageTemplate"
+                className="form-select"
+                name="template"
+                value={formData.template}
+                onChange={handleChange}
+              >
+                <option value="">Rendu par blocs (par défaut)</option>
+                {templates.map((tpl) => (
+                  <option key={tpl.name} value={tpl.name}>
+                    {tpl.label || tpl.name}
+                  </option>
+                ))}
+              </select>
+              <div className="form-text">
+                Fourni par le thème actif. Le contenu ci-dessous reste disponible au modèle si besoin.
+              </div>
+            </div>
+          )}
           <div className="mb-3">
             <BlockEditor value={data.body} onChange={handleEditorChange} />
           </div>

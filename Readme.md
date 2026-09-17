@@ -5,21 +5,25 @@
 ## 🚀 Roadmap
 
 ### 🔹 Fonctionnalités terminées
-✅ **Authentification** avec NextAuth.js et gestion avancée des rôles.<br>
-✅ **Système de plugins** pour ajouter des fonctionnalités personnalisées.<br>
-✅ **Admin Dashboard** ergonomique avec stats et gestion du contenu.<br>
-✅ **Mises à jour automatiques** depuis un repo GitHub privé.<br>
-✅ **Système de thème** personnalisable depuis l'administration.<br>
-✅ **Gestion d'articles** avec brouillons, sauvegarde auto et publication. <br>
+✅ **Authentification** via better-auth (rôles admin/utilisateur, permissions granulaires).<br>
+✅ **Éditeur par blocs** (façon WordPress/Gutenberg) pour pages et articles, extensible par les plugins/thèmes.<br>
+✅ **Plugins et thèmes installables depuis GitHub**, avec catalogue intégré de dépôts validés.<br>
+✅ **Thèmes personnalisables** : couleurs/polices, en-tête/pied de page, pages entièrement sur mesure ([guide](docs/plugin-and-theme-development.md)).<br>
+✅ **Menus de navigation** gérables depuis l'admin, consommés par les thèmes.<br>
+✅ **Admin Dashboard** ergonomique (design « Papier Indigo ») avec gestion du contenu.<br>
+✅ **Statistiques d'audience** : visiteurs uniques, sources de trafic, appareil/navigateur, durée de session, taux de rebond — en plus des statistiques API/pages.<br>
+✅ **Mises à jour automatiques** depuis GitHub (Watchtower en Docker, updater intégré en bare-metal).<br>
+✅ **Gestion d'articles** avec brouillons, sauvegarde auto, catégories/tags et publication planifiée.<br>
+✅ **Recherche et filtrage** des articles (tags, catégories, pagination).<br>
 ✅ **Gestion des médias** (upload fichiers). <br>
 ✅ **Optimisation SEO** : sitemap.xml et robots.txt générés automatiquement, balises meta/Open Graph sur toutes les pages publiques. <br>
 ✅ **Support multi-langues** (interface) : socle next-intl en place, site public et chrome admin déjà traduits, français comme première langue supportée. <br>
+✅ **Notifications en temps réel** (Socket.io) pour les admins.<br>
+✅ **Gestion des utilisateurs en CLI**, sans dépendre de phpMyAdmin (voir Configuration ci-dessous).<br>
 
 ### 🏗 Fonctionnalités en cours de développement
 
-🚧 **Recherche et filtrage avancés** (tags, catégories, pagination).<br>
 🚧 **Multi-langues : reste du back-office** (formulaires admin article/page/image/utilisateur/plugin/thème) et **contenu multilingue** (plusieurs traductions d'un même article/page) — non couverts par le socle actuel.<br>
-🚧 **Notifications en temps réel** (Socket.io) pour admins.<br>
 🚧 **Système de notifications email** (nouveaux commentaires, nouveaux utilisateurs).<br>
 
 
@@ -142,15 +146,12 @@ Sans Docker, `apps/api` embarque son propre vérificateur/applicateur de mise à
 - **Logs** (consultation, suppression)
 - **Statistiques** (API, Web)
 - **Rôles** (gestion des permissions)
-- **Pages** (CRUD)
+- **Pages** (CRUD, modèles personnalisés)
+- **Menus** (navigation)
 - **Plugins** (installation, gestion)
 
-## 🎨 Personnalisation du Thème (WIP)
-Les administrateurs peuvent modifier les couleurs, polices et styles via l'interface admin.
-
-## ⚙️ Système de Plugins
-Les plugins peuvent ajouter des pages, modifier le frontend ou backend sans redémarrage.
-DOC : (WIP)
+## 🎨 Thèmes & ⚙️ Plugins
+Installables depuis un dépôt GitHub (`/admin/plugins/install`, `/admin/themes/install`) ou via le catalogue intégré. Un thème peut fournir son propre en-tête/pied de page, des pages entièrement personnalisées, et contribuer des blocs à l'éditeur ; un plugin peut ajouter des routes backend, une page d'admin, et lui aussi des blocs. Guide complet pour en développer un : [`docs/plugin-and-theme-development.md`](docs/plugin-and-theme-development.md).
 
 
 ## 🛠 Contribution

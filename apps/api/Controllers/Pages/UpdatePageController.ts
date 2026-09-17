@@ -9,6 +9,7 @@ const UpdatePage = async (req: Request, res: Response) => {
                 title: req.body.title,
                 body: req.body.body,
                 slug: req.body.slug,
+                template: typeof req.body.template === "string" && req.body.template.trim() ? req.body.template.trim() : null,
             }, where: {
                 id: id
             }

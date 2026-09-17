@@ -9,6 +9,7 @@ import { warn } from "console";
 import { assertSafeZipEntries } from "./zipSafety.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isSafePluginId } from "./pluginIdValidator.js";
+import { isRunningInDocker } from "./Updater/gitState.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,7 +19,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // the same repo lands on the same plugin directory/DB row.
 export const InstallPlugins = async (repo: string, app: Application | Router, update: boolean): Promise<void> => {
     const pluginsDir = path.resolve(process.cwd(), "Plugins");
-    const clientDir = path.resolve(__dirname, "../../../apps/web/app/components/plugin");
+    // A bare-metal checkout has apps/web right next to apps/api, so the
+    // monorepo-relative path resolves for real. The omega-server Docker
+    // image only ever contains apps/api (see apps/api/Dockerfile — it
+    // never COPYs apps/web in), so that same relative path would silently
+    // resolve to a location with no apps/web behind it at all: this used
+    // to write a plugin's dashboard.js/blocks.js into a directory the
+    // omega-client container could never see and that Docker never
+    // persisted (recreated on every restart) — the file went nowhere.
+    // PluginsClient is bind-mounted the same way Themes/Themes_style
+    // already are: one host directory, mounted into both containers at
+    // each one's own expected path (see docker-compose.yml).
+    const clientDir = isRunningInDocker()
+        ? path.resolve(process.cwd(), "PluginsClient")
+        : path.resolve(__dirname, "../../../apps/web/app/components/plugin");
     const tempDir = path.resolve(process.cwd(), "temp");
     const BACKUP_DIR = path.resolve(process.cwd(), "backups");
 
