@@ -2,10 +2,17 @@
 
 import fetch from "isomorphic-fetch";
 import { useEffect } from "react";
-import { ThemeProvider } from "../theme/themeProvider";
+import { useTheme } from "../theme/themeProvider";
 import { getOrCreateVisitorId, getReferrerHostname } from "../../../lib/analytics";
 
 function Layout({ children, currentPage }) {
+  // The active theme's Header/Footer (theme.json's config.components) —
+  // loaded by ThemeProvider (an ancestor of every public page, see
+  // ClientChrome.jsx) but, until now, never actually rendered anywhere.
+  const { theme } = useTheme();
+  const ThemeHeader = theme?.Header;
+  const ThemeFooter = theme?.Footer;
+
   useEffect(() => {
     // Vérification si l'effet est exécuté côté client
     if (typeof window !== "undefined") {
@@ -42,7 +49,13 @@ function Layout({ children, currentPage }) {
     }
   }, [currentPage]); // currentPage est la seule dépendance de l'effet
 
-  return <>{children}</>;
+  return (
+    <>
+      {ThemeHeader && <ThemeHeader />}
+      {children}
+      {ThemeFooter && <ThemeFooter />}
+    </>
+  );
 }
 
 export default Layout;

@@ -19,6 +19,7 @@ services:
     volumes:
       - ./apps/api/Themes:/repo/apps/web/app/Themes
       - ./apps/api/Plugins:/repo/apps/web/app/Plugins
+      - ./apps/api/PluginsClient:/repo/apps/web/app/components/plugin
       - ./apps/web/public:/repo/apps/web/public
       - ./apps/api/Themes_style:/repo/apps/web/public/themes
     labels:
@@ -40,6 +41,7 @@ services:
       - ./apps/api/Public:/repo/apps/api/Public
       - ./apps/api/Themes:/repo/apps/api/Themes
       - ./apps/api/Plugins:/repo/apps/api/Plugins
+      - ./apps/api/PluginsClient:/repo/apps/api/PluginsClient
       - ./apps/api/config:/repo/apps/api/config
       - ./apps/api/Themes_style:/repo/apps/api/Themes_style
     depends_on:

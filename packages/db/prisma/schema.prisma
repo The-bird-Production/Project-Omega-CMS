@@ -99,11 +99,19 @@ model log {
   date   DateTime @default(now())
 }
 
+// `template` names a custom page template a theme provides (see
+// apps/web/lib/pageTemplates/README.md) — null renders the page's blocks
+// normally. Themes register templates the same way plugins register
+// blocks: a discoverable client-side contribution point, not something
+// this table validates against (a theme can be uninstalled later; the
+// public route falls back to the normal block rendering if the named
+// template is no longer available).
 model page {
   id        Int      @id @default(autoincrement())
   slug      String   @unique(map: "Page_slug_key")
   title     String
   body      String   @db.Text
+  template  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -114,6 +122,31 @@ model redirect {
   to        String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// A navigation link, grouped by `menu` (e.g. "main" for the header,
+// "footer" for the footer) so a theme's Header/Footer components can each
+// fetch just their own list via GET /menu/:menu. `order` controls display
+// order within that menu; ties are broken by id (creation order).
+// Optional one level of nesting (parentId) for a dropdown-style submenu —
+// deliberately not deeper: a real second level covers every self-hosted
+// site this CMS has been used for so far, and a generic infinitely-nested
+// tree is more UI (and admin complexity) than that's worth.
+model menuItem {
+  id        Int        @id @default(autoincrement())
+  menu      String     @default("main")
+  label     String
+  url       String
+  target    String?
+  order     Int        @default(0)
+  parentId  Int?
+  parent    menuItem?  @relation("MenuItemChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children  menuItem[] @relation("MenuItemChildren")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([menu])
+  @@index([parentId])
 }
 
 

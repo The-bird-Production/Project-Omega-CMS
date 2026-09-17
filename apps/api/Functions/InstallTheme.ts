@@ -4,6 +4,7 @@ import sanitize from "sanitize-filename";
 import { prisma } from "@omega/db";
 import { assertInside, assertSafeZipEntries } from "./zipSafety.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
+import { isRunningInDocker } from "./Updater/gitState.js";
 
 function moveInto(srcDir: string, destDir: string): void {
   if (!fs.existsSync(srcDir)) return;
@@ -17,6 +18,18 @@ function moveInto(srcDir: string, destDir: string): void {
 // the same repo lands on the same theme directory/DB row.
 const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
   const isDev = process.env.NODE_ENV !== "production";
+  // Docker's docker-compose.yml bind-mounts this same Themes (and
+  // Themes_style) directory into both containers, at each one's own
+  // expected path — apps/web sees a theme's components/ automatically,
+  // no copy needed. A bare-metal checkout (dev OR production) is a single
+  // process tree with no such shared mount, so components/ has to be
+  // copied into apps/web's own tree there, exactly like dev mode already
+  // does — the previous version of this function only ever did that copy
+  // for isDev, silently leaving a theme's Header/Footer/blocks/page
+  // templates unreachable from apps/web on a bare-metal production
+  // instance.
+  const inDocker = isRunningInDocker();
+  const needsClientCopy = !inDocker;
 
   const normalizedRepo = parseRepoInput(repo);
   const sanitizedThemeId = sanitize(repoToLocalId(normalizedRepo));
@@ -31,10 +44,12 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
 
   let clientDir: string | null = null;
   let styleDir: string;
-  if (isDev) {
+  if (needsClientCopy) {
     const cms = await import("../../../cms.js");
     clientDir = path.resolve(cms.dirname, "apps", "web", "app", "Themes");
-    styleDir = path.resolve(cms.dirname, "apps", "web", "public", "themes");
+    styleDir = isDev
+      ? path.resolve(cms.dirname, "apps", "web", "public", "themes")
+      : path.resolve(process.cwd(), "Themes_style");
   } else {
     styleDir = path.resolve(process.cwd(), "Themes_style");
   }
@@ -57,7 +72,7 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
     if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
     fs.renameSync(extractDir, themeDir);
 
-    if (isDev) {
+    if (needsClientCopy) {
       const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, sanitizedThemeId), "client de thème");
       if (!update && !fs.existsSync(safeClientThemeDir)) {
         fs.mkdirSync(safeClientThemeDir, { recursive: true });
@@ -103,7 +118,7 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
 
     if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
     if (fs.existsSync(extractDir)) fs.rmSync(extractDir, { recursive: true, force: true });
-    if (isDev && clientDir) {
+    if (needsClientCopy && clientDir) {
       const clientThemeDir = path.join(clientDir, sanitizedThemeId);
       if (fs.existsSync(clientThemeDir)) fs.rmSync(clientThemeDir, { recursive: true, force: true });
     }
