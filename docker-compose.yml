@@ -32,13 +32,14 @@ services:
     ports:
       - "4000:4000"
     environment:
-      # DATABASE_URL is built at container startup (see command: below),
-      # not here — MYSQL_PASSWORD can legitimately contain characters
-      # (@, :, /, #, %, ...) that are valid in a MySQL password but break
-      # a connection URL if interpolated into it unescaped, which is
-      # exactly what building it as a plain compose string used to do:
-      # Prisma would fail with P1013 "invalid port number" as soon as a
-      # generated password happened to contain one of those characters.
+      # DATABASE_URL itself is derived from this at container startup by
+      # docker-entrypoint.sh, not passed directly here — MYSQL_PASSWORD
+      # can legitimately contain characters (@, :, /, #, %, ...) that are
+      # valid in a MySQL password but break a connection URL if
+      # interpolated into it unescaped, which is exactly what building
+      # DATABASE_URL as a plain compose string used to do: Prisma would
+      # fail with P1013 "invalid port number" as soon as a generated
+      # password happened to contain one of those characters.
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in your .env file}
       - NODE_ENV=production
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in your .env file}
@@ -54,8 +55,7 @@ services:
     depends_on:
       - omega-db
     command: >
-      sh -c "export DATABASE_URL=mysql://user:$$(node -e 'process.stdout.write(encodeURIComponent(process.env.MYSQL_PASSWORD))')@omega-db:3306/omega &&
-             echo 'Waiting for MySQL...' &&
+      sh -c "echo 'Waiting for MySQL...' &&
              until nc -z omega-db 3306; do sleep 1; done &&
              echo 'MySQL ready, applying migrations...' &&
              pnpm --filter @omega/db run migrate:deploy:safe &&
