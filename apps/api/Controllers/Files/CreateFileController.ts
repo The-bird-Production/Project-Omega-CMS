@@ -4,8 +4,7 @@ import path from "path";
 import { prisma } from "@omega/db";
 import Addlogs from "../../Functions/AddLogs.js";
 
-// Répertoires sûrs
-const TMP_DIR = path.resolve(process.cwd(), "Public/tmp/Files");
+// Répertoire autorisé
 const FINAL_DIR = path.resolve(process.cwd(), "Public/Files");
 
 const CreateFile = async (req: Request, res: Response) => {
@@ -30,8 +29,11 @@ const CreateFile = async (req: Request, res: Response) => {
         const extension = path.extname(originalFileName).toLowerCase() || "";
         const safeFilename = path.basename(req.file.filename) + extension;
 
-        // ✅ Construction de chemins sécurisés
-        const tmpPath = path.join(TMP_DIR, path.basename(req.file.filename));
+        // ✅ Construction de chemins sécurisés — tmpPath is exactly what
+        // multer itself just wrote to (req.file.path), used as-is instead
+        // of rebuilt from a separately-resolved directory + filename so
+        // there's no way for the two to disagree.
+        const tmpPath = req.file.path;
         const finalPath = path.join(FINAL_DIR, safeFilename);
 
         // ✅ Vérifie que le chemin reste bien dans le dossier autorisé
@@ -40,7 +42,18 @@ const CreateFile = async (req: Request, res: Response) => {
         }
 
         // Déplacement du fichier
-        await fs.rename(tmpPath, finalPath);
+        try {
+            await fs.rename(tmpPath, finalPath);
+        } catch (renameErr) {
+            if ((renameErr as NodeJS.ErrnoException).code === "ENOENT") {
+                console.error(`Fichier temporaire introuvable pour la création de fichier (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
+                return res.status(409).json({
+                    code: 409,
+                    message: "L'upload a été interrompu ou soumis deux fois — réessayez.",
+                });
+            }
+            throw renameErr;
+        }
 
         // Enregistrement en base de données
         await prisma.file.create({
