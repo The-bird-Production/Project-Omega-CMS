@@ -6,7 +6,7 @@ import { prisma } from "@omega/db";
 import { fileURLToPath } from "url";
 import { loadPlugin } from "./LoadPlugin.js";
 import { warn } from "console";
-import { assertSafeZipEntries } from "./zipSafety.js";
+import { assertSafeZipEntries, movePath } from "./zipSafety.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isSafePluginId } from "./pluginIdValidator.js";
 import { isRunningInDocker } from "./Updater/gitState.js";
@@ -79,7 +79,7 @@ export const InstallPlugins = async (repo: string, app: Application | Router, up
         }
 
         if (fs.existsSync(safePluginDir)) fs.rmSync(safePluginDir, { recursive: true, force: true });
-        fs.renameSync(extractPath, safePluginDir);
+        movePath(extractPath, safePluginDir);
 
         // ✅ Vérification pour clientDir
         const safeClientPluginDir = path.join(clientDir, safePluginName);
@@ -98,15 +98,15 @@ export const InstallPlugins = async (repo: string, app: Application | Router, up
         const blocksFile = path.join(safePluginDir, "public", "blocks.js");
 
         if (fs.existsSync(dashboardFile)) {
-            fs.renameSync(dashboardFile, path.join(safeClientPluginDir, "dashboard.js"));
+            movePath(dashboardFile, path.join(safeClientPluginDir, "dashboard.js"));
         }
 
         if (fs.existsSync(publicComponent)) {
-            fs.renameSync(publicComponent, path.join(safeClientPluginDir, "publicComponent.js"));
+            movePath(publicComponent, path.join(safeClientPluginDir, "publicComponent.js"));
         }
 
         if (fs.existsSync(blocksFile)) {
-            fs.renameSync(blocksFile, path.join(safeClientPluginDir, "blocks.js"));
+            movePath(blocksFile, path.join(safeClientPluginDir, "blocks.js"));
         }
 
         // ✅ Suppression sécurisée (ajoutez check si besoin)

@@ -2,14 +2,14 @@ import fs from "fs";
 import path from "path";
 import sanitize from "sanitize-filename";
 import { prisma } from "@omega/db";
-import { assertInside, assertSafeZipEntries } from "./zipSafety.js";
+import { assertInside, assertSafeZipEntries, movePath } from "./zipSafety.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isRunningInDocker } from "./Updater/gitState.js";
 
 function moveInto(srcDir: string, destDir: string): void {
   if (!fs.existsSync(srcDir)) return;
   fs.mkdirSync(path.dirname(destDir), { recursive: true });
-  fs.renameSync(srcDir, destDir);
+  movePath(srcDir, destDir);
 }
 
 // repo: a GitHub "owner/repo" (or full github.com URL) whose latest release
@@ -74,7 +74,7 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
     if (needsUnwrap) unwrapSingleTopLevelDir(extractDir);
 
     if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
-    fs.renameSync(extractDir, themeDir);
+    movePath(extractDir, themeDir);
 
     if (needsClientCopy) {
       const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, sanitizedThemeId), "client de thème");
