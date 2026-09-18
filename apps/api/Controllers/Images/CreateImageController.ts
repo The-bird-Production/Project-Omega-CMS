@@ -3,8 +3,7 @@ import path from "path";
 import fs from "fs/promises";
 import { prisma } from "@omega/db";
 
-// Dossiers autorisés
-const TMP_DIR = path.resolve(process.cwd(), "Public/tmp/Images");
+// Dossier autorisé
 const FINAL_DIR = path.resolve(process.cwd(), "Public/Images");
 
 const CreateImage = async (req: Request, res: Response) => {
@@ -38,8 +37,11 @@ const CreateImage = async (req: Request, res: Response) => {
         const extension = path.extname(originalFileName).toLowerCase() || "";
         const safeFilename = path.basename(req.file.filename) + extension;
 
-        // ✅ Construction de chemins sécurisés
-        const tmpPath = path.join(TMP_DIR, path.basename(req.file.filename));
+        // ✅ Construction de chemins sécurisés — tmpPath is exactly what
+        // multer itself just wrote to (req.file.path), used as-is instead
+        // of rebuilt from a separately-resolved directory + filename so there's no way for the two
+        // to disagree.
+        const tmpPath = req.file.path;
         const finalPath = path.join(FINAL_DIR, safeFilename);
 
         // ✅ Vérifie que le chemin reste bien dans le dossier autorisé
@@ -48,7 +50,18 @@ const CreateImage = async (req: Request, res: Response) => {
         }
 
         // ✅ Déplacement du fichier
-        await fs.rename(tmpPath, finalPath);
+        try {
+            await fs.rename(tmpPath, finalPath);
+        } catch (renameErr) {
+            if ((renameErr as NodeJS.ErrnoException).code === "ENOENT") {
+                console.error(`Fichier temporaire introuvable pour la création d'image (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
+                return res.status(409).json({
+                    code: 409,
+                    message: "L'upload a été interrompu ou soumis deux fois — réessayez.",
+                });
+            }
+            throw renameErr;
+        }
 
         // ✅ Enregistrement en base de données
         await prisma.image.create({
@@ -96,8 +109,11 @@ const CreateArticleImage = async (req: Request, res: Response) => {
         const extension = path.extname(originalFileName).toLowerCase() || "";
         const safeFilename = path.basename(req.file.filename) + extension;
 
-        // ✅ Construction de chemins sécurisés
-        const tmpPath = path.join(TMP_DIR, path.basename(req.file.filename));
+        // ✅ Construction de chemins sécurisés — tmpPath is exactly what
+        // multer itself just wrote to (req.file.path), used as-is instead
+        // of rebuilt from a separately-resolved directory + filename so there's no way for the two
+        // to disagree.
+        const tmpPath = req.file.path;
         const finalPath = path.join(FINAL_DIR, safeFilename);
 
         // ✅ Vérifie que le chemin reste bien dans le dossier autorisé
@@ -106,7 +122,18 @@ const CreateArticleImage = async (req: Request, res: Response) => {
         }
 
         // ✅ Déplacement du fichier
-        await fs.rename(tmpPath, finalPath);
+        try {
+            await fs.rename(tmpPath, finalPath);
+        } catch (renameErr) {
+            if ((renameErr as NodeJS.ErrnoException).code === "ENOENT") {
+                console.error(`Fichier temporaire introuvable pour la création d'image (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
+                return res.status(409).json({
+                    code: 409,
+                    message: "L'upload a été interrompu ou soumis deux fois — réessayez.",
+                });
+            }
+            throw renameErr;
+        }
 
         // ✅ Enregistrement en base de données
         await prisma.image.create({
