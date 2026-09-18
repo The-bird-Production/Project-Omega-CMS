@@ -36,17 +36,17 @@ const CreateImage = async (req: Request, res: Response) => {
         // ✅ Nettoyage du nom de fichier
         const originalFileName = path.basename(req.file.originalname);
         const extension = path.extname(originalFileName).toLowerCase() || "";
-        const safeFilename = path.basename(req.file.filename) + extension;
+        const safeTmpFilename = path.basename(req.file.filename);
+        const safeFilename = safeTmpFilename + extension;
 
         // ✅ Construction de chemins sécurisés
-        const tmpPath = req.file.path;
-        const resolvedTmpPath = path.resolve(tmpPath);
+        const tmpPath = path.resolve(TMP_UPLOAD_DIR, safeTmpFilename);
         const finalPath = path.resolve(FINAL_DIR, safeFilename);
         const realTmpUploadDir = await fs.realpath(TMP_UPLOAD_DIR);
 
         let realResolvedTmpPath: string;
         try {
-            realResolvedTmpPath = await fs.realpath(resolvedTmpPath);
+            realResolvedTmpPath = await fs.realpath(tmpPath);
         } catch (err) {
             if ((err as NodeJS.ErrnoException).code === "ENOENT") {
                 console.error(`Fichier temporaire introuvable pour la création d'image (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
