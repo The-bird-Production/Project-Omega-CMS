@@ -85,8 +85,16 @@ services:
   # when a new digest is pushed to the :stable tag on GHCR — this is what
   # delivers updates to self-hosted instances without anyone accessing the
   # host. Opt-in: only starts with `docker compose --profile watchtower up`.
+  #
+  # Uses nicholas-fedor/watchtower (image nickfedor/watchtower), an
+  # actively maintained fork — the original containrrr/watchtower was
+  # archived by its maintainers and its final release's bundled Docker
+  # client is now too old to talk to current Docker daemons ("client
+  # version ... is too old"), a dead end no config change can fix. Same
+  # com.centurylinklabs.watchtower.* labels and --label-enable flag, so
+  # nothing else here needed to change.
   watchtower:
-    image: containrrr/watchtower
+    image: nickfedor/watchtower
     container_name: omega_watchtower
     restart: always
     profiles: ["watchtower"]
