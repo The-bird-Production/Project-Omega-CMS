@@ -79,7 +79,7 @@ Chaque push sur `main` qui passe les tests déclenche `.github/workflows/release
 ```sh
 docker compose --profile watchtower up -d
 ```
-[Watchtower](https://containrrr.dev/watchtower/) surveille uniquement les containers `omega-client`/`omega-server` (via le label `com.centurylinklabs.watchtower.enable`) et les recrée dès qu'un nouveau digest apparaît sur le tag `:stable` — c'est une vérification sortante uniquement, aucun accès entrant à votre infra n'est nécessaire. C'est un choix opt-in : sans le `--profile watchtower`, les mises à jour restent manuelles (`docker compose pull && docker compose up -d`).
+[Watchtower](https://watchtower.nickfedor.com/) surveille uniquement les containers `omega-client`/`omega-server` (via le label `com.centurylinklabs.watchtower.enable`) et les recrée dès qu'un nouveau digest apparaît sur le tag `:stable` — c'est une vérification sortante uniquement, aucun accès entrant à votre infra n'est nécessaire. C'est un choix opt-in : sans le `--profile watchtower`, les mises à jour restent manuelles (`docker compose pull && docker compose up -d`).
 
 ### Migrer une instance existante
 La mise à jour (Docker ou bare-metal) applique automatiquement les nouvelles dépendances, migrations de base de données et le nouveau design admin. Certains changements récents (éditeur par blocs, ancien marketplace de plugins/thèmes) demandent une action ponctuelle de votre part — voir [`docs/migration.md`](docs/migration.md).
