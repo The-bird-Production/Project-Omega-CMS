@@ -42,11 +42,26 @@ const CreateImage = async (req: Request, res: Response) => {
         const tmpPath = req.file.path;
         const resolvedTmpPath = path.resolve(tmpPath);
         const finalPath = path.resolve(FINAL_DIR, safeFilename);
+        const realTmpUploadDir = await fs.realpath(TMP_UPLOAD_DIR);
 
-        // ✅ Vérifie que le chemin source temporaire reste bien dans le dossier d'upload autorisé
+        let realResolvedTmpPath: string;
+        try {
+            realResolvedTmpPath = await fs.realpath(resolvedTmpPath);
+        } catch (err) {
+            if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+                console.error(`Fichier temporaire introuvable pour la création d'image (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
+                return res.status(409).json({
+                    code: 409,
+                    message: "L'upload a été interrompu ou soumis deux fois — réessayez.",
+                });
+            }
+            throw err;
+        }
+
+        // ✅ Vérifie que le chemin source temporaire reste bien dans le dossier d'upload autorisé (chemins canoniques)
         if (
-            resolvedTmpPath !== TMP_UPLOAD_DIR &&
-            !resolvedTmpPath.startsWith(TMP_UPLOAD_DIR + path.sep)
+            realResolvedTmpPath !== realTmpUploadDir &&
+            !realResolvedTmpPath.startsWith(realTmpUploadDir + path.sep)
         ) {
             return res.status(400).json({ code: 400, message: "Chemin temporaire non autorisé." });
         }
@@ -58,7 +73,7 @@ const CreateImage = async (req: Request, res: Response) => {
 
         // ✅ Déplacement du fichier
         try {
-            await fs.rename(resolvedTmpPath, finalPath);
+            await fs.rename(realResolvedTmpPath, finalPath);
         } catch (renameErr) {
             if ((renameErr as NodeJS.ErrnoException).code === "ENOENT") {
                 console.error(`Fichier temporaire introuvable pour la création d'image (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
