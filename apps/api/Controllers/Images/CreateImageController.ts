@@ -5,6 +5,7 @@ import { prisma } from "@omega/db";
 
 // Dossier autorisé
 const FINAL_DIR = path.resolve(process.cwd(), "Public/Images");
+const TMP_UPLOAD_DIR = path.resolve(process.cwd(), "Public/Temp");
 
 const CreateImage = async (req: Request, res: Response) => {
     try {
@@ -37,21 +38,27 @@ const CreateImage = async (req: Request, res: Response) => {
         const extension = path.extname(originalFileName).toLowerCase() || "";
         const safeFilename = path.basename(req.file.filename) + extension;
 
-        // ✅ Construction de chemins sécurisés — tmpPath is exactly what
-        // multer itself just wrote to (req.file.path), used as-is instead
-        // of rebuilt from a separately-resolved directory + filename so there's no way for the two
-        // to disagree.
+        // ✅ Construction de chemins sécurisés
         const tmpPath = req.file.path;
-        const finalPath = path.join(FINAL_DIR, safeFilename);
+        const resolvedTmpPath = path.resolve(tmpPath);
+        const finalPath = path.resolve(FINAL_DIR, safeFilename);
 
-        // ✅ Vérifie que le chemin reste bien dans le dossier autorisé
-        if (!finalPath.startsWith(FINAL_DIR)) {
+        // ✅ Vérifie que le chemin source temporaire reste bien dans le dossier d'upload autorisé
+        if (
+            resolvedTmpPath !== TMP_UPLOAD_DIR &&
+            !resolvedTmpPath.startsWith(TMP_UPLOAD_DIR + path.sep)
+        ) {
+            return res.status(400).json({ code: 400, message: "Chemin temporaire non autorisé." });
+        }
+
+        // ✅ Vérifie que le chemin de destination reste bien dans le dossier autorisé
+        if (finalPath !== FINAL_DIR && !finalPath.startsWith(FINAL_DIR + path.sep)) {
             return res.status(400).json({ code: 400, message: "Chemin non autorisé." });
         }
 
         // ✅ Déplacement du fichier
         try {
-            await fs.rename(tmpPath, finalPath);
+            await fs.rename(resolvedTmpPath, finalPath);
         } catch (renameErr) {
             if ((renameErr as NodeJS.ErrnoException).code === "ENOENT") {
                 console.error(`Fichier temporaire introuvable pour la création d'image (déjà déplacé, ou requête annulée avant la fin de l'upload) : ${tmpPath}`);
