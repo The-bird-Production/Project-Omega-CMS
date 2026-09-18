@@ -4,8 +4,9 @@ import path from "path";
 import { prisma } from "@omega/db";
 import Addlogs from "../../Functions/AddLogs.js";
 
-// Répertoire autorisé
+// Répertoires autorisés
 const FINAL_DIR = path.resolve(process.cwd(), "Public/Files");
+const TMP_UPLOAD_DIR = path.resolve(process.cwd(), "tmp");
 
 const CreateFile = async (req: Request, res: Response) => {
     try {
@@ -29,15 +30,17 @@ const CreateFile = async (req: Request, res: Response) => {
         const extension = path.extname(originalFileName).toLowerCase() || "";
         const safeFilename = path.basename(req.file.filename) + extension;
 
-        // ✅ Construction de chemins sécurisés — tmpPath is exactly what
-        // multer itself just wrote to (req.file.path), used as-is instead
-        // of rebuilt from a separately-resolved directory + filename so
-        // there's no way for the two to disagree.
-        const tmpPath = req.file.path;
-        const finalPath = path.join(FINAL_DIR, safeFilename);
+        // ✅ Construction de chemins sécurisés
+        const tmpPath = path.resolve(req.file.path);
+        const finalPath = path.resolve(FINAL_DIR, safeFilename);
 
-        // ✅ Vérifie que le chemin reste bien dans le dossier autorisé
-        if (!finalPath.startsWith(FINAL_DIR)) {
+        // ✅ Vérifie que le fichier source temporaire reste dans le dossier d'upload autorisé
+        if (!(tmpPath === TMP_UPLOAD_DIR || tmpPath.startsWith(TMP_UPLOAD_DIR + path.sep))) {
+            return res.status(400).json({ code: 400, message: "Chemin temporaire non autorisé." });
+        }
+
+        // ✅ Vérifie que le chemin de destination reste bien dans le dossier autorisé
+        if (!(finalPath === FINAL_DIR || finalPath.startsWith(FINAL_DIR + path.sep))) {
             return res.status(400).json({ code: 400, message: "Chemin non autorisé." });
         }
 
