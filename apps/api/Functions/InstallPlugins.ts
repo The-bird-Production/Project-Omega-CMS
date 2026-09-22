@@ -6,7 +6,7 @@ import { prisma } from "@omega/db";
 import { fileURLToPath } from "url";
 import { loadPlugin } from "./LoadPlugin.js";
 import { warn } from "console";
-import { assertSafeZipEntries, movePath } from "./zipSafety.js";
+import { assertSafeZipEntries, movePath, requestClientRebuild } from "./zipSafety.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isSafePluginId } from "./pluginIdValidator.js";
 import { isRunningInDocker } from "./Updater/gitState.js";
@@ -195,6 +195,13 @@ export const InstallPlugins = async (repo: string, app: Application | Router, up
 
         // ✅ Chargement du plugin
         loadPlugin(app, safePluginName);  // Utilisez safePluginName
+
+        // See zipSafety.ts's requestClientRebuild: apps/web needs an actual
+        // rebuild to see this plugin's client-side files (dashboard.js,
+        // blocks.js) at all, whatever discoverClient.js/discoverServer.js's
+        // import() shape looks like.
+        if (isRunningInDocker()) requestClientRebuild(path.resolve(process.cwd(), "Themes"));
+
         console.log(`✅ Plugin ${safePluginName} installé avec succès.`);
     } catch (err) {
         console.error("❌ Erreur lors de l'installation du plugin :", err);

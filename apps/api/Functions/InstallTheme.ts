@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import sanitize from "sanitize-filename";
 import { prisma } from "@omega/db";
-import { assertInside, assertSafeZipEntries, movePath } from "./zipSafety.js";
+import { assertInside, assertSafeZipEntries, movePath, requestClientRebuild } from "./zipSafety.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isRunningInDocker } from "./Updater/gitState.js";
 
@@ -135,6 +135,8 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
       moveInto(path.join(themeDir, "asset"), path.join(safeStyleThemeDir, "asset"));
       moveInto(path.join(themeDir, "style"), safeStyleThemeDir);
     }
+
+    if (inDocker) requestClientRebuild(themesDir);
 
     // Suivi en base pour que l'admin/l'updater sachent ce qui est installé sans
     // relire tous les theme.json — best-effort, ne doit pas faire échouer l'install.
