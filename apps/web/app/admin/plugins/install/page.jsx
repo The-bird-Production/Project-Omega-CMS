@@ -1,6 +1,6 @@
 'use client';
 import Breadcrumb from '../../../components/admin/ui/Breadcrumb';
-import PluginsInstallable from '../../../components/plugin/installablePlugins';
+import PluginsInstallable from '../../../components/admin/plugins/installablePlugins';
 import CatalogBrowser from '../../../components/catalog/CatalogBrowser';
 
 export default function InstallPlugin() {
