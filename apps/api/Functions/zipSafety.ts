@@ -18,6 +18,25 @@ export function movePath(src: string, dest: string): void {
   }
 }
 
+// A theme/plugin installed after apps/web's production server was already
+// built is invisible to it — every dynamic import of a theme/plugin file
+// has its set of possible targets baked in at `next build` time (see
+// apps/web/lib/pageTemplates/render.js's comment for how this was
+// confirmed). apps/web's scripts/supervisor.mjs polls Themes/ (the same
+// directory this writes into, already bind-mounted into both containers,
+// see docker-compose.yml) for this file and rebuilds+restarts itself when
+// it appears, so a theme/plugin actually takes effect without the
+// operator having to notice and restart it by hand. Docker-only: a
+// bare-metal deployment has no separate client process for this file to
+// signal, and rebuilds when its operator next restarts their own process.
+export function requestClientRebuild(themesDir: string): void {
+  try {
+    fs.writeFileSync(path.join(themesDir, ".rebuild-requested"), new Date().toISOString());
+  } catch (err) {
+    console.error("Impossible de demander la reconstruction du client :", err);
+  }
+}
+
 // Throws if targetPath does not resolve to a location inside baseDir (path traversal / zip-slip guard).
 export function assertInside(baseDir: string, targetPath: string, label: string): string {
   const resolvedBase = path.resolve(baseDir);
