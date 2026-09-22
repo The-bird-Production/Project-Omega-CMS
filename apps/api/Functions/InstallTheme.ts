@@ -12,6 +12,48 @@ function moveInto(srcDir: string, destDir: string): void {
   movePath(srcDir, destDir);
 }
 
+// Only one non-default theme is ever "active" — getCurrentTheme() (see
+// ThemeController.ts) just returns the first non-"default" folder under
+// Themes/, so leaving a previous theme's files in place after installing
+// a different one made which theme actually renders depend on filesystem
+// listing order rather than on what was just installed. Removes every
+// theme folder/DB row/client-and-style copy except "default" and the one
+// about to be installed, so exactly one non-default theme exists at a
+// time — best-effort per theme, so one leftover file permission issue
+// doesn't block the new install.
+function deactivateOtherThemes(
+  themesDir: string,
+  keepThemeId: string,
+  clientDir: string | null,
+  styleDir: string
+): void {
+  if (!fs.existsSync(themesDir)) return;
+  const otherThemeIds = fs
+    .readdirSync(themesDir)
+    .filter((entry) => entry !== "default" && entry !== keepThemeId)
+    .filter((entry) => fs.statSync(path.join(themesDir, entry)).isDirectory());
+
+  for (const themeId of otherThemeIds) {
+    try {
+      fs.rmSync(path.join(themesDir, themeId), { recursive: true, force: true });
+      if (clientDir) {
+        const clientThemeDir = path.join(clientDir, themeId);
+        if (fs.existsSync(clientThemeDir)) fs.rmSync(clientThemeDir, { recursive: true, force: true });
+      }
+      const styleThemeDir = path.join(styleDir, themeId);
+      if (fs.existsSync(styleThemeDir)) fs.rmSync(styleThemeDir, { recursive: true, force: true });
+    } catch (err) {
+      console.error(`Impossible de désactiver l'ancien thème "${themeId}" :`, err);
+    }
+  }
+
+  if (otherThemeIds.length > 0) {
+    prisma.theme
+      .deleteMany({ where: { themeId: { in: otherThemeIds } } })
+      .catch((err: unknown) => console.error("Impossible de retirer les anciens thèmes de la base :", err));
+  }
+}
+
 // repo: a GitHub "owner/repo" (or full github.com URL) whose latest release
 // is downloaded and installed as a theme. The local theme id is always
 // derived from the repo, deterministically, so re-installing (update=true)
@@ -75,6 +117,7 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
 
     if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
     movePath(extractDir, themeDir);
+    deactivateOtherThemes(themesDir, sanitizedThemeId, clientDir, styleDir);
 
     if (needsClientCopy) {
       const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, sanitizedThemeId), "client de thème");
