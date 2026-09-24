@@ -76,7 +76,7 @@ export default async function ArticlePage(props) {
 
   if (data && data.error) {
     return (
-      <Layout currentPage={"ArticleDetail"}>
+      <Layout pathname={`/article/${slug}`}>
         <div className="container mt-4">
           <div className="alert alert-danger">{t("loadError")} {String(data.error.message || data.error)}</div>
         </div>
@@ -87,7 +87,7 @@ export default async function ArticlePage(props) {
   const article = data;
   if (!article || Object.keys(article).length === 0) {
     return (
-      <Layout currentPage={"ArticleDetail"}>
+      <Layout pathname={`/article/${slug}`}>
         <div className="container mt-4">
           <h2>{t("notFound")}</h2>
         </div>
@@ -96,7 +96,7 @@ export default async function ArticlePage(props) {
   }
 
   return (
-    <Layout currentPage={"ArticleDetail"}>
+    <Layout pathname={`/article/${slug}`}>
       <div className="container mt-4">
         <h1>{article.title}</h1>
         <p className="text-muted">{t("publishedOn")} {article.publishedAt ? new Date(article.publishedAt).toLocaleString() : ""}</p>

@@ -46,6 +46,9 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
       express:
         specifier: ^4.21.2
         version: 4.22.2(supports-color@8.1.1)

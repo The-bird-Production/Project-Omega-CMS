@@ -1,5 +1,6 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
+import Script from 'next/script';
 import ClientChrome from './components/layout/ClientChrome';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -39,6 +40,13 @@ export default async function RootLayout({ children }) {
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ClientChrome>{children}</ClientChrome>
         </NextIntlClientProvider>
+        {/* Loaded once, globally, rather than by each theme's Header —
+            Bootstrap's own vanilla-JS event delegation (data-bs-toggle
+            etc.) is what makes a theme's offcanvas/dropdown/modal markup
+            interactive, and a theme's chrome components are now plain
+            server components with no client-side code of their own to
+            load it from (see MainLayout.js/resolveThemeChrome.js). */}
+        <Script src="/js/bootstrap.bundle.min.js" strategy="afterInteractive" />
       </body>
     </html>
   );

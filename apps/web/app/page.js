@@ -7,7 +7,7 @@ export default function Home() {
 
   return (
     <>
-      <Layout currentPage={"Default"}>
+      <Layout pathname="/">
         <center className="m-5 p-5">
           <h1>{t("welcome")}</h1>
 

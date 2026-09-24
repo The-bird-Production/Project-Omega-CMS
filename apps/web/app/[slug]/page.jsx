@@ -72,12 +72,13 @@ export async function generateStaticParams() {
 export default async function Page(props) {
   const params = await props.params;
   const t = await getTranslations("Page");
+  const pathname = `/${params.slug}`;
   try {
     const page = await fetchPage(params.slug)
 
     if (!page) {
       return (
-        <Layout currentPage={t("notFound")}>
+        <Layout pathname={pathname}>
           <main>
             <h1>{t("notFound")}</h1>
             <p>{t("notFoundBody")}</p>
@@ -93,14 +94,14 @@ export default async function Page(props) {
     const CustomTemplate = await getPageTemplateComponent(page.template)
 
     return (
-      <Layout currentPage={page.title}>
+      <Layout pathname={pathname}>
         {CustomTemplate ? <CustomTemplate page={page} /> : <BlockContent as="main" body={page.body} />}
       </Layout>
     )
   } catch (err) {
     console.error("Erreur lors du rendu de la page :", err)
     return (
-      <Layout currentPage={t("genericError")}>
+      <Layout pathname={pathname}>
         <main>
           <h1>{t("genericError")}</h1>
           <p>{t("loadError")}</p>

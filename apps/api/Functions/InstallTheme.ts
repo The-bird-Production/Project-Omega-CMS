@@ -3,6 +3,7 @@ import path from "path";
 import sanitize from "sanitize-filename";
 import { prisma } from "@omega/db";
 import { assertInside, assertSafeZipEntries, movePath, requestClientRebuild } from "./zipSafety.js";
+import { compileComponentsInPlace } from "./compileComponent.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isRunningInDocker } from "./Updater/gitState.js";
 
@@ -10,6 +11,23 @@ function moveInto(srcDir: string, destDir: string): void {
   if (!fs.existsSync(srcDir)) return;
   fs.mkdirSync(path.dirname(destDir), { recursive: true });
   movePath(srcDir, destDir);
+}
+
+// Header.js/Footer.js are the only theme files apps/web needs to
+// import() directly off disk at runtime, rendered in isolation from the
+// app's own React tree (see resolveThemeChrome.js/
+// loadCompiledComponent.js for why). Button.js, blocks.js, and page
+// templates stay JSX, uncompiled: they're only ever consumed via a
+// normal webpack-bundled dynamic import that still needs an app rebuild
+// to see a newly-installed theme (apps/web/scripts/supervisor.mjs
+// handles that automatically) — compiling them would do nothing useful.
+function collectComponentFilesToCompile(componentsDir: string): string[] {
+  const files: string[] = [];
+  for (const name of ["Header.js", "Footer.js"]) {
+    const filePath = path.join(componentsDir, name);
+    if (fs.existsSync(filePath)) files.push(filePath);
+  }
+  return files;
 }
 
 // Only one non-default theme is ever "active" — getCurrentTheme() (see
@@ -119,6 +137,7 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
     movePath(extractDir, themeDir);
     deactivateOtherThemes(themesDir, sanitizedThemeId, clientDir, styleDir);
 
+    let finalComponentsDir: string;
     if (needsClientCopy) {
       const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, sanitizedThemeId), "client de thème");
       if (!update && !fs.existsSync(safeClientThemeDir)) {
@@ -126,15 +145,22 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
       }
       const safeStyleThemeDir = assertInside(styleDir, path.join(styleDir, sanitizedThemeId), "de style");
 
-      moveInto(path.join(themeDir, "components"), path.join(safeClientThemeDir, "components"));
+      finalComponentsDir = path.join(safeClientThemeDir, "components");
+      moveInto(path.join(themeDir, "components"), finalComponentsDir);
       moveInto(path.join(themeDir, "asset"), path.join(safeClientThemeDir, "asset"));
       moveInto(path.join(themeDir, "style"), safeStyleThemeDir);
     } else {
       const safeStyleThemeDir = assertInside(styleDir, path.join(styleDir, sanitizedThemeId), "de style");
 
+      finalComponentsDir = path.join(themeDir, "components");
       moveInto(path.join(themeDir, "asset"), path.join(safeStyleThemeDir, "asset"));
       moveInto(path.join(themeDir, "style"), safeStyleThemeDir);
     }
+
+    // Compiles Header.js/Footer.js from JSX to plain JS in place — see
+    // compileComponent.ts for why this, not a rebuild, is what makes
+    // them render immediately.
+    await compileComponentsInPlace(collectComponentFilesToCompile(finalComponentsDir));
 
     if (inDocker) requestClientRebuild(themesDir);
 

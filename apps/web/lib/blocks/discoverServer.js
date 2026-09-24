@@ -7,9 +7,19 @@ import path from 'path';
 // calling the admin-gated /plugins endpoint — this runs on every public
 // page request and has no admin session to call it with anyway. The
 // import() calls below use the same template-literal-with-static-prefix
-// shape as discoverClient.js / themeProvider.jsx on purpose: Next.js's
+// shape as discoverClient.js/themeProvider.jsx on purpose: Next.js's
 // bundler only resolves dynamic imports it can analyze this way, a fully
 // runtime-computed path (e.g. via a file:// URL) isn't bundleable here.
+//
+// KNOWN LIMITATION, by design: same as pageTemplates/render.js — a
+// plugin/theme's block contribution needs apps/web to rebuild before it's
+// visible here (see apps/web/scripts/supervisor.mjs), because a
+// BlockSpec's `render` function is a React component that would need the
+// same cross-React-instance isolation Header/Footer now use, and a
+// block's render function is meant to be embedded inline in arbitrary
+// page content — the same reason page templates couldn't take that
+// approach either. See resolveThemeChrome.js/loadCompiledComponent.js
+// for where that isolation actually is used, and why.
 
 const PLUGIN_COMPONENTS_DIR = path.resolve(process.cwd(), 'app', 'components', 'plugin');
 const THEMES_DIR = path.resolve(process.cwd(), 'app', 'Themes');

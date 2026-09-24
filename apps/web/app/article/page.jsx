@@ -54,7 +54,7 @@ export default async function ArticleListPage(props) {
 
   if (error) {
     return (
-      <Layout currentPage={"ArticleList"}>
+      <Layout pathname="/article">
         <div className="container mt-4">
           <div className="alert alert-danger">{t("loadError")} {String(error.message || error)}</div>
         </div>
@@ -67,7 +67,7 @@ export default async function ArticleListPage(props) {
   const totalPages = result?.totalPages ?? 1;
 
   return (
-    <Layout currentPage={"ArticleList"}>
+    <Layout pathname="/article">
       <div className="container mt-4">
         <h1>{t("title")}</h1>
         <ArticleFilters categories={categories} tags={tags} />
