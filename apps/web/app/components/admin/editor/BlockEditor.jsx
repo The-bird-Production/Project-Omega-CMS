@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { useCreateBlockNote } from '@blocknote/react';
+import { useCreateBlockNote, SuggestionMenuController, getDefaultReactSlashMenuItems } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
+import '../../../../lib/blocks/core/coreBlocks.css';
 import { createEditorSchema } from '../../../../lib/blocks/schema';
 import { discoverClientBlockSpecs } from '../../../../lib/blocks/discoverClient';
+import { getCoreSlashMenuItems } from '../../../../lib/blocks/core/slashMenu';
 
 async function uploadImage(file) {
   const formData = new FormData();
@@ -66,10 +68,17 @@ function Editor({ schema, initialContent, onChange }) {
   });
 
   return (
-    <BlockNoteView
-      editor={editor}
-      theme="light"
-      onChange={() => onChange(JSON.stringify(editor.document))}
-    />
+    <BlockNoteView editor={editor} theme="light" slashMenu={false} onChange={() => onChange(JSON.stringify(editor.document))}>
+      <SuggestionMenuController
+        triggerCharacter="/"
+        getItems={async (query) => {
+          const items = [...getDefaultReactSlashMenuItems(editor), ...getCoreSlashMenuItems(editor)];
+          const q = query.toLowerCase();
+          return items.filter(
+            (item) => item.title.toLowerCase().includes(q) || (item.aliases || []).some((a) => a.toLowerCase().includes(q))
+          );
+        }}
+      />
+    </BlockNoteView>
   );
 }

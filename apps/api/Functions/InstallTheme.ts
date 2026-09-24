@@ -30,6 +30,37 @@ function collectComponentFilesToCompile(componentsDir: string): string[] {
   return files;
 }
 
+// A theme can ship starter content for its own pages — content/pages/
+// <slug>.json, each { title, body } where body is the same block array
+// shape the editor itself produces (see apps/web/lib/blocks/) — so
+// installing it produces a site that actually looks like what the theme
+// author built it for, with every element still editable as ordinary
+// blocks, rather than a blank site the owner has to fill in from
+// scratch. Auto-discovered by filesystem existence, no manifest entry
+// needed, same as a theme's blocks.js. Never overwrites: a page already
+// existing at that slug (from a previous install, or the owner's own
+// edit) is left alone — this only ever fills in what's missing.
+async function seedThemePages(themeDir: string): Promise<void> {
+  const pagesDir = path.join(themeDir, "content", "pages");
+  if (!fs.existsSync(pagesDir)) return;
+
+  for (const file of fs.readdirSync(pagesDir)) {
+    if (!file.endsWith(".json")) continue;
+    const slug = file.slice(0, -".json".length);
+    try {
+      const existing = await prisma.page.findUnique({ where: { slug } });
+      if (existing) continue;
+
+      const { title, body } = JSON.parse(fs.readFileSync(path.join(pagesDir, file), "utf-8"));
+      if (!title || !Array.isArray(body)) continue;
+
+      await prisma.page.create({ data: { slug, title, body: JSON.stringify(body) } });
+    } catch (err) {
+      console.error(`Impossible d'importer la page "${slug}" du thème :`, err);
+    }
+  }
+}
+
 // Only one non-default theme is ever "active" — getCurrentTheme() (see
 // ThemeController.ts) just returns the first non-"default" folder under
 // Themes/, so leaving a previous theme's files in place after installing
@@ -163,6 +194,8 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
     await compileComponentsInPlace(collectComponentFilesToCompile(finalComponentsDir));
 
     if (inDocker) requestClientRebuild(themesDir);
+
+    await seedThemePages(themeDir);
 
     // Suivi en base pour que l'admin/l'updater sachent ce qui est installé sans
     // relire tous les theme.json — best-effort, ne doit pas faire échouer l'install.
