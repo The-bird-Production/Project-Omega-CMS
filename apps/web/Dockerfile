@@ -13,6 +13,17 @@ RUN pnpm install --frozen-lockfile --filter @omega/web...
 
 FROM deps AS build
 COPY apps/web apps/web
+# docker-compose.yml bind-mounts ./apps/api/Themes onto apps/web/app/Themes
+# and ./apps/api/Themes_style onto apps/web/public/themes at runtime, and
+# both host directories start out empty on a fresh deployment — Docker
+# replaces the whole subtree, not just adds to it, so the "default"
+# theme's Header.js/Footer.js AND its style.css (checked into git, baked
+# into this image at the paths above) become invisible the instant the
+# container starts. Stashing a copy of each somewhere the bind mounts
+# never touch lets scripts/supervisor.mjs restore them before its first
+# build — see that file for the actual restore logic.
+RUN cp -r apps/web/app/Themes/default apps/web/.default-theme-seed
+RUN cp -r apps/web/public/themes/default apps/web/.default-style-seed
 # This build's own output is thrown away — see scripts/supervisor.mjs,
 # which rebuilds for real at container startup (and again whenever a
 # theme/plugin install requests it) using whatever NEXT_PUBLIC_* values

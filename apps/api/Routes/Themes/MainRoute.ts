@@ -7,6 +7,7 @@ router.get("/",  VerifyPermissions("admin"), ThemesController.getThemeInstalled)
 router.get("/catalog", VerifyPermissions("admin"), ThemesController.getThemesCatalog);
 router.post("/install-from-github", VerifyPermissions("admin"), AddLogs("Install a new theme", "green"), ThemesController.InstallThemeFromGithub);
 router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update plugin", "info"), ThemesController.UpdateTheme);
+router.delete("/delete/:id", VerifyPermissions("admin"), AddLogs("Delete theme", "red"), ThemesController.DeleteThemeController);
 router.get("/check-update/:id", VerifyPermissions("admin"), ThemesController.CheckThemeUpdate);
 router.get("/current", ThemesController.getCurrentTheme);
 router.get("/default", ThemesController.getDefaultTheme);

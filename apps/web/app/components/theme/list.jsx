@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { confirmAction } from "../../../lib/confirm";
 
 const ThemePage = () => {
   const [themes, setThemes] = useState([]);
@@ -90,6 +91,33 @@ const ThemePage = () => {
     }
   };
 
+  const deleteTheme = async (id) => {
+    if (!confirmAction(`Supprimer le thème "${id}" ? Cette action est irréversible.`)) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/themes/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+        mode: "cors",
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `Erreur : ${response.statusText}`);
+      }
+
+      setThemes((prevThemes) => prevThemes.filter((theme) => theme.id !== id));
+      setUpdates((prevUpdates) => {
+        const newUpdates = { ...prevUpdates };
+        delete newUpdates[id];
+        return newUpdates;
+      });
+    } catch (err) {
+      setError(err.message);
+      console.error("Erreur lors de la suppression du thème :", err);
+    }
+  };
+
   if (loading) return <div>Chargement des thèmes...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
@@ -126,6 +154,11 @@ const ThemePage = () => {
               <Link href={`/admin/themes/${theme.id}`} className="btn btn-secondary">
                 Settings
               </Link>
+              {theme.id !== "default" && (
+                <button className="btn btn-danger ms-2" onClick={() => deleteTheme(theme.id)}>
+                  Supprimer
+                </button>
+              )}
 
               {updates[theme.id] && (
                 <div className="mt-2">
