@@ -1,0 +1,288 @@
+/* Shared styles for the CMS's built-in "Gutenberg-style" blocks (see
+   apps/web/lib/blocks/core/). Loaded once by the admin editor
+   (BlockEditor.jsx) and once by the public site's client-rendered
+   fallback (BlockContentClient.jsx) — both mount a BlockNoteView, so both
+   need these rules for the blocks to look right.
+
+   A block's own render() only produces its OWN content
+   (.bn-block-content); its `children` render as a completely separate
+   .bn-block-group element — not something render() can wrap itself, and
+   not even in the same DOM position between the two renderers BlockNote
+   ships: confirmed directly from each mounted DOM,
+     editable admin editor (BlockEditor.jsx):
+       .bn-block-outer
+         .bn-block > (renderer) > .bn-block-content[data-content-type=X]
+         .bn-block-group          <- SIBLING of .bn-block
+     read-only public view (BlockContentClient.jsx):
+       .bn-block-outer
+         .bn-block
+           (renderer) > .bn-block-content[data-content-type=X]
+           .bn-block-group        <- CHILD of .bn-block, sibling of (renderer)
+   So every container block here (buttons/columns/accordion/gallery)
+   pairs a `+` selector with a `>` selector for every rule that targets
+   its own children, to work in both places. */
+
+.omega-btn {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.omega-btn-primary {
+  background: #0d6efd;
+  color: #fff;
+}
+.omega-btn-outline {
+  background: transparent;
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+}
+.omega-btn-text {
+  background: transparent;
+  color: #0d6efd;
+  padding-left: 0;
+  padding-right: 0;
+}
+.omega-block-button-settings {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+}
+.omega-block-button-settings input[type='text'] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Buttons row: lay its children (button blocks) out horizontally.
+   `:has()` here is deliberately scoped to an IMMEDIATE child chain
+   (> * > [data-content-type=...]) rather than a bare descendant
+   selector: a bare `:has([data-content-type='buttons'])` also matches
+   any ANCESTOR block that merely contains a buttons block somewhere
+   deep in ITS OWN children (e.g. a column wrapping one) — confirmed by
+   this exact mistake hiding an entire accordion's answers (see the
+   accordion-open/closed rules below, the one that surfaced it). */
+.bn-block:has(> * > [data-content-type='buttons']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='buttons']) > .bn-block-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.bn-block:has(> * > .omega-buttons-row.omega-buttons-align-center) + .bn-block-group,
+.bn-block:has(> * > .omega-buttons-row.omega-buttons-align-center) > .bn-block-group {
+  justify-content: center;
+}
+.bn-block:has(> * > .omega-buttons-row.omega-buttons-align-space-between) + .bn-block-group,
+.bn-block:has(> * > .omega-buttons-row.omega-buttons-align-space-between) > .bn-block-group {
+  justify-content: space-between;
+}
+
+/* Columns: lay its children (column blocks) out side by side, each an
+   equal-width flex item. A column's OWN children stay a normal vertical
+   stack — that's a separate, deeper .bn-block-group this selector never
+   reaches. */
+.bn-block:has(> * > [data-content-type='columns']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='columns']) > .bn-block-group {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-top: 0.5rem;
+}
+.bn-block:has(> * > [data-content-type='columns']) + .bn-block-group > .bn-block-outer,
+.bn-block:has(> * > [data-content-type='columns']) > .bn-block-group > .bn-block-outer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Accordion: a vertical stack of accordionItem blocks (no special
+   layout, just spacing) */
+.bn-block:has(> * > [data-content-type='accordion']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='accordion']) > .bn-block-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.omega-accordion-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.omega-accordion-item-header input {
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  flex: 1;
+  min-width: 0;
+}
+.omega-accordion-chevron {
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.omega-accordion-chevron.omega-open {
+  transform: rotate(180deg);
+}
+/* The answer (this item's children) is hidden unless its own header
+   marked itself open via a data attribute — see accordion.jsx. Scoped to
+   an immediate-child chain, not a bare descendant selector: without the
+   `> * >`, this matched the ACCORDION's own block too (every closed
+   item is still a descendant of it), hiding all of its items' answers
+   at once instead of each item's own — confirmed by testing this
+   directly against real seed content (15 FAQ items, all closed by
+   default: the whole accordion went blank, not just each answer). */
+.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='false']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='false']) > .bn-block-group {
+  display: none;
+}
+.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='true']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='true']) > .bn-block-group {
+  padding: 0.75rem 1rem;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 0.375rem 0.375rem;
+  margin-top: -0.5rem;
+}
+
+/* Gallery: a responsive image grid. */
+.bn-block:has(> * > [data-content-type='gallery']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='gallery']) > .bn-block-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.omega-gallery-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  display: block;
+  background: #e9ecef;
+}
+.omega-gallery-image-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.375rem;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #868e96;
+  font-size: 0.85rem;
+}
+.omega-block-inline-input {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
+/* Cover: full-width background image with its children (any blocks)
+   overlaid, centered. */
+.omega-cover {
+  position: relative;
+  width: 100%;
+  min-height: 360px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.omega-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--omega-cover-overlay, 0.4));
+}
+/* Overlaying the group ON TOP of the cover image (not below it in normal
+   flow) needs an absolute position — anchored on .bn-block-outer, the one
+   ancestor both DOM shapes share, sized by .omega-cover's own height
+   since the absolutely-positioned group no longer contributes to it. */
+.bn-block-outer:has(> .bn-block > * > [data-content-type='cover']) {
+  position: relative;
+}
+.bn-block:has(> * > [data-content-type='cover']) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='cover']) > .bn-block-group {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+  padding: 2rem;
+  pointer-events: none;
+}
+.bn-block:has(> * > [data-content-type='cover']) + .bn-block-group *,
+.bn-block:has(> * > [data-content-type='cover']) > .bn-block-group * {
+  pointer-events: auto;
+}
+.bn-block:has(> * > [data-content-type='cover']) + .bn-block-group h1,
+.bn-block:has(> * > [data-content-type='cover']) + .bn-block-group h2,
+.bn-block:has(> * > [data-content-type='cover']) + .bn-block-group h3,
+.bn-block:has(> * > [data-content-type='cover']) + .bn-block-group p,
+.bn-block:has(> * > [data-content-type='cover']) > .bn-block-group h1,
+.bn-block:has(> * > [data-content-type='cover']) > .bn-block-group h2,
+.bn-block:has(> * > [data-content-type='cover']) > .bn-block-group h3,
+.bn-block:has(> * > [data-content-type='cover']) > .bn-block-group p {
+  color: #fff;
+}
+.omega-cover-settings {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.35rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+}
+
+.omega-embed-frame {
+  width: 100%;
+  border: none;
+  border-radius: 0.375rem;
+}
+.omega-embed-placeholder {
+  width: 100%;
+  min-height: 120px;
+  background: #f1f3f5;
+  border: 1px dashed #adb5bd;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #868e96;
+  font-size: 0.85rem;
+  padding: 1rem;
+}
+
+.omega-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 480px;
+}
+.omega-contact-form input,
+.omega-contact-form textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+}

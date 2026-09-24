@@ -143,6 +143,39 @@ page bascule alors sur un rendu **côté client** (le même composant
 fonction `render` doit fonctionner seule, montée dans le navigateur —
 donc pas de dépendance à un contexte React fourni par le cœur du CMS.
 
+### Blocs "Gutenberg" intégrés au cœur du CMS
+
+En plus des blocs standards de BlockNote (paragraphe, titre, liste,
+citation, image, vidéo, tableau...) et de ceux qu'un plugin/thème peut
+contribuer (ci-dessus), l'éditeur propose un jeu de blocs de mise en
+page inspirés de WordPress/Gutenberg, **toujours disponibles quel que
+soit le thème actif** — contrairement aux blocs de plugin/thème, ce ne
+sont pas un point d'extension, ils font partie du cœur du CMS
+(`apps/web/lib/blocks/core/`). Utiles pour composer une page qui
+ressemble à un vrai site (bannière, colonnes, FAQ, galerie...) sans
+écrire de code :
+
+| Bloc | Rôle | Props principales |
+| --- | --- | --- |
+| `cover` | Bannière plein écran : image de fond + contenu (titre, texte, bouton...) superposé | `imageUrl`, `overlayOpacity` (0-100), `minHeight` (px) |
+| `buttons` / `button` | Un ou plusieurs boutons côte à côte — insérez `buttons`, puis un ou plusieurs `button` comme enfants | `button` : `url`, `variant` (`primary`/`outline`/`text`), `openInNewTab` |
+| `columns` / `column` | Colonnes de largeur égale, chacune pouvant contenir n'importe quel bloc | — |
+| `accordion` / `accordionItem` | Questions/réponses repliables (FAQ, équipement...) — la question est un texte simple, la réponse est le contenu de l'item (n'importe quels blocs) | `accordionItem` : `question`, `open` |
+| `gallery` / `galleryImage` | Grille de photos, une image par bloc enfant (upload directement depuis l'éditeur) | `galleryImage` : `url`, `alt` |
+| `spacer` | Espace vertical réglable | `height` (px) |
+| `embed` | Intègre un widget tiers en iframe (réservation, webcam, carte...) | `url`, `height` (px) |
+| `contactForm` | Formulaire de contact visuel (nom, e-mail, message...) — décoratif : pas de traitement d'envoi intégré, réservé à un développement futur | — |
+
+Comme pour les blocs de plugin/thème, une page qui utilise l'un de ces
+blocs bascule sur le rendu client (voir la nuance rendu serveur/client
+ci-dessus) plutôt que le HTML statique côté serveur — même limitation,
+même raison.
+
+Si vous écrivez un thème, ces blocs vous dispensent souvent d'avoir à
+créer un template de page personnalisé (`components/pages/*.jsx`,
+voir plus bas) : une bannière + quelques colonnes + un accordéon
+suffisent pour la plupart des mises en page d'un site vitrine.
+
 ### `public/publicComponent.js`
 
 Copié vers `apps/web/app/components/plugin/<id>/publicComponent.js` à
@@ -167,6 +200,10 @@ mon-theme/
 │  └─ pages/
 │     ├─ galerie.jsx       # un template de page personnalisé
 │     └─ menu-resto.jsx
+├─ content/
+│  └─ pages/
+│     ├─ about-us.json     # contenu de démarrage, importé à l'installation
+│     └─ contact.json
 ├─ asset/
 └─ style/
    └─ style.css
@@ -315,6 +352,51 @@ sans interruption de service pendant ce temps). Les blocs personnalisés
 (`components/blocks.js`) et `Button` suivent la même règle. Un template
 peut donc utiliser librement `<BlockContent body={...} />` pour rendre
 le contenu édité par l'admin, contrairement à Header/Footer.
+
+### Contenu de démarrage (`content/pages/*.json`)
+
+Un thème peut importer ses propres pages à l'installation, avec un
+contenu qui reproduit déjà la structure du site pour lequel il a été
+conçu — plutôt que de livrer un site vide que le client doit remplir
+entièrement lui-même. C'est le point d'extension à privilégier
+maintenant que les blocs Gutenberg (ci-dessus) couvrent la plupart des
+mises en page : nul besoin d'un template de page personnalisé pour
+qu'une page "ressemble" au design prévu, un contenu de blocs bien
+composé suffit — et reste, contrairement à un template, éditable comme
+n'importe quelle page dès le départ (pas de "Modèle de page" à
+comprendre ni à retirer pour en reprendre le contrôle).
+
+Un fichier par page, nommé `<slug>.json`, contenant `{ title, body }` —
+`body` est exactement le tableau de blocs que produit l'éditeur
+(`JSON.stringify(editor.document)`), le plus simple étant de composer la
+page une fois dans l'admin puis de copier le contenu de `page.body`
+depuis la base :
+
+```json
+{
+  "title": "Qui sommes-nous",
+  "body": [
+    { "type": "cover", "props": { "imageUrl": "/themes/mon-theme/img/banniere.jpg" },
+      "children": [{ "type": "heading", "props": { "level": 1 }, "content": "Qui sommes-nous" }] },
+    { "type": "paragraph", "content": "Notre histoire..." },
+    { "type": "buttons", "children": [
+      { "type": "button", "props": { "url": "/contact" }, "content": "Contactez-nous" }
+    ] }
+  ]
+}
+```
+
+Auto-découvert par la seule présence du dossier — aucune entrée dans
+`theme.json` n'est nécessaire, comme pour `blocks.js`. À l'installation
+(et à chaque réinstallation/mise à jour), chaque fichier est importé
+**seulement si aucune page n'existe déjà à ce slug** : une page déjà
+créée, que ce soit par une installation précédente ou modifiée depuis
+par le propriétaire du site, n'est jamais écrasée. Voir
+`apps/api/Functions/InstallTheme.ts`'s `seedThemePages` pour
+l'implémentation exacte.
+
+Le menu de navigation, lui, n'est **pas** créé automatiquement — voir la
+section suivante.
 
 ### Menus de navigation
 

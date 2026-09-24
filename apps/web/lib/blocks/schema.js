@@ -1,4 +1,5 @@
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import { coreBlockSpecs } from './core/index.js';
 
 // Merges the core block types with whatever plugins/the active theme
 // contribute (see discoverClient.js / discoverServer.js) into one schema.
@@ -8,6 +9,7 @@ export function createEditorSchema(contributedSpecs = {}) {
   return BlockNoteSchema.create({
     blockSpecs: {
       ...defaultBlockSpecs,
+      ...coreBlockSpecs,
       ...contributedSpecs,
     },
   });
