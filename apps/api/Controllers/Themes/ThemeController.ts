@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { prisma } from "@omega/db";
 import InstallTheme from "../../Functions/InstallTheme.js";
+import DeleteTheme from "../../Functions/DeleteTheme.js";
 import { fetchLatestRelease, repoFromSource } from "../../Functions/githubRelease.js";
 import { fetchCatalog } from "../../Functions/catalog.js";
 
@@ -71,6 +72,17 @@ export const UpdateTheme = async (req: Request, res: Response) => {
     }
 };
 
+export const DeleteThemeController = async (req: Request, res: Response) => {
+    const themeId = req.params.id;
+    try {
+        await DeleteTheme(themeId);
+        res.status(200).json({ success: true, message: "Thème supprimé avec succès" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: `Erreur lors de la suppression du thème : ${(err as Error).message}` });
+    }
+};
+
 export const CheckThemeUpdate = async (req: Request, res: Response) => {
     const themeId = req.params.id;
     try {
@@ -106,11 +118,19 @@ export const getThemesCatalog = async (req: Request, res: Response) => {
 
 export const getCurrentTheme = async (req: Request, res: Response) => {
     const themeDir = path.resolve(process.cwd(), "Themes");
-    // Récupérer le thème actuellement utilisé
-    const currentTheme = fs.readdirSync(themeDir).filter((theme) => theme.toLowerCase() !== "readme.md").filter((theme) => theme.toLowerCase() !== "default").map((theme) => {
-        const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
-        return manifest;
-    });
+    // Récupérer le thème actuellement utilisé — ne garde que les entrées qui
+    // sont réellement un dossier de thème (theme.json présent). Sans ce
+    // filtre, un fichier comme le sentinel .rebuild-requested (voir
+    // zipSafety.ts's requestClientRebuild) était traité comme un nom de
+    // thème et son "theme.json" tenté en lecture plantait avec ENOTDIR.
+    const currentTheme = fs
+        .readdirSync(themeDir)
+        .filter((theme) => theme.toLowerCase() !== "default")
+        .filter((theme) => fs.existsSync(path.join(themeDir, theme, "theme.json")))
+        .map((theme) => {
+            const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
+            return manifest;
+        });
     if (currentTheme.length === 0) {
         return res.status(404).json({ error: "Aucun thème actuellement utilisé switch to default" });
     }

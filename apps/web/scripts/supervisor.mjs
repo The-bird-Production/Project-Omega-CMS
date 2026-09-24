@@ -26,6 +26,10 @@ import { createRequire } from "node:module";
 
 const APP_DIR = process.cwd();
 const REBUILD_SENTINEL = path.resolve(APP_DIR, "app", "Themes", ".rebuild-requested");
+const DEFAULT_THEME_DIR = path.resolve(APP_DIR, "app", "Themes", "default");
+const DEFAULT_THEME_SEED = path.resolve(APP_DIR, ".default-theme-seed");
+const DEFAULT_STYLE_DIR = path.resolve(APP_DIR, "public", "themes", "default");
+const DEFAULT_STYLE_SEED = path.resolve(APP_DIR, ".default-style-seed");
 const POLL_INTERVAL_MS = 10_000;
 const SHUTDOWN_GRACE_MS = 10_000;
 const STARTUP_RETRY_ATTEMPTS = 6;
@@ -112,6 +116,33 @@ async function startServerReliably() {
   throw new Error(`next start did not stay up after ${STARTUP_RETRY_ATTEMPTS} attempts`);
 }
 
+// docker-compose.yml bind-mounts two shared host directories — one onto
+// app/Themes (the default theme's Header.js/Footer.js), another onto
+// public/themes (its style.css) — and Docker replaces each whole subtree
+// rather than overlaying it. On a fresh deployment (empty host
+// directories) that wipes out both, even though they're checked into
+// git and were right there in the image a moment ago (see the
+// Dockerfile, which stashes a copy of each somewhere the bind mount
+// never touches, specifically so this can restore them). A bare-metal
+// deployment has no such mount and no seed to restore from either — the
+// seed path simply won't exist there, so this is a no-op.
+function seedIfMissing(seedDir, targetDir, markerFile, label) {
+  if (fs.existsSync(path.join(targetDir, markerFile))) return;
+  if (!fs.existsSync(seedDir)) return;
+  try {
+    log(`${label} missing (fresh bind mount) — restoring it from the image...`);
+    fs.rmSync(targetDir, { recursive: true, force: true });
+    fs.cpSync(seedDir, targetDir, { recursive: true });
+  } catch (err) {
+    log(`Could not restore ${label}:`, err.message);
+  }
+}
+
+function seedDefaultThemeIfMissing() {
+  seedIfMissing(DEFAULT_THEME_SEED, DEFAULT_THEME_DIR, path.join("components", "Header.js"), "Default theme");
+  seedIfMissing(DEFAULT_STYLE_SEED, DEFAULT_STYLE_DIR, "style.css", "Default theme's stylesheet");
+}
+
 let rebuilding = false;
 async function rebuildAndSwap() {
   if (rebuilding) return;
@@ -147,6 +178,7 @@ function pollForRebuildRequest() {
 
 async function main() {
   fs.rmSync(REBUILD_SENTINEL, { force: true });
+  seedDefaultThemeIfMissing();
   log("Initial build...");
   await run(["build"]);
   server = await startServerReliably();
