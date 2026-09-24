@@ -1,8 +1,12 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { ThemeProvider } from '../theme/themeProvider';
+import OffcanvasScrollFix from './OffcanvasScrollFix';
 
+// Theme Header/Footer are resolved server-side now (see
+// MainLayout.js/resolveThemeChrome.js) — this only decides admin vs.
+// public chrome (CSS, and generic Bootstrap offcanvas cleanup that only
+// public theme navs use).
 export default function ClientChrome({ children }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
@@ -15,11 +19,8 @@ export default function ClientChrome({ children }) {
           <link rel="stylesheet" href="/css/admin-design-system.css" />
         </>
       )}
-      {isAdminRoute ? (
-        <>{children}</>
-      ) : (
-        <ThemeProvider>{children}</ThemeProvider>
-      )}
+      {!isAdminRoute && <OffcanvasScrollFix />}
+      {children}
     </>
   );
 }

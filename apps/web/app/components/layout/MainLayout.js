@@ -1,59 +1,41 @@
-"use client";
+import { getMenu } from "../../../lib/menu";
+import { resolveThemeChrome } from "../../../lib/theme/resolveThemeChrome";
+import PageViewTracker from "./PageViewTracker";
 
-import fetch from "isomorphic-fetch";
-import { useEffect } from "react";
-import { useTheme } from "../theme/themeProvider";
-import { getOrCreateVisitorId, getReferrerHostname } from "../../../lib/analytics";
-
-function Layout({ children, currentPage }) {
-  // The active theme's Header/Footer (theme.json's config.components) —
-  // loaded by ThemeProvider (an ancestor of every public page, see
-  // ClientChrome.jsx) but, until now, never actually rendered anywhere.
-  const { theme } = useTheme();
-  const ThemeHeader = theme?.Header;
-  const ThemeFooter = theme?.Footer;
-
-  useEffect(() => {
-    // Vérification si l'effet est exécuté côté client
-    if (typeof window !== "undefined") {
-      const formData = new URLSearchParams();
-      // The real URL, not the generic per-template label (currentPage) —
-      // every article/page used to report the same handful of hardcoded
-      // strings ("ArticleDetail", "ArticleList", ...), making it impossible
-      // to tell which article was actually viewed.
-      formData.append("page", window.location.pathname);
-      formData.append("visitorId", getOrCreateVisitorId());
-      formData.append("referrer", getReferrerHostname());
-      formData.append("userAgent", navigator.userAgent);
-      // Envoi de la requête à votre API externe pour enregistrer que la page a été consultée
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/web_stats/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formData.toString(), // Utilisation de la prop currentPage
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(
-              "Erreur lors de l'enregistrement de la page consultée"
-            );
-          }
-        })
-        .catch((error) => {
-          console.error(
-            "Erreur lors de l'enregistrement de la page consultée:",
-            error
-          );
-        });
-    }
-  }, [currentPage]); // currentPage est la seule dépendance de l'effet
+// A public page's Header/Footer/menu/stylesheet, all resolved server-side
+// — no client-side "theme provider" fetching this after the fact
+// anymore, see resolveThemeChrome.js for why (a theme installed at
+// runtime needs a genuine runtime import to work at all, which only
+// makes sense to do once, on the server, rather than duplicating it in
+// the browser for every visitor).
+//
+// pathname is a required prop, not read via next/headers's headers() —
+// that's a "Dynamic API" that forces the whole route out of static/ISR
+// rendering the moment it's called (confirmed by testing this: every
+// public page started failing to build with DYNAMIC_SERVER_USAGE).
+// Every caller already knows its own route (a slug, an article's path,
+// home), so there's no need to pay that cost just to know it here too.
+//
+// An installed theme's Header/Footer come back as a pre-rendered HTML
+// string (headerHtml/footerHtml), not a React element (headerElement/
+// footerElement, only ever set for the statically-imported "default"
+// theme) — see resolveThemeChrome.js/loadCompiledComponent.js for why:
+// Next's real Server Component tree can't accept an element created by
+// a different React instance than the one it vendors internally.
+async function Layout({ children, pathname = "/" }) {
+  const menu = await getMenu("main");
+  const { headerElement: HeaderElement, footerElement: FooterElement, headerHtml, footerHtml, theme } =
+    await resolveThemeChrome({ menu, pathname });
 
   return (
     <>
-      {ThemeHeader && <ThemeHeader />}
+      {theme?.id && <link rel="stylesheet" href={`/themes/${theme.id}/style.css`} />}
+      {HeaderElement && <HeaderElement menu={menu} pathname={pathname} />}
+      {headerHtml && <div dangerouslySetInnerHTML={{ __html: headerHtml }} />}
       {children}
-      {ThemeFooter && <ThemeFooter />}
+      {FooterElement && <FooterElement menu={menu} pathname={pathname} />}
+      {footerHtml && <div dangerouslySetInnerHTML={{ __html: footerHtml }} />}
+      <PageViewTracker />
     </>
   );
 }

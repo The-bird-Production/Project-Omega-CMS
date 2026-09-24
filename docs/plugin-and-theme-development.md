@@ -203,15 +203,50 @@ n'en fournit pas.
 
 ### Header / Footer (chrome du site public)
 
-`config.components.Header`/`Footer` pointent vers un composant React
-(export par défaut), chargé dynamiquement et rendu autour de **chaque**
-page publique — voir `apps/web/app/components/layout/MainLayout.js`.
-Aucune prop n'est passée aujourd'hui ; le composant récupère lui-même ce
-dont il a besoin (voir « Menus de navigation » ci-dessous pour la nav).
+`components/Header.js`/`Footer.js` (export par défaut) sont rendus
+autour de **chaque** page publique — voir
+`apps/web/app/components/layout/MainLayout.js`. Contrairement au reste
+du thème, ils prennent effet **immédiatement** après l'installation,
+sans redémarrage ni reconstruction de `apps/web` : ils sont compilés une
+fois (JSX → JS) au moment de l'installation puis rendus côté serveur, en
+isolation complète de l'arbre React de l'application (voir
+`apps/web/lib/loadCompiledComponent.js` pour le détail technique — en
+résumé, Next.js utilise en interne sa propre copie de React pour son
+arbre de Server Components, incompatible avec un élément React créé par
+une autre copie ; le rendu isolé vers du HTML statique contourne
+totalement le problème).
+
+Cette isolation impose deux contraintes à respecter dans `Header.js`/
+`Footer.js` :
+
+- **Composants strictement serveur** : pas de `'use client'`, pas de
+  hooks (`useState`, `useEffect`, `usePathname`...) — le composant ne
+  reçoit que des props, une seule fois, au moment du rendu.
+- **Pas de `next/link`/`next/navigation`** : ces API reposent sur des
+  hooks internes à Next.js qui ne fonctionnent pas dans ce rendu isolé.
+  Utilisez de simples balises `<a href="...">` — le contenu étant rendu
+  en HTML statique (`dangerouslySetInnerHTML`), la préextraction
+  côté client de `next/link` ne s'appliquerait de toute façon pas ici.
+
+Props reçues par les deux composants :
+
+```jsx
+export default function Header({ menu, pathname }) {
+  // menu : les éléments du menu "main" (voir /admin/menu), déjà
+  //        récupérés par l'application — inutile de les recharger.
+  // pathname : le chemin de la page actuelle (ex. "/about-us"), utile
+  //        par exemple pour styliser différemment le header selon la
+  //        page (voir le thème apdm-omega-theme pour un exemple réel).
+}
+```
 
 `Button` est déclaré dans le manifeste mais n'est, pour l'instant,
 consommé par aucune UI du cœur — libre à vous de l'utiliser dans vos
-propres composants (Header, templates de page) ou de l'ignorer.
+propres composants (templates de page) ou de l'ignorer. Contrairement à
+Header/Footer, `Button` reste chargé via le bundle webpack normal de
+`apps/web`, donc soumis à la même limite que les templates de page et
+les blocs personnalisés ci-dessous (redémarrage nécessaire après
+installation).
 
 ### Copie des fichiers `components/` : Docker vs bare-metal
 
@@ -269,6 +304,17 @@ C'est exactement le point d'extension qu'il vous faut pour un site comme
 un restaurant/chalet où la plupart des pages ont une mise en page sur
 mesure (menu du jour, galerie, réservation...) plutôt que du contenu
 texte+image générique.
+
+**Contrairement à Header/Footer**, un template de page reste chargé via
+le bundle webpack normal de `apps/web` — il peut librement utiliser
+`next/link`, des sous-composants avec hooks, etc., mais ne prend effet
+qu'après un redémarrage de `apps/web` (voir
+`apps/web/scripts/supervisor.mjs`, qui le fait automatiquement en tâche
+de fond juste après l'installation — quelques minutes de décalage,
+sans interruption de service pendant ce temps). Les blocs personnalisés
+(`components/blocks.js`) et `Button` suivent la même règle. Un template
+peut donc utiliser librement `<BlockContent body={...} />` pour rendre
+le contenu édité par l'admin, contrairement à Header/Footer.
 
 ### Menus de navigation
 

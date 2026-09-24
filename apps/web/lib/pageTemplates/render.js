@@ -16,17 +16,20 @@ async function fetchJson(url) {
 // as apps/web/lib/blocks/discoverServer.js, for the same reason: it's the
 // only dynamic-import shape Next's bundler can actually resolve here.
 //
-// KNOWN LIMITATION (confirmed by testing against a real production
-// build): Next bakes this import's set of possible targets in at `next
-// build` time, from whatever theme(s) exist under app/Themes/ then — a
-// theme installed afterward, against the already-built, already-running
-// production server, can never resolve here no matter how this template
-// literal is shaped. A `webpackIgnore` + absolute file:// URL genuinely
-// does dodge that, but then breaks immediately after on a second, harder
-// wall: this file is .jsx, and Node has no built-in ability to parse JSX
-// at all, so a real fix needs either a runtime JSX-transform loader or
-// (simpler, and the same fix the client-side chrome components need
-// regardless) rebuilding apps/web after a theme/plugin install.
+// KNOWN LIMITATION, by design (not an oversight): a theme installed at
+// runtime needs apps/web to actually rebuild before this can resolve —
+// see apps/web/scripts/supervisor.mjs, which does that automatically,
+// triggered by a sentinel file apps/api writes after a successful
+// install. Unlike Header/Footer (see resolveThemeChrome.js), a page
+// template embeds other host React components (BlockContent) inline —
+// rendering it via a genuine runtime import + isolated renderToString,
+// the way Header/Footer now work with zero rebuild needed, would mean
+// BlockContent renders using a *different* React instance than the one
+// Next vendors internally for its real Server Component tree, which
+// breaks outright (confirmed by testing this exact failure on Header/
+// Footer before isolating them — see loadCompiledComponent.js). Solving
+// that for arbitrary theme-embedded host components was out of scope
+// here; the rebuild-on-install path already handles this correctly.
 export async function getPageTemplateComponent(templateName) {
   if (!templateName) return null;
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
