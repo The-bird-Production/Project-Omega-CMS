@@ -14,7 +14,13 @@ export default async function BlockContent({ body, as: Wrapper = 'div', classNam
   if (prepared.mode === 'empty') return null;
 
   return (
-    <div className="bn-root bn-container bn-mantine">
+    // Bootstrap's own .container (max-width, centered, horizontal
+    // padding) — matching the convention every page-template used to
+    // wrap its content in by hand before pages became pure blocks (see
+    // docs/plugin-and-theme-development.md). Without it, block content
+    // rendered edge-to-edge rather than matching the rest of a
+    // Bootstrap-based theme's layout.
+    <div className="bn-root bn-container bn-mantine container py-5">
       {prepared.mode === 'html' ? (
         <Wrapper
           className={`ProseMirror bn-editor bn-default-styles ${className}`.trim()}

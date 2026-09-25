@@ -1,8 +1,18 @@
 import { createReactBlockSpec } from '@blocknote/react';
 
-// A single call-to-action link. `content: 'inline'` gives the label real
-// rich text (contentRef), matching Gutenberg's own Button block, rather
-// than baking the label into a prop.
+// Renders as a plain Bootstrap .btn — every Bootstrap-based theme (the
+// vast majority of themes in this ecosystem, going by the default theme
+// and apdm-omega-theme) already has rich, real styling for that class,
+// where a custom .omega-btn class would only ever get this file's own
+// generic fallback CSS. `content: 'inline'` gives the label real rich
+// text (contentRef), matching Gutenberg's own Button block, rather than
+// baking the label into a prop.
+const VARIANT_CLASS = {
+  primary: 'btn-primary',
+  outline: 'btn-outline-primary',
+  text: 'btn-link',
+};
+
 const buttonSpec = createReactBlockSpec(
   {
     type: 'button',
@@ -20,7 +30,7 @@ const buttonSpec = createReactBlockSpec(
       return (
         <div className="omega-block-button-wrap">
           <a
-            className={`omega-btn omega-btn-${block.props.variant}`}
+            className={`btn ${VARIANT_CLASS[block.props.variant] || VARIANT_CLASS.primary}`}
             href={block.props.url || '#'}
             target={block.props.openInNewTab ? '_blank' : undefined}
             rel={block.props.openInNewTab ? 'noopener noreferrer' : undefined}
@@ -42,7 +52,7 @@ const buttonSpec = createReactBlockSpec(
               >
                 <option value="primary">Plein</option>
                 <option value="outline">Contour</option>
-                <option value="text">Texte seul</option>
+                <option value="text">Lien seul</option>
               </select>
               <label>
                 <input
@@ -61,7 +71,9 @@ const buttonSpec = createReactBlockSpec(
 );
 
 // A row of buttons placed side by side — insert this first, then add
-// Button blocks as its children (indent them under it).
+// Button blocks as its children (indent them under it). Uses Bootstrap's
+// own flex utility classes rather than a custom container class, for the
+// same reason as the button itself.
 const buttonsSpec = createReactBlockSpec(
   {
     type: 'buttons',
@@ -72,6 +84,10 @@ const buttonsSpec = createReactBlockSpec(
   },
   {
     render: (props) => (
+      // The actual button children render in a separate sibling/child
+      // element BlockNote controls (see coreBlocks.css's big comment on
+      // why) — this div is only a marker for that CSS to key off of via
+      // :has(), not itself the flex container.
       <div className={`omega-buttons-row omega-buttons-align-${props.block.props.align}`}>
         {props.editor.isEditable && (
           <select
