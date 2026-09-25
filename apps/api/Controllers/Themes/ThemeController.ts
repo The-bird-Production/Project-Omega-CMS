@@ -7,7 +7,24 @@ import DeleteTheme from "../../Functions/DeleteTheme.js";
 import { fetchLatestRelease, repoFromSource } from "../../Functions/githubRelease.js";
 import { fetchCatalog } from "../../Functions/catalog.js";
 
-function readInstalledThemes(): { name: string; id: string; version: string; description: string; folder: string }[] {
+// `id` here is always the theme's FOLDER name (the Themes/<folder> this
+// was read from), never theme.json's own "id" field — the two are
+// different things and only coincide by luck. InstallTheme.ts names a
+// theme's folder (and its Theme table row's themeId) after the sanitized
+// GitHub repo it came from (see repoToLocalId in githubRelease.ts), e.g.
+// "The-bird-Production-apdm-omega-theme" — theme.json's "id" is just
+// whatever slug its author happened to write in the manifest (e.g.
+// "apdm"), unrelated to that. Every consumer that resolves a real
+// filesystem path or public URL from "theme.id" (resolveThemeChrome.js,
+// lib/blocks/discover{Server,Client}.js, lib/pageTemplates/render.js,
+// MainLayout.js's style.css link, and this file's own update/delete
+// routes matching against the Theme table's themeId column) needs the
+// folder name, not the manifest's own field — using the manifest's
+// "id" here silently broke every one of those for any theme whose
+// author's chosen id doesn't happen to match its install folder,
+// confirmed by a real "thème introuvable" delete failure and a
+// style.css 404 for exactly that reason.
+function readInstalledThemes(): { name: string; id: string; version: string; description: string }[] {
     const themeDir = path.resolve(process.cwd(), "Themes");
     if (!fs.existsSync(themeDir)) return [];
     return fs
@@ -17,10 +34,9 @@ function readInstalledThemes(): { name: string; id: string; version: string; des
             const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
             return {
                 name: manifest.name,
-                id: manifest.id,
+                id: theme,
                 version: manifest.version,
                 description: manifest.description,
-                folder: manifest.folder,
             };
         });
 }
@@ -129,7 +145,10 @@ export const getCurrentTheme = async (req: Request, res: Response) => {
         .filter((theme) => fs.existsSync(path.join(themeDir, theme, "theme.json")))
         .map((theme) => {
             const manifest = JSON.parse(fs.readFileSync(path.join(themeDir, theme, "theme.json"), "utf-8"));
-            return manifest;
+            // See readInstalledThemes()'s comment: "id" must be the folder
+            // name, not whatever theme.json's own "id" field says — every
+            // caller of /themes/current resolves real paths/URLs from it.
+            return { ...manifest, id: theme };
         });
     if (currentTheme.length === 0) {
         return res.status(404).json({ error: "Aucun thème actuellement utilisé switch to default" });
@@ -146,5 +165,9 @@ export const getDefaultTheme = async (req: Request, res: Response) => {
         return res.status(404).json({ error: "Manifest du thème par défaut non trouvé" });
     }
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-    res.json(manifest);
+    // "default" is the one theme whose folder name is hardcoded rather
+    // than derived from a GitHub repo, so this override is a no-op in
+    // practice today — kept for the same reason as getCurrentTheme's,
+    // in case that ever stops being true.
+    res.json({ ...manifest, id: "default" });
 };
