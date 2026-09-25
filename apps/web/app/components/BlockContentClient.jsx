@@ -32,5 +32,24 @@ export default function BlockContentClient({ blocks }) {
 function Viewer({ schema, blocks }) {
   const initialContent = useMemo(() => (blocks.length > 0 ? blocks : undefined), [blocks]);
   const editor = useCreateBlockNote({ schema, initialContent });
-  return <BlockNoteView editor={editor} editable={false} theme="light" />;
+  // All of BlockNote's interactive editing UI (formatting/link/slash
+  // toolbars, the side-menu drag handle, file panel, table handles,
+  // emoji picker) is meaningless on a read-only public page — left
+  // enabled, the side menu in particular still reserves a gutter of
+  // space and shows a grey drag-handle affordance on hover for every
+  // block, visible to visitors who can't actually use it.
+  return (
+    <BlockNoteView
+      editor={editor}
+      editable={false}
+      theme="light"
+      formattingToolbar={false}
+      linkToolbar={false}
+      sideMenu={false}
+      slashMenu={false}
+      filePanel={false}
+      tableHandles={false}
+      emojiPicker={false}
+    />
+  );
 }

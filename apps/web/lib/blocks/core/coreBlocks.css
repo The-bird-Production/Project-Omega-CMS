@@ -20,31 +20,40 @@
            .bn-block-group        <- CHILD of .bn-block, sibling of (renderer)
    So every container block here (buttons/columns/accordion/gallery)
    pairs a `+` selector with a `>` selector for every rule that targets
-   its own children, to work in both places. */
+   its own children, to work in both places.
 
-.omega-btn {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0.375rem;
-  text-decoration: none;
-  font-weight: 600;
-  cursor: pointer;
+   Bootstrap classes (buttons/accordion/carousel below) on purpose,
+   rather than custom .omega-* classes: a Bootstrap-based theme (the
+   default theme and every real theme built for this CMS so far) ships
+   its OWN real styling for exactly those classes in its own style.css —
+   using custom classes instead meant blocks only ever got this file's
+   generic fallback look, never the active theme's actual design
+   (reported directly: buttons/accordions looked visibly different from
+   the rest of the site). Every fallback rule below is wrapped in
+   :where(...), which contributes zero specificity, so it can never
+   outrank a real rule from the theme's own style.css regardless of load
+   order — it only applies at all where the theme doesn't already style
+   that class itself (e.g. the plain, non-Bootstrap default theme). */
+
+/* Safety net for .omega-cover's full-bleed trick below, which
+   necessarily uses 100vw (clipped here rather than avoided — see that
+   rule's comment). Harmless on any other page: nothing here relies on
+   intentional horizontal body scrolling. */
+body {
+  overflow-x: hidden;
 }
-.omega-btn-primary {
-  background: #0d6efd;
-  color: #fff;
+
+.bn-editor {
+  /* BlockNote's own default document-margin padding (54px each side) —
+     appropriate for a Notion-style editor canvas, wrong for a themed
+     public page, which gets its own horizontal spacing from Bootstrap's
+     .container (added by BlockContent.jsx's wrapper) instead. !important
+     because this rule and BlockNote's own have equal specificity (one
+     class each); relying on load order to break the tie is fragile
+     across webpack's chunking. */
+  padding-inline: 0 !important;
 }
-.omega-btn-outline {
-  background: transparent;
-  color: #0d6efd;
-  border: 1px solid #0d6efd;
-}
-.omega-btn-text {
-  background: transparent;
-  color: #0d6efd;
-  padding-left: 0;
-  padding-right: 0;
-}
+
 .omega-block-button-settings {
   display: flex;
   gap: 0.5rem;
@@ -56,6 +65,39 @@
   flex: 1;
   min-width: 0;
 }
+.omega-block-inline-input {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
+/* Minimal fallback so a plain .btn/.btn-primary/.btn-outline-primary/
+   .btn-link still looks like a button on a theme with no Bootstrap CSS
+   of its own. */
+:where(.btn) {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+:where(.btn-primary) {
+  background: #0d6efd;
+  color: #fff;
+}
+:where(.btn-outline-primary) {
+  background: transparent;
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+:where(.btn-link) {
+  background: transparent;
+  color: #0d6efd;
+  padding-left: 0;
+  padding-right: 0;
+}
 
 /* Buttons row: lay its children (button blocks) out horizontally.
    `:has()` here is deliberately scoped to an IMMEDIATE child chain
@@ -63,8 +105,8 @@
    selector: a bare `:has([data-content-type='buttons'])` also matches
    any ANCESTOR block that merely contains a buttons block somewhere
    deep in ITS OWN children (e.g. a column wrapping one) — confirmed by
-   this exact mistake hiding an entire accordion's answers (see the
-   accordion-open/closed rules below, the one that surfaced it). */
+   this exact mistake hiding an entire accordion's answers before (see
+   below, the rule that surfaced it). */
 .bn-block:has(> * > [data-content-type='buttons']) + .bn-block-group,
 .bn-block:has(> * > [data-content-type='buttons']) > .bn-block-group {
   display: flex;
@@ -98,69 +140,69 @@
   min-width: 0;
 }
 
-/* Accordion: a vertical stack of accordionItem blocks (no special
-   layout, just spacing) */
+/* Accordion: a vertical stack of accordionItem blocks. Unlike the first
+   version of this block, open/closed is no longer driven by a custom
+   data attribute + :has() — accordion.jsx now attaches Bootstrap's own
+   .accordion-item/.accordion-collapse/.collapse/.show classes directly
+   to the real DOM nodes (via a ref, see that file's big comment on why),
+   so a Bootstrap-based theme's real CSS/JS drives appearance and
+   animation the same way it would for hand-written accordion markup. */
 .bn-block:has(> * > [data-content-type='accordion']) + .bn-block-group,
 .bn-block:has(> * > [data-content-type='accordion']) > .bn-block-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
 }
-.omega-accordion-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-weight: 600;
-}
-.omega-accordion-item-header input {
-  font-weight: 600;
+.omega-accordion-question-input {
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
   border: none;
   background: transparent;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+  padding: 0;
 }
-.omega-accordion-chevron {
-  transition: transform 0.15s ease;
-  flex-shrink: 0;
+:where(.accordion-item) {
+  border: 1px solid #dee2e6;
 }
-.omega-accordion-chevron.omega-open {
-  transform: rotate(180deg);
+:where(.accordion-item + .accordion-item) {
+  border-top: none;
 }
-/* The answer (this item's children) is hidden unless its own header
-   marked itself open via a data attribute — see accordion.jsx. Scoped to
-   an immediate-child chain, not a bare descendant selector: without the
-   `> * >`, this matched the ACCORDION's own block too (every closed
-   item is still a descendant of it), hiding all of its items' answers
-   at once instead of each item's own — confirmed by testing this
-   directly against real seed content (15 FAQ items, all closed by
-   default: the whole accordion went blank, not just each answer). */
-.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='false']) + .bn-block-group,
-.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='false']) > .bn-block-group {
+:where(.accordion-button) {
+  display: flex;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+:where(.accordion-body) {
+  padding: 0.75rem 1rem;
+}
+:where(.collapse:not(.show)) {
   display: none;
 }
-.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='true']) + .bn-block-group,
-.bn-block:has(> * > [data-content-type='accordionItem'] > [data-accordion-open='true']) > .bn-block-group {
-  padding: 0.75rem 1rem;
-  border: 1px solid #dee2e6;
-  border-top: none;
-  border-radius: 0 0 0.375rem 0.375rem;
-  margin-top: -0.5rem;
-}
 
-/* Gallery: a responsive image grid. */
+/* Gallery. Editable admin view: a plain responsive grid, one cell per
+   galleryImage child (BlockNote's normal children mechanism, see the top
+   comment). Read-only public view: gallery.jsx renders a self-contained
+   Bootstrap carousel directly from block.children's own data instead of
+   relying on each galleryImage's separate render — the real per-child
+   elements BlockNote still mounts alongside it are only useful for
+   editing, so they're hidden here specifically for that read-only case
+   (marked by .omega-gallery-carousel-active, only ever present when
+   editor.isEditable is false — see gallery.jsx). */
 .bn-block:has(> * > [data-content-type='gallery']) + .bn-block-group,
 .bn-block:has(> * > [data-content-type='gallery']) > .bn-block-group {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+.bn-block:has(> * > [data-content-type='gallery'] .omega-gallery-carousel-active) + .bn-block-group,
+.bn-block:has(> * > [data-content-type='gallery'] .omega-gallery-carousel-active) > .bn-block-group {
+  display: none;
 }
 .omega-gallery-image {
   width: 100%;
@@ -181,21 +223,84 @@
   color: #868e96;
   font-size: 0.85rem;
 }
-.omega-block-inline-input {
-  width: 100%;
-  margin-top: 0.25rem;
-  font-size: 0.8rem;
+/* Minimal carousel fallback for a non-Bootstrap theme — enough to see
+   one slide at a time and use the controls; a real theme's own Bootstrap
+   CSS (transition, indicator dots, control icon glyphs) takes over via
+   the source rules this deliberately doesn't try to reproduce. */
+:where(.carousel) {
+  position: relative;
+}
+:where(.carousel-item) {
+  display: none;
+}
+:where(.carousel-item.active) {
+  display: block;
+}
+:where(.carousel-control-prev),
+:where(.carousel-control-next) {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+:where(.carousel-control-prev) {
+  left: 0;
+}
+:where(.carousel-control-next) {
+  right: 0;
+}
+:where(.carousel-indicators) {
+  position: absolute;
+  right: 0;
+  bottom: 0.5rem;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0;
+}
+:where(.carousel-indicators button) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+:where(.carousel-indicators button.active) {
+  background: #fff;
 }
 
 /* Cover: full-width background image with its children (any blocks)
-   overlaid, centered. */
+   overlaid, centered. minHeight is a full CSS length (e.g. "70vh" or
+   "480px", see cover.jsx) so a hero can span most of the viewport like
+   the page banner it usually replaces, not just a fixed pixel box. */
 .omega-cover {
   position: relative;
-  width: 100%;
-  min-height: 360px;
+  /* Full-bleed: BlockContent.jsx wraps all block content in Bootstrap's
+     .container (see that file) for the rest of a page's content to line
+     up with the theme's own layout — but a hero banner is meant to span
+     the full viewport width like the page banner it replaces, not be
+     boxed into that same centered column. `100vw` includes the
+     scrollbar's own width, which %-based layout does not, so this
+     overshoots by the scrollbar's width and would cause a horizontal
+     scrollbar of its own whenever a vertical one is present — confirmed
+     directly. There's no vw-free version of this trick (escaping a
+     constrained ancestor fundamentally needs a viewport-relative unit
+     somewhere), so `body`'s own overflow-x below is the actual fix,
+     clipping that overshoot instead of trying to compute around it. */
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
   background-size: cover;
   background-position: center;
-  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -253,6 +358,9 @@
   padding: 0.35rem;
   border-radius: 0.375rem;
   font-size: 0.75rem;
+}
+.omega-cover-height-input {
+  width: 70px;
 }
 
 .omega-embed-frame {
