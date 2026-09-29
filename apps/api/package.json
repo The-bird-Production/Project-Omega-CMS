@@ -38,7 +38,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
-    "multer": "^2.0.1",
+    "multer": "^2.4.0",
     "node-cron": "^4.6.0",
     "sanitize-filename": "^1.6.3",
     "socket.io": "^4.8.3",
