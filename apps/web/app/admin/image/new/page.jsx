@@ -34,13 +34,13 @@ export default function NewImage() {
       return;
     }
 
-    const data = new FormData();
-    data.append('title', formData.title);
-    data.append('slug', formData.slug);
-    data.append('alt', formData.alt);
-    data.append('image', file);
+    const submit = async (retriesLeft) => {
+      const data = new FormData();
+      data.append('title', formData.title);
+      data.append('slug', formData.slug);
+      data.append('alt', formData.alt);
+      data.append('image', file);
 
-    try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/create`,
         {
@@ -53,9 +53,21 @@ export default function NewImage() {
 
       if (response.ok) {
         router.push('/admin/image');
-      } else {
-        setError("Une erreur est survenue lors de l'upload de l'image.");
+        return;
       }
+      // A 409 here means the server's own temp upload file was gone by
+      // the time it tried to move it (see CreateImageController.ts) and
+      // is explicitly telling the client to retry — one automatic retry
+      // turns that into a no-op in the common case.
+      if (response.status === 409 && retriesLeft > 0) {
+        return submit(retriesLeft - 1);
+      }
+      const body = await response.json().catch(() => ({}));
+      setError(body.message || "Une erreur est survenue lors de l'upload de l'image.");
+    };
+
+    try {
+      await submit(1);
     } catch (err) {
       console.error('Erreur réseau :', err);
       setError('Erreur réseau — impossible de contacter le serveur.');

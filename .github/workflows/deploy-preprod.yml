@@ -14,13 +14,27 @@ jobs:
         shell: bash -l {0} # ← charge l'environnement complet (comme un vrai terminal)
 
     steps:
-      - name: Clean up old files
-        run: |
-          rm -rf apps packages
-          mkdir -p apps packages
-
+      # No "clean up old files" / rm -rf step here on purpose, and
+      # `clean: false` below: apps/api/Public (uploaded images, and the
+      # in-flight tmp/ folder multer writes to mid-upload), Themes,
+      # Plugins, PluginsClient and Themes_style are all gitignored runtime
+      # data that only ever exists on this runner's disk, never in git —
+      # actions/checkout's own default `clean: true` runs `git clean
+      # -ffdx`, which (that -x) deletes gitignored files too, same as the
+      # `rm -rf apps packages` this used to have. Either one wiped every
+      # previously uploaded image and every installed theme/plugin on
+      # every single deploy, and any upload in-flight at that exact moment
+      # got its temp file deleted out from under it mid-request — the
+      # actual cause of a recurring "Fichier temporaire introuvable" 409,
+      # confirmed by this workflow's own timing matching reported
+      # occurrences. A plain checkout (no clean) still correctly updates
+      # every TRACKED file to match the new commit, including deleting
+      # tracked files removed upstream — it just leaves untracked/
+      # gitignored runtime data alone, which is exactly what's needed.
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          clean: false
 
       - name: Install workspace dependencies
         run: |

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { confirmAction } from "../../../lib/confirm";
+import FaviconSettings from "./FaviconSettings";
 
 const ThemePage = () => {
   const [themes, setThemes] = useState([]);
@@ -35,6 +36,15 @@ const ThemePage = () => {
 
     fetchThemes();
   }, []);
+
+  // Runs automatically once themes are loaded, not just on the manual
+  // button below — the "Mettre à jour" action only ever appeared after
+  // that button was clicked first, which read as the update feature not
+  // existing at all rather than just needing an extra step to reveal.
+  useEffect(() => {
+    if (themes.length > 0) checkUpdates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [themes.length]);
 
   const checkUpdates = async () => {
     setCheckingUpdates(true);
@@ -122,8 +132,10 @@ const ThemePage = () => {
   if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div className="card card-body bg-secondary">
-      <h5 className="card-title">Liste des Thèmes Installés</h5>
+    <>
+      <FaviconSettings />
+      <div className="card card-body bg-secondary">
+        <h5 className="card-title">Liste des Thèmes Installés</h5>
       <button className="btn btn-primary mb-3" onClick={checkUpdates} disabled={checkingUpdates || themes.length === 0}>
         {checkingUpdates ? "Vérification..." : "Vérifier les mises à jour"}
       </button>
@@ -178,7 +190,8 @@ const ThemePage = () => {
           Installer un thème
         </Link>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
