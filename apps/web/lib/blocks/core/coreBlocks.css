@@ -54,6 +54,39 @@ body {
   padding-inline: 0 !important;
 }
 
+/* Every BlockNote floating menu built on its GenericPopover component
+   (slash menu, formatting/link toolbar, side menu, table handles) stacks
+   at calc(var(--bn-ui-base-z-index, 0) + its own small offset) — confirmed
+   directly from the rendered inline style, e.g. the slash menu's wrapper
+   computes to "calc(var(--bn-ui-base-z-index, 0) + 80)". --bn-ui-base-z-
+   index defaults to 0 on .bn-root (@blocknote/react/src/editor/styles.css),
+   so every one of those menus sits at a tiny z-index like 40 or 80 — far
+   below the admin sidebar's z-index:1030 (admin-design-system.css's
+   .admin-sidebar). Any menu that visually overlapped the sidebar (blocks
+   near the editor's left edge, right next to it) rendered BEHIND it
+   instead of on top, reading as the menu being hidden/clipped by the nav
+   bar — reproduced directly and confirmed fixed by raising this base.
+   This is BlockNote's own documented extension point for exactly this
+   scenario, not a guess at its internals. Harmless in the read-only
+   public view too, which has no sidebar to conflict with. Relies on this
+   file loading after @blocknote/mantine/style.css (see both mount
+   points) to win at equal specificity, same as .bn-editor's padding
+   override above.
+   Mantine's own popover/modal z-index tokens (300/200, also set on
+   .bn-root's sibling class .bn-mantine) are raised the same way, for any
+   Mantine-native popover elsewhere in the editor that doesn't go through
+   GenericPopover. */
+.bn-root {
+  --bn-ui-base-z-index: 1050;
+}
+.bn-mantine {
+  --mantine-z-index-app: 1100;
+  --mantine-z-index-modal: 1110;
+  --mantine-z-index-popover: 1120;
+  --mantine-z-index-overlay: 1130;
+  --mantine-z-index-max: 9999;
+}
+
 /* BlockNote's own decorative "nesting indent guide" — a light grey
    vertical border-left before every block nested two levels deep (from
    @blocknote/react/src/editor/styles.css: ".bn-block-group .bn-block:not
@@ -104,7 +137,9 @@ body {
 }
 .omega-image-picker-library {
   position: absolute;
-  z-index: 20;
+  /* Same admin-sidebar (z-index:1030) conflict as the Mantine override
+     above — this isn't a Mantine component, so it needs its own fix. */
+  z-index: 1100;
   top: calc(100% + 0.35rem);
   left: 0;
   width: 320px;
@@ -159,21 +194,73 @@ body {
   display: block;
 }
 
+/* Every block's own inline settings controls (URL fields, dropdowns,
+   checkboxes, sliders) — shown only when editor.isEditable, never on the
+   public site, so unlike the public-facing output above these don't need
+   to defer to a theme's own CSS via :where() and can just look however's
+   best for the admin UI. Plain unstyled native form elements here read as
+   broken/unfinished next to BlockNote's own polished chrome around them. */
 .omega-block-button-settings {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
   font-size: 0.8rem;
 }
 .omega-block-button-settings input[type='text'] {
   flex: 1;
   min-width: 0;
 }
+.omega-block-button-settings input[type='text'],
+.omega-block-button-settings input[type='number'],
+.omega-block-button-settings select,
+.omega-block-inline-input,
+.omega-block-inline-select,
+.omega-cover-height-input {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  font-size: 0.8rem;
+  background: #fff;
+  color: #1c1f2e;
+}
+.omega-block-button-settings input[type='text']:focus,
+.omega-block-button-settings input[type='number']:focus,
+.omega-block-button-settings select:focus,
+.omega-block-inline-input:focus,
+.omega-block-inline-select:focus,
+.omega-cover-height-input:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+}
+.omega-block-button-settings label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #495057;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.omega-block-button-settings input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #0d6efd;
+}
+.omega-cover-settings input[type='range'] {
+  width: 100px;
+  accent-color: #0d6efd;
+  cursor: pointer;
+}
 .omega-block-inline-input {
   width: 100%;
   margin-top: 0.25rem;
-  font-size: 0.8rem;
 }
 
 /* Minimal fallback so a plain .btn/.btn-primary/.btn-outline-primary/
@@ -458,11 +545,21 @@ body {
   left: 0.5rem;
   z-index: 2;
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
   background: rgba(255, 255, 255, 0.9);
-  padding: 0.35rem;
-  border-radius: 0.375rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   font-size: 0.75rem;
+}
+.omega-cover-settings label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #495057;
+  white-space: nowrap;
 }
 .omega-cover-height-input {
   width: 70px;
