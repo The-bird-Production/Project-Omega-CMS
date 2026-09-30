@@ -19,11 +19,24 @@ import { createReactBlockSpec } from '@blocknote/react';
 // needs THAT element to literally carry .accordion-collapse/.collapse/
 // .show and a matching id for data-bs-target to find — so this reaches
 // it imperatively via a ref once mounted, rather than trying to control
-// it declaratively. Confirmed safe to do: BlockNote never re-renders or
-// resets that element's own classList/attributes itself, so nothing
-// fights this.
-function useAccordionBodyClasses(anchorRef, collapseId, open) {
+// it declaratively.
+//
+// Read-only public view ONLY, never the editable admin editor: editable
+// ProseMirror actively watches its own DOM with a MutationObserver and
+// reverts changes it didn't make itself. Mutating so much as the shared
+// .bn-block-outer's classList (even just adding 'accordion-item') trips
+// that in editable mode, forcing a revert + remount, which re-runs this
+// effect on the fresh mount, which re-mutates, which trips it again: a
+// tight infinite loop that froze the whole editor tab whenever an
+// accordion was inserted or edited — confirmed directly by reproducing
+// it live and bisecting down to this exact mutation running unconditionally
+// (no `editable` check at all). The `editable` check must happen FIRST,
+// before touching any DOM node. A read-only mounted view has no live
+// editing to protect, so this same mutation is safe there.
+function useAccordionBodyClasses(anchorRef, collapseId, open, editable) {
   useEffect(() => {
+    if (editable) return;
+
     const bnBlock = anchorRef.current?.closest('.bn-block');
     if (!bnBlock) return;
 
@@ -57,7 +70,7 @@ function AccordionItemRender({ block, editor }) {
   // A stable id (block.id never changes) for the data-bs-target/
   // aria-controls pairing Bootstrap's collapse JS needs.
   const collapseId = `omega-accordion-${block.id}`;
-  useAccordionBodyClasses(anchorRef, collapseId, block.props.open);
+  useAccordionBodyClasses(anchorRef, collapseId, block.props.open, editable);
 
   if (editable) {
     // Toggled via this button's own onClick + editor.updateBlock, not
@@ -116,9 +129,13 @@ const accordionItemSpec = createReactBlockSpec(
 // coreBlocks.css's big comment). Same ref-based fix as
 // useAccordionBodyClasses above: reach the real children container once
 // mounted and add the class there instead of on this decorative div.
-function AccordionRender() {
+// Read-only only — see useAccordionBodyClasses for why editable mode
+// can never touch this DOM node.
+function AccordionRender({ editor }) {
   const anchorRef = useRef(null);
+  const editable = editor.isEditable;
   useEffect(() => {
+    if (editable) return;
     const bnBlock = anchorRef.current?.closest('.bn-block');
     if (!bnBlock) return;
     const group = bnBlock.nextElementSibling?.classList.contains('bn-block-group')

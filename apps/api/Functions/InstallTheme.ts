@@ -104,9 +104,7 @@ function deactivateOtherThemes(
 }
 
 // repo: a GitHub "owner/repo" (or full github.com URL) whose latest release
-// is downloaded and installed as a theme. The local theme id is always
-// derived from the repo, deterministically, so re-installing (update=true)
-// the same repo lands on the same theme directory/DB row.
+// is downloaded and installed as a theme.
 const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
   const isDev = process.env.NODE_ENV !== "production";
   // Docker's docker-compose.yml bind-mounts this same Themes (and
@@ -123,15 +121,17 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
   const needsClientCopy = !inDocker;
 
   const normalizedRepo = parseRepoInput(repo);
-  const sanitizedThemeId = sanitize(repoToLocalId(normalizedRepo));
-  if (!sanitizedThemeId) {
+  // Only used for the TEMP staging directory below, and as a fallback if
+  // the release doesn't have a usable theme.json — never for the final
+  // install location (see finalThemeId below for why).
+  const repoBasedId = sanitize(repoToLocalId(normalizedRepo));
+  if (!repoBasedId) {
     throw new Error("Theme ID invalide ou non autorisé.");
   }
 
   const themesDir = path.resolve(process.cwd(), "Themes");
-  const themeDir = assertInside(themesDir, path.join(themesDir, sanitizedThemeId), "de thème");
   const tempDir = path.resolve(process.cwd(), "temp");
-  const extractDir = assertInside(tempDir, path.join(tempDir, sanitizedThemeId), "temporaire");
+  const extractDir = assertInside(tempDir, path.join(tempDir, repoBasedId), "temporaire");
 
   let clientDir: string | null = null;
   let styleDir: string;
@@ -149,6 +149,10 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
     styleDir = path.resolve(process.cwd(), "Themes_style");
   }
 
+  // Set once the real theme id is known (see below) — the catch block
+  // only cleans up paths built from it if we actually got that far.
+  let finalThemeId: string | null = null;
+
   try {
     console.log(`Installing theme from ${normalizedRepo} in ${isDev ? "development" : "production"} mode...`);
 
@@ -164,24 +168,49 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
     zip.extractAllTo(extractDir, true);
     if (needsUnwrap) unwrapSingleTopLevelDir(extractDir);
 
+    // The theme's own id — from theme.json, not from the GitHub repo it
+    // happened to be installed from — is what its own Header.js/Footer.js/
+    // style.css/seeded page content actually reference (e.g.
+    // "/themes/apdm/img/logo.png"), since that's the one identifier a
+    // theme author controls and can hardcode safely. Naming the install
+    // folder after the repo instead (e.g. "owner-repo-name") broke every
+    // one of those hardcoded references — confirmed live: style.css itself
+    // resolved fine (the CMS's own code already used the real folder name
+    // for that), but every image the theme's own files/content referenced
+    // by its declared id 404'd. Falls back to the repo-based id only if
+    // theme.json is missing or declares no usable one.
+    let resolvedThemeId = repoBasedId;
+    try {
+      const manifestPath = path.join(extractDir, "theme.json");
+      if (fs.existsSync(manifestPath)) {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+        const sanitizedManifestId = manifest?.id ? sanitize(String(manifest.id)) : "";
+        if (sanitizedManifestId) resolvedThemeId = sanitizedManifestId;
+      }
+    } catch (manifestErr) {
+      console.error("theme.json illisible, utilisation de l'identifiant dérivé du dépôt :", manifestErr);
+    }
+    finalThemeId = resolvedThemeId;
+
+    const themeDir = assertInside(themesDir, path.join(themesDir, finalThemeId), "de thème");
     if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
     movePath(extractDir, themeDir);
-    deactivateOtherThemes(themesDir, sanitizedThemeId, clientDir, styleDir);
+    deactivateOtherThemes(themesDir, finalThemeId, clientDir, styleDir);
 
     let finalComponentsDir: string;
     if (needsClientCopy) {
-      const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, sanitizedThemeId), "client de thème");
+      const safeClientThemeDir = assertInside(clientDir as string, path.join(clientDir as string, finalThemeId), "client de thème");
       if (!update && !fs.existsSync(safeClientThemeDir)) {
         fs.mkdirSync(safeClientThemeDir, { recursive: true });
       }
-      const safeStyleThemeDir = assertInside(styleDir, path.join(styleDir, sanitizedThemeId), "de style");
+      const safeStyleThemeDir = assertInside(styleDir, path.join(styleDir, finalThemeId), "de style");
 
       finalComponentsDir = path.join(safeClientThemeDir, "components");
       moveInto(path.join(themeDir, "components"), finalComponentsDir);
       moveInto(path.join(themeDir, "asset"), path.join(safeClientThemeDir, "asset"));
       moveInto(path.join(themeDir, "style"), safeStyleThemeDir);
     } else {
-      const safeStyleThemeDir = assertInside(styleDir, path.join(styleDir, sanitizedThemeId), "de style");
+      const safeStyleThemeDir = assertInside(styleDir, path.join(styleDir, finalThemeId), "de style");
 
       finalComponentsDir = path.join(themeDir, "components");
       moveInto(path.join(themeDir, "asset"), path.join(safeStyleThemeDir, "asset"));
@@ -203,15 +232,15 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
       const manifestPath = path.join(themeDir, "theme.json");
       const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, "utf-8")) : {};
       await prisma.theme.upsert({
-        where: { themeId: sanitizedThemeId },
+        where: { themeId: finalThemeId },
         create: {
-          themeId: sanitizedThemeId,
-          name: manifest.name ?? sanitizedThemeId,
+          themeId: finalThemeId,
+          name: manifest.name ?? finalThemeId,
           version: release.tagName,
           source: `github:${normalizedRepo}`,
         },
         update: {
-          name: manifest.name ?? sanitizedThemeId,
+          name: manifest.name ?? finalThemeId,
           version: release.tagName,
           source: `github:${normalizedRepo}`,
         },
@@ -224,14 +253,17 @@ const InstallTheme = async (repo: string, update: boolean): Promise<void> => {
   } catch (err) {
     console.error("Erreur lors de l'installation du theme :", err);
 
-    if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
     if (fs.existsSync(extractDir)) fs.rmSync(extractDir, { recursive: true, force: true });
-    if (needsClientCopy && clientDir) {
-      const clientThemeDir = path.join(clientDir, sanitizedThemeId);
-      if (fs.existsSync(clientThemeDir)) fs.rmSync(clientThemeDir, { recursive: true, force: true });
+    if (finalThemeId) {
+      const themeDir = path.join(themesDir, finalThemeId);
+      if (fs.existsSync(themeDir)) fs.rmSync(themeDir, { recursive: true, force: true });
+      if (needsClientCopy && clientDir) {
+        const clientThemeDir = path.join(clientDir, finalThemeId);
+        if (fs.existsSync(clientThemeDir)) fs.rmSync(clientThemeDir, { recursive: true, force: true });
+      }
+      const styleThemeDir = path.join(styleDir, finalThemeId);
+      if (fs.existsSync(styleThemeDir)) fs.rmSync(styleThemeDir, { recursive: true, force: true });
     }
-    const styleThemeDir = path.join(styleDir, sanitizedThemeId);
-    if (fs.existsSync(styleThemeDir)) fs.rmSync(styleThemeDir, { recursive: true, force: true });
 
     throw err;
   }
