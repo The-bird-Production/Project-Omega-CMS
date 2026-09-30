@@ -8,22 +8,22 @@ import { fetchLatestRelease, repoFromSource } from "../../Functions/githubReleas
 import { fetchCatalog } from "../../Functions/catalog.js";
 
 // `id` here is always the theme's FOLDER name (the Themes/<folder> this
-// was read from), never theme.json's own "id" field — the two are
-// different things and only coincide by luck. InstallTheme.ts names a
-// theme's folder (and its Theme table row's themeId) after the sanitized
-// GitHub repo it came from (see repoToLocalId in githubRelease.ts), e.g.
-// "The-bird-Production-apdm-omega-theme" — theme.json's "id" is just
-// whatever slug its author happened to write in the manifest (e.g.
-// "apdm"), unrelated to that. Every consumer that resolves a real
-// filesystem path or public URL from "theme.id" (resolveThemeChrome.js,
-// lib/blocks/discover{Server,Client}.js, lib/pageTemplates/render.js,
-// MainLayout.js's style.css link, and this file's own update/delete
-// routes matching against the Theme table's themeId column) needs the
-// folder name, not the manifest's own field — using the manifest's
-// "id" here silently broke every one of those for any theme whose
-// author's chosen id doesn't happen to match its install folder,
-// confirmed by a real "thème introuvable" delete failure and a
-// style.css 404 for exactly that reason.
+// was read from) — not necessarily distinct from theme.json's own "id"
+// field, but not guaranteed to match it either, so every consumer that
+// resolves a real filesystem path or public URL from "theme.id"
+// (resolveThemeChrome.js, lib/blocks/discover{Server,Client}.js,
+// lib/pageTemplates/render.js, MainLayout.js's style.css link, and this
+// file's own update/delete routes matching against the Theme table's
+// themeId column) needs the folder name specifically. InstallTheme.ts
+// names a theme's folder (and its Theme table row's themeId) after
+// theme.json's own declared "id" when the manifest has one (falling back
+// to a sanitized form of the GitHub repo it came from otherwise) — but a
+// theme installed before that folder-naming fix shipped, or reinstalled
+// from a manifest missing that field, can still be a repo-derived folder
+// name that happens to differ from theme.json's "id". Using the
+// manifest's "id" here instead of the real folder silently broke every
+// one of those consumers for exactly that mismatch, confirmed by a real
+// "thème introuvable" delete failure and a style.css 404.
 function readInstalledThemes(): { name: string; id: string; version: string; description: string }[] {
     const themeDir = path.resolve(process.cwd(), "Themes");
     if (!fs.existsSync(themeDir)) return [];

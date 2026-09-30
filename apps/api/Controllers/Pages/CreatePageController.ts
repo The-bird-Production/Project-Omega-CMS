@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "@omega/db";
+import { revalidateWebPaths } from "../../Functions/RevalidateWeb.js";
 
 const CreatePage = async (req: Request, res: Response) => {
     const body = req.body.body;
@@ -16,6 +17,7 @@ const CreatePage = async (req: Request, res: Response) => {
                 template: template
             }
         });
+        await revalidateWebPaths([slug]);
         res.json({ code: 200, message: "Data was successful created" });
     }
     catch (e) {

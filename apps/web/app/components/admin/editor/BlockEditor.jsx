@@ -8,21 +8,7 @@ import '../../../../lib/blocks/core/coreBlocks.css';
 import { createEditorSchema } from '../../../../lib/blocks/schema';
 import { discoverClientBlockSpecs } from '../../../../lib/blocks/discoverClient';
 import { getCoreSlashMenuItems } from '../../../../lib/blocks/core/slashMenu';
-
-async function uploadImage(file) {
-  const formData = new FormData();
-  formData.append('image', file, file.name);
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/image/create-article`, {
-    method: 'POST',
-    body: formData,
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error("Erreur lors de l'upload de l'image");
-
-  const data = await res.json();
-  return data.url;
-}
+import { uploadImage } from '../../../../lib/blocks/core/uploadImage';
 
 // value: the stored body as a JSON-stringified block array (or '' / null
 // for new content). onChange receives the same JSON-stringified shape, so

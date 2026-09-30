@@ -1,17 +1,5 @@
 import { createReactBlockSpec } from '@blocknote/react';
-
-async function uploadImage(file) {
-  const formData = new FormData();
-  formData.append('image', file, file.name);
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/image/create-article`, {
-    method: 'POST',
-    body: formData,
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error("Erreur lors de l'upload de l'image");
-  const data = await res.json();
-  return data.url;
-}
+import ImagePicker from './ImagePicker';
 
 // A full-width background image with its children (any blocks — usually
 // a heading, maybe a paragraph and a button) overlaid on top. This is
@@ -41,12 +29,6 @@ const coverSpec = createReactBlockSpec(
   {
     render: ({ block, editor }) => {
       const editable = editor.isEditable;
-      const onFile = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const url = await uploadImage(file);
-        editor.updateBlock(block, { props: { imageUrl: url } });
-      };
       return (
         <div
           className="omega-cover"
@@ -58,7 +40,7 @@ const coverSpec = createReactBlockSpec(
         >
           {editable && (
             <div className="omega-cover-settings">
-              <input type="file" accept="image/*" onChange={onFile} />
+              <ImagePicker onSelect={(url) => editor.updateBlock(block, { props: { imageUrl: url } })} />
               <label>
                 Assombrissement
                 <input
