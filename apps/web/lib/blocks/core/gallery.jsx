@@ -1,17 +1,5 @@
 import { createReactBlockSpec } from '@blocknote/react';
-
-async function uploadImage(file) {
-  const formData = new FormData();
-  formData.append('image', file, file.name);
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/image/create-article`, {
-    method: 'POST',
-    body: formData,
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error("Erreur lors de l'upload de l'image");
-  const data = await res.json();
-  return data.url;
-}
+import ImagePicker from './ImagePicker';
 
 // A single photo — deliberately its own block (rather than a JSON-encoded
 // list in a prop) so it reuses BlockNote's own drag-to-reorder in the
@@ -31,16 +19,14 @@ const galleryImageSpec = createReactBlockSpec(
   {
     render: ({ block, editor }) => {
       const editable = editor.isEditable;
-      const onFile = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const url = await uploadImage(file);
-        editor.updateBlock(block, { props: { url } });
-      };
       if (!block.props.url) {
         return (
           <div className="omega-gallery-image-placeholder">
-            {editable ? <input type="file" accept="image/*" onChange={onFile} /> : 'Image'}
+            {editable ? (
+              <ImagePicker onSelect={(url) => editor.updateBlock(block, { props: { url } })} />
+            ) : (
+              'Image'
+            )}
           </div>
         );
       }
