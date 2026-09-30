@@ -29,12 +29,23 @@ const coverSpec = createReactBlockSpec(
   {
     render: ({ block, editor }) => {
       const editable = editor.isEditable;
+      // The public site wraps every page's content in Bootstrap's .py-5
+      // (see BlockContent.jsx) so ordinary text doesn't sit flush against
+      // the theme's own navbar — but a Cover placed first on the page is
+      // meant to be a full-bleed hero flush against the very top of the
+      // viewport (see the full-bleed width trick in coreBlocks.css), and
+      // that padding instead left a blank gap of bare page above it, with
+      // the theme's own navbar (usually overlaid transparently on the
+      // hero) rendering over nothing. Only relevant in the read-only
+      // public view — the editor never wraps content in that padding.
+      const isFirstBlock = !editable && editor.document[0]?.id === block.id;
       return (
         <div
           className="omega-cover"
           style={{
             backgroundImage: block.props.imageUrl ? `url(${block.props.imageUrl})` : undefined,
             minHeight: block.props.minHeight,
+            marginTop: isFirstBlock ? '-3rem' : undefined,
             '--omega-cover-overlay': block.props.overlayOpacity / 100,
           }}
         >

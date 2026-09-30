@@ -25,6 +25,7 @@ import RedirectRoute from './Routes/Redirect/MainRoute.js';
 import ThemesRoute from './Routes/Themes/MainRoute.js';
 import UserRoute from './Routes/User/mainRoute.js';
 import SystemRoute from './Routes/System/MainRoute.js';
+import FaviconRoute from './Routes/Favicon/MainRoute.js';
 const app = express();
 app.use(cors(CORS));
 app.use(limiter);
@@ -64,6 +65,7 @@ app.use('/redirect', RedirectRoute);
 app.use('/article', mainRoute);
 app.use('/themes', ThemesRoute);
 app.use('/system', SystemRoute);
+app.use('/favicon', FaviconRoute);
 app.get("/test", (req, res) => {
     res.send("Testing Server");
 });
