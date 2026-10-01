@@ -46,7 +46,13 @@ const CreateFile = async (req: Request, res: Response) => {
             return res.status(400).json({ code: 400, message: "Chemin non autorisé." });
         }
 
-        // Déplacement du fichier
+        // Déplacement du fichier — FINAL_DIR is gitignored runtime data
+        // (apps/api/.gitignore's /Public/), never created by anything else
+        // up front. Without this, a missing FINAL_DIR made fs.rename fail
+        // with the exact same ENOENT as a genuinely gone temp file,
+        // misreported as "upload interrupted, retry" below even though
+        // retrying could never fix it.
+        await fs.mkdir(FINAL_DIR, { recursive: true });
         try {
             await fs.rename(tmpPath, finalPath);
         } catch (renameErr) {
