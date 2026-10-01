@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import Layout from "../components/layout/MainLayout";
-import ArticleFilters from "../components/article/ArticleFilters";
-import ArticlePagination from "../components/article/ArticlePagination";
-import { blocksToPlainText } from "../../lib/blocks/text";
+import { Link } from "../../../i18n/navigation";
+import Layout from "../../components/layout/MainLayout";
+import ArticleFilters from "../../components/article/ArticleFilters";
+import ArticlePagination from "../../components/article/ArticlePagination";
+import { blocksToPlainText } from "../../../lib/blocks/text";
 
 export async function generateMetadata() {
   const t = await getTranslations("ArticleList");

@@ -10,8 +10,9 @@ const MAX_MENU_NAME_LENGTH = 191;
 export const getMenu = async (req: Request, res: Response) => {
   try {
     const menu = req.params.menu || "main";
+    const locale = typeof req.query.locale === "string" && req.query.locale.trim() ? req.query.locale.trim() : "fr";
     const items = await prisma.menuItem.findMany({
-      where: { menu, parentId: null },
+      where: { menu, locale, parentId: null },
       orderBy: [{ order: "asc" }, { id: "asc" }],
       include: { children: { orderBy: [{ order: "asc" }, { id: "asc" }] } },
     });
@@ -27,9 +28,13 @@ export const getMenu = async (req: Request, res: Response) => {
 export const getAllMenuItems = async (req: Request, res: Response) => {
   try {
     const menu = req.query.menu as string | undefined;
+    const locale = req.query.locale as string | undefined;
     const items = await prisma.menuItem.findMany({
-      where: menu ? { menu } : undefined,
-      orderBy: [{ menu: "asc" }, { order: "asc" }, { id: "asc" }],
+      where: {
+        ...(menu ? { menu } : {}),
+        ...(locale ? { locale } : {}),
+      },
+      orderBy: [{ menu: "asc" }, { locale: "asc" }, { order: "asc" }, { id: "asc" }],
     });
     res.status(200).json({ code: 200, data: items });
   } catch (error) {
@@ -40,7 +45,7 @@ export const getAllMenuItems = async (req: Request, res: Response) => {
 
 export const createMenuItem = async (req: Request, res: Response) => {
   try {
-    const { label, url, menu, target, order, parentId } = req.body ?? {};
+    const { label, url, menu, locale, target, order, parentId } = req.body ?? {};
     if (typeof label !== "string" || !label.trim() || typeof url !== "string" || !url.trim()) {
       return res.status(400).json({ code: 400, message: "label et url sont requis" });
     }
@@ -49,6 +54,7 @@ export const createMenuItem = async (req: Request, res: Response) => {
         label: label.trim().slice(0, MAX_LABEL_LENGTH),
         url: url.trim().slice(0, MAX_URL_LENGTH),
         menu: (typeof menu === "string" && menu.trim() ? menu.trim() : "main").slice(0, MAX_MENU_NAME_LENGTH),
+        locale: typeof locale === "string" && locale.trim() ? locale.trim() : "fr",
         target: typeof target === "string" && target.trim() ? target.trim() : null,
         order: Number.isFinite(order) ? Number(order) : 0,
         parentId: parentId ? Number(parentId) : null,
@@ -64,13 +70,14 @@ export const createMenuItem = async (req: Request, res: Response) => {
 export const updateMenuItem = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { label, url, menu, target, order, parentId } = req.body ?? {};
+    const { label, url, menu, locale, target, order, parentId } = req.body ?? {};
     const data = await prisma.menuItem.update({
       where: { id },
       data: {
         ...(label !== undefined ? { label: String(label).trim().slice(0, MAX_LABEL_LENGTH) } : {}),
         ...(url !== undefined ? { url: String(url).trim().slice(0, MAX_URL_LENGTH) } : {}),
         ...(menu !== undefined ? { menu: String(menu).trim().slice(0, MAX_MENU_NAME_LENGTH) } : {}),
+        ...(locale !== undefined ? { locale: String(locale).trim() || "fr" } : {}),
         ...(target !== undefined ? { target: target ? String(target).trim() : null } : {}),
         ...(order !== undefined ? { order: Number(order) } : {}),
         ...(parentId !== undefined ? { parentId: parentId ? Number(parentId) : null } : {}),

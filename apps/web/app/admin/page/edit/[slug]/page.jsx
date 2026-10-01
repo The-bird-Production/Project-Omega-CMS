@@ -3,18 +3,24 @@ import Breadcrumb from '../../../../components/admin/ui/Breadcrumb';
 import LoadingSpinner from '../../../../components/admin/ui/LoadingSpinner';
 import { useEffect, use } from 'react';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { pageSchema } from '../../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { listPageTemplates } from '../../../../../lib/pageTemplates/discoverClient';
+import { routing } from '../../../../../i18n/routing';
 
 const BlockEditor = dynamic(() => import('../../../../components/admin/editor/BlockEditor'), { ssr: false });
 
 export default function Page(props) {
   const params = use(props.params);
   const slug = params.slug;
+  // Which language's row to load — a page's slug alone isn't unique
+  // anymore (see packages/db/prisma/schema.prisma's page model), so the
+  // page list links here with ?locale=xx for anything but French.
+  const locale = useSearchParams().get('locale') || routing.defaultLocale;
 
-  const [formData, setFormData] = useState({ title: '', body: '', slug: '', template: '' });
+  const [formData, setFormData] = useState({ title: '', body: '', slug: '', locale, template: '' });
   const [data, setData] = useState(null);
   const [templates, setTemplates] = useState([]);
 
@@ -28,7 +34,7 @@ export default function Page(props) {
     const fetchdata = async (slug) => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}?locale=${locale}`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -47,6 +53,7 @@ export default function Page(props) {
             title: jsonData.title,
             body: jsonData.body,
             slug: jsonData.slug,
+            locale: jsonData.locale,
             template: jsonData.template || '',
           });
         } else {
@@ -134,6 +141,24 @@ export default function Page(props) {
               onChange={handleChange}
               value={formData.title}
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="pageLocale" className="form-label">
+              Langue
+            </label>
+            <select
+              id="pageLocale"
+              className="form-select"
+              name="locale"
+              value={formData.locale}
+              onChange={handleChange}
+            >
+              {routing.locales.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc.toUpperCase()}
+                </option>
+              ))}
+            </select>
           </div>
           {templates.length > 0 && (
             <div className="mb-3">

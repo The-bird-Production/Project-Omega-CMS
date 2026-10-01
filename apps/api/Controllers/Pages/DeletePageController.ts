@@ -5,11 +5,11 @@ import { revalidateWebPaths } from "../../Functions/RevalidateWeb.js";
 const DeletePage = async (req: Request, res: Response) => {
     const id = parseInt(req.params.id);
     try {
-        const existing = await prisma.page.findUnique({ where: { id }, select: { slug: true } });
+        const existing = await prisma.page.findUnique({ where: { id }, select: { slug: true, locale: true } });
         await prisma.page.delete({ where: {
                 id: id,
             } });
-        await revalidateWebPaths([existing?.slug]);
+        await revalidateWebPaths([existing ? { slug: existing.slug, locale: existing.locale } : null]);
         res.json({ code: 200, message: "Data was successful deleted" });
     }
     catch (error) {

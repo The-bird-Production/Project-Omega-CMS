@@ -1,8 +1,8 @@
-import Layout from "../../components/layout/MainLayout";
+import Layout from "../../../components/layout/MainLayout";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import BlockContent from "../../components/BlockContent";
-import { blocksToPlainText } from "../../../lib/blocks/text";
+import BlockContent from "../../../components/BlockContent";
+import { blocksToPlainText } from "../../../../lib/blocks/text";
 
 async function fetchArticle(slug) {
   try {
