@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { useCreateBlockNote, SuggestionMenuController, getDefaultReactSlashMenuItems } from '@blocknote/react';
+import { useCreateBlockNote, SuggestionMenuController, FormattingToolbarController, getDefaultReactSlashMenuItems } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
@@ -9,6 +9,7 @@ import { createEditorSchema } from '../../../../lib/blocks/schema';
 import { discoverClientBlockSpecs } from '../../../../lib/blocks/discoverClient';
 import { getCoreSlashMenuItems } from '../../../../lib/blocks/core/slashMenu';
 import { uploadImage } from '../../../../lib/blocks/core/uploadImage';
+import { CustomFormattingToolbar } from '../../../../lib/blocks/core/FontStyleToolbar.jsx';
 
 // value: the stored body as a JSON-stringified block array (or '' / null
 // for new content). onChange receives the same JSON-stringified shape, so
@@ -54,7 +55,13 @@ function Editor({ schema, initialContent, onChange }) {
   });
 
   return (
-    <BlockNoteView editor={editor} theme="light" slashMenu={false} onChange={() => onChange(JSON.stringify(editor.document))}>
+    <BlockNoteView
+      editor={editor}
+      theme="light"
+      slashMenu={false}
+      formattingToolbar={false}
+      onChange={() => onChange(JSON.stringify(editor.document))}
+    >
       <SuggestionMenuController
         triggerCharacter="/"
         getItems={async (query) => {
@@ -65,6 +72,11 @@ function Editor({ schema, initialContent, onChange }) {
           );
         }}
       />
+      {/* Adds font-size/font-family selects to the default toolbar (see
+          FontStyleToolbar.jsx) — same override pattern as the slash menu
+          above: disable the view's own default, mount a customized one
+          instead. */}
+      <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
     </BlockNoteView>
   );
 }
