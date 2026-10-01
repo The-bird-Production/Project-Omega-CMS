@@ -106,14 +106,23 @@ model log {
 // this table validates against (a theme can be uninstalled later; the
 // public route falls back to the normal block rendering if the named
 // template is no longer available).
+// locale + a compound (slug, locale) unique, not a global slug unique, so
+// the same slug can have a French and an English row side by side — each
+// is its own independently-written page (manual translation, no
+// machine-translation pipeline), matching how next-intl's routing
+// resolves a locale-prefixed URL to the same slug in a different locale.
+// Existing rows default to "fr" so current content keeps working as-is.
 model page {
   id        Int      @id @default(autoincrement())
-  slug      String   @unique(map: "Page_slug_key")
+  slug      String
+  locale    String   @default("fr")
   title     String
   body      String   @db.Text
   template  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([slug, locale], map: "Page_slug_locale_key")
 }
 
 model redirect {
@@ -132,9 +141,15 @@ model redirect {
 // deliberately not deeper: a real second level covers every self-hosted
 // site this CMS has been used for so far, and a generic infinitely-nested
 // tree is more UI (and admin complexity) than that's worth.
+// locale: each language gets its own full set of rows (same reasoning as
+// page's own locale field) rather than a single shared tree with
+// per-field translations — a menu is small enough that admin duplication
+// across languages is cheap, and this keeps every content type's
+// multilingual story (duplicate-and-translate the whole row) consistent.
 model menuItem {
   id        Int        @id @default(autoincrement())
   menu      String     @default("main")
+  locale    String     @default("fr")
   label     String
   url       String
   target    String?
@@ -147,6 +162,7 @@ model menuItem {
 
   @@index([menu])
   @@index([parentId])
+  @@index([locale])
 }
 
 
@@ -192,10 +208,14 @@ model stats_web {
   @@index([visitorId])
 }
 
+// locale: same reasoning as page's own locale field — a translated
+// article is its own independently-written row, not a shared row with
+// per-field translations.
 model article {
   id          Int      @id @default(autoincrement())
-  title       String   @unique(map: "Article_title_key")
-  slug        String   @unique(map: "Article_slug_key")
+  title       String
+  slug        String
+  locale      String   @default("fr")
   body        String   @db.Text
   image       String?
   authorId    String
@@ -208,6 +228,8 @@ model article {
   // CMS's search/filter feature needs.
   tags        String?
 
+  @@unique([slug, locale], map: "Article_slug_locale_key")
+  @@unique([title, locale], map: "Article_title_locale_key")
   @@index([category])
 }
 

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { confirmAction } from '../../../../lib/confirm';
+import { routing } from '../../../../i18n/routing';
 
 const EMPTY_ITEM = { label: '', url: '', menu: 'main', target: '', order: 0, parentId: '' };
 
@@ -20,11 +21,16 @@ export default function MenuManager() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState(null);
   const [activeMenu, setActiveMenu] = useState('main');
+  const [activeLocale, setActiveLocale] = useState(routing.defaultLocale);
   const [newItem, setNewItem] = useState(EMPTY_ITEM);
 
-  const load = async () => {
+  // Each language keeps its own full set of rows (see schema.prisma's
+  // menuItem model) rather than one shared tree with per-field
+  // translations, so reloading per-locale (not just filtering client-side
+  // once) is what actually shows that locale's real items.
+  const load = async (locale) => {
     try {
-      const { data } = await fetchJson('/menu/all');
+      const { data } = await fetchJson(`/menu/all?locale=${locale}`);
       setItems(data);
     } catch (err) {
       setError(err.message);
@@ -32,8 +38,9 @@ export default function MenuManager() {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    load(activeLocale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeLocale]);
 
   const menuNames = useMemo(() => {
     const names = new Set(['main', 'footer']);
@@ -52,10 +59,10 @@ export default function MenuManager() {
     try {
       await fetchJson('/menu/add', {
         method: 'POST',
-        body: JSON.stringify({ ...newItem, menu: activeMenu, parentId: newItem.parentId || null }),
+        body: JSON.stringify({ ...newItem, menu: activeMenu, locale: activeLocale, parentId: newItem.parentId || null }),
       });
       setNewItem(EMPTY_ITEM);
-      load();
+      load(activeLocale);
     } catch (err) {
       setError(err.message);
     }
@@ -78,7 +85,7 @@ export default function MenuManager() {
           parentId: item.parentId || null,
         }),
       });
-      load();
+      load(activeLocale);
     } catch (err) {
       setError(err.message);
     }
@@ -89,7 +96,7 @@ export default function MenuManager() {
     setError(null);
     try {
       await fetchJson(`/menu/delete/${id}`, { method: 'DELETE' });
-      load();
+      load(activeLocale);
     } catch (err) {
       setError(err.message);
     }
@@ -101,17 +108,31 @@ export default function MenuManager() {
     <div>
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <div className="btn-group mb-3" role="group">
-        {menuNames.map((name) => (
-          <button
-            key={name}
-            type="button"
-            className={`btn btn-sm ${activeMenu === name ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveMenu(name)}
-          >
-            {name}
-          </button>
-        ))}
+      <div className="d-flex gap-2 mb-3">
+        <div className="btn-group" role="group">
+          {menuNames.map((name) => (
+            <button
+              key={name}
+              type="button"
+              className={`btn btn-sm ${activeMenu === name ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveMenu(name)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+        <div className="btn-group" role="group">
+          {routing.locales.map((locale) => (
+            <button
+              key={locale}
+              type="button"
+              className={`btn btn-sm ${activeLocale === locale ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveLocale(locale)}
+            >
+              {locale.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
       {itemsForActiveMenu.length === 0 ? (
@@ -225,7 +246,7 @@ export default function MenuManager() {
         <div className="col-md-3">
           <button type="submit" className="btn btn-primary w-100">
             <i className="bi bi-plus-circle me-1" />
-            Ajouter à « {activeMenu} »
+            Ajouter à « {activeMenu} » ({activeLocale.toUpperCase()})
           </button>
         </div>
       </form>

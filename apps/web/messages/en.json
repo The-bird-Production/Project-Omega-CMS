@@ -1,0 +1,65 @@
+{
+  "Common": {
+    "loading": "Loading..."
+  },
+  "Layout": {
+    "siteName": "Omega CMS",
+    "siteDescription": "Site powered by Omega CMS.",
+    "themeLoading": "Loading theme...",
+    "themeErrorTitle": "Critical error while loading the initial theme:",
+    "themeRetry": "Retry"
+  },
+  "Home": {
+    "title": "Home",
+    "welcome": "Welcome to Omega",
+    "startEditing": "Edit the code to see changes."
+  },
+  "ArticleList": {
+    "title": "Articles",
+    "description": "All published articles.",
+    "searchPlaceholder": "Search for an article...",
+    "allCategories": "All categories",
+    "allTags": "All tags",
+    "submit": "OK",
+    "noResults": "No articles match your search.",
+    "by": "By",
+    "loadError": "Error loading articles:",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "ArticleDetail": {
+    "notFound": "Article not found",
+    "publishedOn": "Published on",
+    "loadError": "Error loading article:"
+  },
+  "Page": {
+    "notFound": "Page not found",
+    "notFoundBody": "The requested content doesn't exist.",
+    "genericError": "Error",
+    "loadError": "Unable to load this page right now."
+  },
+  "Admin": {
+    "checkingPermissions": "Checking permissions...",
+    "signOut": "Sign out",
+    "notificationsTitle": "Recent activity",
+    "noNotifications": "No notifications yet.",
+    "toggleSidebar": "Show/hide menu",
+    "nav": {
+      "site": "Site",
+      "dashboard": "Dashboard",
+      "stats": "Stats",
+      "content": "Content",
+      "articles": "Articles",
+      "pages": "Pages",
+      "images": "Images",
+      "users": "Users",
+      "addons": "Add-ons",
+      "plugins": "Plugins",
+      "themes": "Themes",
+      "other": "Other",
+      "redirects": "Redirects",
+      "menus": "Menus",
+      "logs": "Logs"
+    }
+  }
+}

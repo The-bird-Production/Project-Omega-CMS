@@ -37,8 +37,8 @@ export default function PageList() {
     return () => clearInterval(intervalId);
   }, []);
 
-  const editPage = (slug) => {
-    router.push(`/admin/page/edit/${slug}`);
+  const editPage = (slug, locale) => {
+    router.push(`/admin/page/edit/${slug}?locale=${locale}`);
   };
 
   const delPage = async (id) => {
@@ -68,11 +68,13 @@ export default function PageList() {
   return rowData.map((item, index) => (
     <div className="card card-body m-3 bg-primary text-white" key={index}>
       <div className="container row">
-        <div className="col-10">{item.title}</div>
+        <div className="col-10">
+          {item.title} <span className="badge bg-secondary">{(item.locale || 'fr').toUpperCase()}</span>
+        </div>
         <div className="col-2">
           <button
             className="btn btn-secondary m-1"
-            onClick={() => editPage(item.slug)}
+            onClick={() => editPage(item.slug, item.locale || 'fr')}
           >
             <i className="bi bi-pencil-square"></i>
           </button>

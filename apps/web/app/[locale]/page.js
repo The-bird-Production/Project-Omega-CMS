@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import Layout from "./components/layout/MainLayout";
-import BlockContent from "./components/BlockContent";
+import Layout from "../components/layout/MainLayout";
+import BlockContent from "../components/BlockContent";
 
 // The home page used to be the one route with no way to edit its content
 // at all — a hardcoded placeholder, unrelated to the `page` table every
@@ -16,9 +16,9 @@ export const revalidate = 60;
 
 const HOME_SLUG = "home";
 
-async function fetchHomePage() {
+async function fetchHomePage(locale) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${HOME_SLUG}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${HOME_SLUG}?locale=${locale}`);
     if (!res.ok) return null;
     const data = await res.json();
     return data?.data ?? null;
@@ -27,8 +27,9 @@ async function fetchHomePage() {
   }
 }
 
-export default async function Home() {
-  const page = await fetchHomePage();
+export default async function Home(props) {
+  const { locale } = await props.params;
+  const page = await fetchHomePage(locale);
 
   if (!page) {
     const t = await getTranslations("Home");

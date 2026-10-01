@@ -1,15 +1,15 @@
-// Next.js will invalidate the cache when a request comes in, at most once every 60 seconds.
+// Next.js will invalidate the cache when a request comes in, at most every 60 seconds.
 import { getTranslations } from "next-intl/server"
-import Layout from "../components/layout/MainLayout"
-import BlockContent from "../components/BlockContent"
-import { blocksToPlainText } from "../../lib/blocks/text"
-import { getPageTemplateComponent } from "../../lib/pageTemplates/render"
+import Layout from "../../components/layout/MainLayout"
+import BlockContent from "../../components/BlockContent"
+import { blocksToPlainText } from "../../../lib/blocks/text"
+import { getPageTemplateComponent } from "../../../lib/pageTemplates/render"
 
 export const revalidate = 60
 export const dynamicParams = true // Permet de générer à la volée si la page n’existe pas au build
 
-async function fetchPage(slug) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}`)
+async function fetchPage(slug, locale) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/page/get/${slug}?locale=${locale}`)
   if (!res.ok) return null
   const data = await res.json()
   return data?.data ?? null
@@ -19,7 +19,7 @@ export async function generateMetadata(props) {
   const params = await props.params
   const t = await getTranslations("Page")
   try {
-    const page = await fetchPage(params.slug)
+    const page = await fetchPage(params.slug, params.locale)
     if (!page) {
       return { title: t("notFound") }
     }
@@ -28,7 +28,10 @@ export async function generateMetadata(props) {
     const description = text.length > 160 ? `${text.slice(0, 157)}...` : text
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ""
-    const pageUrl = siteUrl ? `${siteUrl.replace(/\/$/, "")}/${encodeURIComponent(params.slug)}` : undefined
+    // The default locale (fr) keeps unprefixed URLs (see i18n/routing.js),
+    // so only a non-default locale needs its prefix added here.
+    const localePrefix = params.locale === "fr" ? "" : `/${params.locale}`
+    const pageUrl = siteUrl ? `${siteUrl.replace(/\/$/, "")}${localePrefix}/${encodeURIComponent(params.slug)}` : undefined
 
     return {
       title: page.title,
@@ -60,6 +63,7 @@ export async function generateStaticParams() {
     }
 
     return pages.map((page) => ({
+      locale: String(page.locale || "fr"),
       slug: String(page.slug),
     }))
   } catch (err) {
@@ -74,7 +78,7 @@ export default async function Page(props) {
   const t = await getTranslations("Page");
   const pathname = `/${params.slug}`;
   try {
-    const page = await fetchPage(params.slug)
+    const page = await fetchPage(params.slug, params.locale)
 
     if (!page) {
       return (

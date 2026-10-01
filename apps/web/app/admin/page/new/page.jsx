@@ -5,11 +5,12 @@ import { pageSchema } from '../../../../lib/schema';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { listPageTemplates } from '../../../../lib/pageTemplates/discoverClient';
+import { routing } from '../../../../i18n/routing';
 
 const BlockEditor = dynamic(() => import('../../../components/admin/editor/BlockEditor'), { ssr: false });
 
 export default function Page() {
-  const [formData, setFormData] = useState({ title: '', body: '', slug: '', template: '' });
+  const [formData, setFormData] = useState({ title: '', body: '', slug: '', locale: routing.defaultLocale, template: '' });
   const [templates, setTemplates] = useState([]);
   const router = useRouter();
 
@@ -73,6 +74,27 @@ export default function Page() {
               name="title"
               onChange={handleChange}
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="pageLocale" className="form-label">
+              Langue
+            </label>
+            <select
+              id="pageLocale"
+              className="form-select"
+              name="locale"
+              value={formData.locale}
+              onChange={handleChange}
+            >
+              {routing.locales.map((locale) => (
+                <option key={locale} value={locale}>
+                  {locale.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <div className="form-text">
+              Une page par langue, même URL : créez-en une pour chaque langue à traduire.
+            </div>
           </div>
           {templates.length > 0 && (
             <div className="mb-3">
