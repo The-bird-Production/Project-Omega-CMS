@@ -55,7 +55,16 @@ const CreateImage = async (req: Request, res: Response) => {
             return res.status(400).json({ code: 400, message: "Chemin non autorisé." });
         }
 
-        // ✅ Déplacement du fichier
+        // ✅ Déplacement du fichier — FINAL_DIR itself is gitignored runtime
+        // data (see apps/api/.gitignore's /Public/), never created by
+        // anything else up front (unlike multer's own tmp destination,
+        // which multer itself mkdir's recursively on startup). Without
+        // this, a missing FINAL_DIR made fs.rename fail with the exact
+        // same ENOENT as a genuinely gone temp file, misreported as "upload
+        // interrupted, retry" below even though retrying could never fix
+        // it — confirmed as the actual cause of a real "impossible to
+        // upload" report, not just a rare race.
+        await fs.mkdir(FINAL_DIR, { recursive: true });
         try {
             await fs.rename(tmpPath, finalPath);
         } catch (renameErr) {
@@ -127,7 +136,9 @@ const CreateArticleImage = async (req: Request, res: Response) => {
             return res.status(400).json({ code: 400, message: "Chemin non autorisé." });
         }
 
-        // ✅ Déplacement du fichier
+        // ✅ Déplacement du fichier — see CreateImage above for why this
+        // mkdir has to happen here.
+        await fs.mkdir(FINAL_DIR, { recursive: true });
         try {
             await fs.rename(tmpPath, finalPath);
         } catch (renameErr) {
