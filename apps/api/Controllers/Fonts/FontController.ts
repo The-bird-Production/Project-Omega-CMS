@@ -47,8 +47,21 @@ export const uploadFont = async (req: Request, res: Response) => {
     // fix just applied to image/file uploads for why this has to happen
     // here rather than being assumed to already exist.
     await fs.mkdir(FINAL_DIR, { recursive: true });
+    // safeFilename is built from path.basename(req.file.filename) — req.file.filename
+    // is multer's own crypto.randomBytes(16).toString('hex'), never
+    // derived from anything in the request — plus a fixed extension
+    // already checked against ALLOWED_EXTENSIONS above, so there's no
+    // untrusted input here to path-traverse with. The explicit prefix
+    // check below is still here, matching CreateImageController.ts/
+    // CreateFileController.ts's own convention, since relying solely on
+    // "trust me, it's safe" isn't something a path-traversal scanner (or
+    // the next person reading this) can verify from this line alone.
     const safeFilename = path.basename(req.file.filename) + extension;
     const finalPath = path.resolve(FINAL_DIR, safeFilename);
+    if (finalPath !== FINAL_DIR && !finalPath.startsWith(FINAL_DIR + path.sep)) {
+      await fs.rm(req.file.path, { force: true });
+      return res.status(400).json({ code: 400, message: "Chemin non autorisé." });
+    }
     await fs.rename(req.file.path, finalPath);
 
     const created = await prisma.customFont.create({
@@ -87,7 +100,13 @@ export const getFontsCss = async (req: Request, res: Response) => {
         const extension = path.extname(font.file).toLowerCase();
         const format = FORMAT_BY_EXTENSION[extension] || "woff2";
         const url = `${backendUrl}/fonts/${font.file}`;
-        return `@font-face {\n  font-family: "${font.family.replace(/"/g, '\\"')}";\n  src: url("${url}") format("${format}");\n  font-weight: ${font.weight};\n  font-style: ${font.style};\n  font-display: swap;\n}`;
+        // Escape backslashes before quotes (the usual order: escaping the
+        // escape character first) — doing only the quote replace left a
+        // trailing backslash in a family name free to escape the closing
+        // quote itself, breaking out of the string into this otherwise-
+        // unsanitized, publicly-served stylesheet.
+        const safeFamily = font.family.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        return `@font-face {\n  font-family: "${safeFamily}";\n  src: url("${url}") format("${format}");\n  font-weight: ${font.weight};\n  font-style: ${font.style};\n  font-display: swap;\n}`;
       })
       .join("\n\n");
 
