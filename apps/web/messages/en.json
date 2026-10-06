@@ -44,6 +44,8 @@
     "notificationsTitle": "Recent activity",
     "noNotifications": "No notifications yet.",
     "toggleSidebar": "Show/hide menu",
+    "themeToNight": "Switch to night mode",
+    "themeToDay": "Switch to day mode",
     "nav": {
       "site": "Site",
       "dashboard": "Dashboard",

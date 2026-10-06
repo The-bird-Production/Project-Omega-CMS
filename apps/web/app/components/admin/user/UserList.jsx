@@ -55,7 +55,7 @@ export default function UserList() {
   }
 
   return rowData.map((item, index) => (
-    <div className="card card-body m-3 bg-primary text-white" key={index}>
+    <div className="card card-body m-3 admin-list-card" key={index}>
       <div className="container row">
         <div className="col-10">Nom : {item.name}</div>
         <div className="col-10">Email : {item.email}</div>

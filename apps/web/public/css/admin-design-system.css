@@ -244,6 +244,20 @@ body {
   box-shadow: var(--omega-shadow);
 }
 
+/* List items / stat blocks that used to be forced to the accent colour
+   (bg-primary text-white => a heavy violet slab on an otherwise light
+   admin) — now a plain surface so they match the rest of the panel and
+   follow night mode through the tokens. */
+.card.admin-list-card,
+.list-group-item.admin-list-card {
+  background: var(--omega-surface);
+  color: var(--omega-text);
+  border: 1px solid var(--omega-border);
+}
+.card.admin-list-card {
+  border-radius: var(--omega-radius-sm);
+}
+
 /* ---------- Empty state ---------- */
 .admin-empty-state {
   text-align: center;
@@ -260,4 +274,62 @@ body {
 /* ---------- Breadcrumb ---------- */
 .admin-breadcrumb {
   margin-bottom: var(--omega-space-4);
+}
+
+/* ---------- Night mode ----------
+ * Toggled by lib/adminTheme.js, which sets data-bs-theme="dark" on <html>
+ * (admin.css already ships Bootstrap's own dark rules for that attribute;
+ * these override the tokens it doesn't know about). The doubled specificity
+ * beats the plain :root block above regardless of load order. */
+:root[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --omega-bg: #12131f;
+  --omega-surface: #1b1d30;
+  --omega-surface-alt: #23263c;
+  --omega-border: rgba(255, 255, 255, 0.12);
+  --omega-text: #e8eaf6;
+  --omega-text-muted: rgba(232, 234, 246, 0.62);
+  --omega-accent: #818cf8;
+  --omega-accent-soft: rgba(129, 140, 248, 0.16);
+  --omega-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --bs-light-rgb: 232, 234, 246;
+  --bs-primary-rgb: 129, 140, 248;
+  --bs-secondary-rgb: 27, 29, 48;
+  --bs-link-color-rgb: 129, 140, 248;
+  --bs-link-hover-color: #a5b4fc;
+  --bs-link-hover-color-rgb: 165, 180, 252;
+  --bs-border-color: var(--omega-border);
+  --bs-emphasis-color: #fff;
+}
+:root[data-bs-theme="dark"] .btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #5b5bd6;
+  --bs-btn-border-color: #5b5bd6;
+  --bs-btn-hover-bg: #6d6de0;
+  --bs-btn-hover-border-color: #6d6de0;
+  --bs-btn-active-bg: #4f4fc4;
+  --bs-btn-active-border-color: #4f4fc4;
+  --bs-btn-disabled-bg: #5b5bd6;
+  --bs-btn-disabled-border-color: #5b5bd6;
+}
+:root[data-bs-theme="dark"] .admin-sidebar-backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+:root[data-bs-theme="dark"] .form-control,
+:root[data-bs-theme="dark"] .form-select {
+  background-color: var(--omega-surface-alt);
+  border-color: var(--omega-border);
+  color: var(--omega-text);
+}
+
+.admin-theme-toggle {
+  background: transparent;
+  border: 1px solid var(--omega-border);
+  color: var(--omega-text);
+  border-radius: var(--omega-radius-sm);
+  padding: 0.25rem 0.6rem;
+  line-height: 1.4;
+}
+.admin-theme-toggle:hover {
+  background: var(--omega-accent-soft);
 }

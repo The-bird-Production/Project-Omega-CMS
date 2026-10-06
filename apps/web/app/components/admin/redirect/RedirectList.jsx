@@ -63,7 +63,7 @@ export default function RedirectList() {
   
 
   return rowData.map((item, index) => (
-    <div className="card card-body m-3 bg-primary text-white" key={index}>
+    <div className="card card-body m-3 admin-list-card" key={index}>
       <div className="container row">
         <div className="col-10">From : {item.from}</div>
         <div className="col-10">To : {item.to}</div>
