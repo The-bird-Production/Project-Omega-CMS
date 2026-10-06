@@ -29,5 +29,10 @@ export async function uploadImage(file, { retriesLeft = 1 } = {}) {
   }
 
   const data = await res.json();
+  // Prefer building the URL from this app's own configured backend address
+  // over the API's `url`: that one depends on the API's BACKEND_URL env var,
+  // which some deployments never set (it came back as "undefined/image/..."
+  // and the uploaded image never displayed in the editor).
+  if (data.file) return `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/${data.file}`;
   return data.url;
 }

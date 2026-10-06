@@ -31,9 +31,19 @@ const galleryImageSpec = createReactBlockSpec(
         );
       }
       return (
-        <div>
+        <div className="omega-gallery-image-cell">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="omega-gallery-image" src={block.props.url} alt={block.props.alt} />
+          {editable && (
+            <button
+              type="button"
+              className="omega-gallery-image-remove"
+              aria-label="Retirer cette photo"
+              onClick={() => editor.removeBlocks([block])}
+            >
+              ×
+            </button>
+          )}
           {editable && (
             <input
               className="omega-block-inline-input"
@@ -68,7 +78,24 @@ const gallerySpec = createReactBlockSpec(
   { type: 'gallery', propSchema: {}, content: 'none' },
   {
     render: ({ block, editor }) => {
-      if (editor.isEditable) return <div className="omega-gallery" />;
+      if (editor.isEditable) {
+        // One control to add any number of photos at once (several files
+        // from disk, or several ticked from the library) instead of adding
+        // a block per photo and picking its image one at a time. Appends
+        // after the existing photos, dropping any still-empty placeholder
+        // cells so they don't pile up in front of the new ones.
+        const addImages = (urls) => {
+          const current = editor.getBlock(block.id);
+          const kept = (current?.children || []).filter((child) => child.props?.url);
+          const added = urls.map((url) => ({ type: 'galleryImage', props: { url } }));
+          editor.updateBlock(block, { children: [...kept, ...added] });
+        };
+        return (
+          <div className="omega-gallery omega-gallery-toolbar">
+            <ImagePicker multiple uploadLabel="Ajouter des photos" onSelect={addImages} />
+          </div>
+        );
+      }
 
       const images = (block.children || []).filter((child) => child.type === 'galleryImage' && child.props?.url);
       if (images.length === 0) return <div className="omega-gallery omega-gallery-carousel-active" />;
