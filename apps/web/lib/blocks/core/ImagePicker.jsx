@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { uploadImage } from './uploadImage';
+import { fetchImageLibrary } from './imageLibrary';
 
 // Used by Cover's banner and Gallery's photos — lets an admin either
 // upload a new file (as before) or reuse an image that's already on the
@@ -26,20 +27,7 @@ export default function ImagePicker({ onSelect, multiple = false, uploadLabel = 
     if (images) return;
     setLoading(true);
     try {
-      const [uploadsRes, themeRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/image/get/all`, { credentials: 'include' })
-          .then((r) => (r.ok ? r.json() : null))
-          .catch(() => null),
-        fetch('/api/theme-images')
-          .then((r) => (r.ok ? r.json() : null))
-          .catch(() => null),
-      ]);
-      const uploaded = (uploadsRes?.data?.files || []).map((f) => ({
-        name: f.title || f.file,
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/${f.file}`,
-      }));
-      const theme = (themeRes?.images || []).map((img) => ({ ...img, fromTheme: true }));
-      setImages([...theme, ...uploaded]);
+      setImages(await fetchImageLibrary());
     } finally {
       setLoading(false);
     }
