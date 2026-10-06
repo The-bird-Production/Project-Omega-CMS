@@ -4,6 +4,11 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.js');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The sign-in page has always lived at /auth/signin, but /auth/login is
+  // the URL people naturally type (and kept bookmarking) — it just 404'd.
+  async redirects() {
+    return [{ source: '/auth/login', destination: '/auth/signin', permanent: false }];
+  },
   async rewrites() {
     return [
       // Proxy pour les fichiers de plugins
