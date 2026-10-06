@@ -247,6 +247,21 @@ model articleSaved {
 
 }
 
+// A custom web font an admin uploaded for the active theme to use (see
+// apps/api/Controllers/Fonts/FontController.ts) — several rows can share
+// the same `family` name (e.g. one per weight/style, like a regular and a
+// bold cut of the same typeface), each becoming its own @font-face rule.
+model customFont {
+  id        Int      @id @default(autoincrement())
+  family    String
+  file      String
+  weight    String   @default("400")
+  style     String   @default("normal")
+  createdAt DateTime @default(now())
+
+  @@index([family])
+}
+
 // Singleton row (id always 1) holding this instance's auto-update preferences.
 // Written/read by the update checker introduced in a later phase; the schema
 // lands now so the admin UI and updater can be built against a stable shape.

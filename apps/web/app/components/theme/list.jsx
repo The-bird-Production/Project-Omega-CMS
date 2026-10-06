@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { confirmAction } from "../../../lib/confirm";
 import FaviconSettings from "./FaviconSettings";
+import FontSettings from "./FontSettings";
 
 const ThemePage = () => {
   const [themes, setThemes] = useState([]);
@@ -134,6 +135,7 @@ const ThemePage = () => {
   return (
     <>
       <FaviconSettings />
+      <FontSettings />
       <div className="card card-body bg-secondary">
         <h5 className="card-title">Liste des Thèmes Installés</h5>
       <button className="btn btn-primary mb-3" onClick={checkUpdates} disabled={checkingUpdates || themes.length === 0}>
