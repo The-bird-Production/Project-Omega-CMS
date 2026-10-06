@@ -39,7 +39,13 @@ else if (process.env.NODE_ENV == "production") {
     console.log("Backend running in production mod");
     app.use(morgan("combined"));
 }
-app.use(helmet());
+// The web app is served from a different origin than this API, and loads
+// uploaded images/fonts/favicons from here with plain <img>/CSS requests.
+// helmet's default Cross-Origin-Resource-Policy (same-origin) makes the
+// browser refuse those (ERR_BLOCKED_BY_RESPONSE.NotSameOrigin) unless the
+// request happens to be a CORS one (e.g. <img crossorigin>), so uploaded
+// images worked in the admin Images list but not in the editor or on pages.
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(compression());
 app.use(morgan("dev"));
 // Tracks every request regardless of which route below eventually handles
