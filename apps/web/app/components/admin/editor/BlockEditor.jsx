@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { useCreateBlockNote, SuggestionMenuController, FormattingToolbarController, getDefaultReactSlashMenuItems } from '@blocknote/react';
+import { useCreateBlockNote, SuggestionMenuController, FormattingToolbarController, FilePanelController, getDefaultReactSlashMenuItems } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
@@ -9,6 +9,8 @@ import { createEditorSchema } from '../../../../lib/blocks/schema';
 import { discoverClientBlockSpecs } from '../../../../lib/blocks/discoverClient';
 import { getCoreSlashMenuItems } from '../../../../lib/blocks/core/slashMenu';
 import { uploadImage } from '../../../../lib/blocks/core/uploadImage';
+import LibraryFilePanel from '../../../../lib/blocks/core/LibraryFilePanel.jsx';
+import { fixLegacyUploadUrls } from '../../../../lib/blocks/legacyUrls';
 import { CustomFormattingToolbar } from '../../../../lib/blocks/core/FontStyleToolbar.jsx';
 
 // value: the stored body as a JSON-stringified block array (or '' / null
@@ -30,7 +32,7 @@ export default function BlockEditor({ value, onChange }) {
   const initialContent = useMemo(() => {
     if (!value) return undefined;
     try {
-      const parsed = JSON.parse(value);
+      const parsed = JSON.parse(fixLegacyUploadUrls(value));
       return Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
     } catch {
       return undefined;
@@ -60,6 +62,7 @@ function Editor({ schema, initialContent, onChange }) {
       theme="light"
       slashMenu={false}
       formattingToolbar={false}
+      filePanel={false}
       onChange={() => onChange(JSON.stringify(editor.document))}
     >
       <SuggestionMenuController
@@ -77,6 +80,9 @@ function Editor({ schema, initialContent, onChange }) {
           above: disable the view's own default, mount a customized one
           instead. */}
       <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
+      {/* Image/file blocks' upload panel, plus a tab to reuse existing
+          images (see LibraryFilePanel.jsx). */}
+      <FilePanelController filePanel={LibraryFilePanel} />
     </BlockNoteView>
   );
 }

@@ -2,6 +2,7 @@ import { ServerBlockNoteEditor } from '@blocknote/server-util';
 import { defaultBlockSpecs } from '@blocknote/core';
 import { createEditorSchema } from './schema.js';
 import { discoverServerBlockSpecs } from './discoverServer.js';
+import { fixLegacyUploadUrls } from './legacyUrls';
 
 const DEFAULT_BLOCK_TYPES = new Set(Object.keys(defaultBlockSpecs));
 
@@ -50,7 +51,7 @@ export async function prepareBlockContent(bodyJson) {
 
   let blocks;
   try {
-    blocks = JSON.parse(bodyJson);
+    blocks = JSON.parse(fixLegacyUploadUrls(bodyJson));
   } catch {
     return { mode: 'empty' };
   }

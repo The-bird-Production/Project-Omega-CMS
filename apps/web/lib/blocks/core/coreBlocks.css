@@ -194,6 +194,11 @@ body {
   display: block;
 }
 
+.omega-file-panel-library {
+  width: 320px;
+  max-height: 240px;
+  overflow-y: auto;
+}
 .omega-image-picker-thumb.is-chosen {
   outline: 3px solid #4338ca;
   outline-offset: -3px;

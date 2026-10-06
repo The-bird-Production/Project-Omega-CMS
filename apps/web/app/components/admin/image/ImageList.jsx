@@ -40,36 +40,32 @@ export default function Component() {
   }, []);
 
   const delImage = async (id) => {
-    if (status === 'authenticated') {
-      const token = session.accessToken || session.user.accessToken;
-      setLoadingIds((prev) => new Set(prev).add(id)); // Add id to loading set
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/image/delete/${id}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            mode: 'cors',
-          }
-        );
+    if (!window.confirm('Supprimer cette image ?')) return;
+    setLoadingIds((prev) => new Set(prev).add(id)); // Add id to loading set
+    try {
+      // Session cookie, like every other admin call: this used to read a
+      // NextAuth `session`/`status` that no longer exist, so clicking the
+      // trash icon threw a ReferenceError and nothing was ever deleted.
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/image/delete/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        mode: 'cors',
+      });
 
-        if (res.ok) {
-          setRowData((prevData) => prevData.filter((item) => item.id !== id));
-        } else {
-          console.error('Failed to delete image:', res.statusText);
-        }
-      } catch (error) {
-        console.error('Error deleting image:', error);
-      } finally {
-        setLoadingIds((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(id); // Remove id from loading set
-          return newSet;
-        });
+      if (res.ok) {
+        setRowData((prevData) => prevData.filter((item) => item.id !== id));
+      } else {
+        console.error('Failed to delete image:', res.statusText);
+        window.alert("Impossible de supprimer l'image.");
       }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    } finally {
+      setLoadingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id); // Remove id from loading set
+        return newSet;
+      });
     }
   };
 
