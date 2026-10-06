@@ -102,7 +102,7 @@ export function getCoreSlashMenuItems(editor) {
       subtext: 'Une grille de plusieurs images',
       aliases: ['galerie', 'gallery', 'photos'],
       group: 'Médias',
-      onItemClick: () => insertCoreBlock(editor, { type: 'gallery', children: [{ type: 'galleryImage' }] }),
+      onItemClick: () => insertCoreBlock(editor, { type: 'gallery' }),
     },
     {
       key: 'embed',

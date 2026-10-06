@@ -165,7 +165,13 @@ const CreateArticleImage = async (req: Request, res: Response) => {
         return res.status(201).json({
             code: 201,
             message: "Image créée avec succès.",
-            url: `${process.env.BACKEND_URL}/image/${safeFilename}`,
+            // BACKEND_URL isn't set in every deployment (the official compose
+            // file didn't pass it for a long time) — without a fallback this
+            // produced "undefined/image/x.png", a URL that can't load, so the
+            // freshly uploaded image never showed in the editor. `file` lets
+            // the client build the URL from its own NEXT_PUBLIC_BACKEND_URL.
+            url: `${process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`}/image/${safeFilename}`,
+            file: safeFilename,
         });
     } catch (e) {
         console.error("Erreur CreateImage:", e);
