@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import AdminNavBar from './AdminNavBar';
 import AdminHeader from './AdminHeader';
 import { authClient } from '../../../lib/authClient';
+import { applyTheme, clearTheme, getStoredTheme } from '../../../lib/adminTheme';
 
 // Single shared chrome for every /admin/* page: sidebar + topbar + the
 // admin-only permission gate. Every page used to wrap itself individually in
@@ -24,6 +25,14 @@ export default function AdminShell({ children }) {
   // AdminLayout component this replaces used to.
   useEffect(() => {
     require('../../../public/js/bootstrap.bundle.min.js');
+  }, []);
+
+  // Night mode is an admin-only preference: set data-bs-theme on <html>
+  // while the shell is mounted and remove it again on leaving /admin so the
+  // public site never inherits it.
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+    return clearTheme;
   }, []);
 
   useEffect(() => {

@@ -44,6 +44,8 @@
     "notificationsTitle": "Activité récente",
     "noNotifications": "Aucune notification pour le moment.",
     "toggleSidebar": "Afficher/masquer le menu",
+    "themeToNight": "Passer en mode nuit",
+    "themeToDay": "Passer en mode jour",
     "nav": {
       "site": "Site",
       "dashboard": "Tableau de bord",

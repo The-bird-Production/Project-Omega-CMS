@@ -77,7 +77,7 @@ export default function ArticleList() {
     return <div className="text-center">No articles found.</div>;
   }
   return rowData.map((item, index) => (
-    <div className="card card-body m-3 bg-primary text-white" key={index}>
+    <div className="card card-body m-3 admin-list-card" key={index}>
       <div className='container row'>
         <div className="col-10">{item.title}</div>
         <div className="col-2">

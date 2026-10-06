@@ -149,7 +149,7 @@ export default function LogList() {
         </div>
 
         {rowData.map((item) => (
-          <div className="card card-body m-3 bg-primary text-white" key={item.id}>
+          <div className="card card-body m-3 admin-list-card" key={item.id}>
             <div className="container row">
               <div className="col-1">
                 <input

@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { useSession, signOut } from "../../../lib/authClient";
 import AdminNotifications from "./notifications/AdminNotifications";
+import ThemeToggle from "./ThemeToggle";
 
 export default function AdminHeader({ onToggleSidebar }) {
   const t = useTranslations();
@@ -18,6 +19,7 @@ export default function AdminHeader({ onToggleSidebar }) {
       </button>
 
       <div className="d-flex gap-2 align-items-center ms-auto">
+        <ThemeToggle />
         <AdminNotifications />
         {isPending ? (
           <div>{t("Common.loading")}</div>
