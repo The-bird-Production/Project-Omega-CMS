@@ -6,6 +6,7 @@
 // all become opaque client-reference stubs when imported server-side.
 // Only ever actually imported by BlockEditor.jsx (already 'use client'),
 // so this file itself is never reached from server code.
+import { useEffect, useState } from 'react';
 import { useComponentsContext, useBlockNoteEditor, useEditorState, FormattingToolbar, getFormattingToolbarItems } from '@blocknote/react';
 import { FONT_SIZES, FONT_FAMILIES } from './textStyles.js';
 
@@ -40,8 +41,44 @@ export function FontSizeSelect() {
   return useStyleSelectItems('fontSize', FONT_SIZES);
 }
 
+// Fonts an admin uploaded under Thèmes > Polices personnalisées. Their
+// @font-face rules are already loaded on every page (see app/layout.js), so
+// choosing one here only needs the family name. Fetched once per page load
+// (a failed fetch isn't cached, so the next toolbar mount retries).
+let customFamiliesPromise = null;
+function loadCustomFamilies() {
+  if (!customFamiliesPromise) {
+    customFamiliesPromise = fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fonts/all`, { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(res.statusText))))
+      .then((data) => [...new Set((data.data || []).map((font) => font.family))])
+      .catch(() => {
+        customFamiliesPromise = null;
+        return [];
+      });
+  }
+  return customFamiliesPromise;
+}
+
 export function FontFamilySelect() {
-  return useStyleSelectItems('fontFamily', FONT_FAMILIES);
+  const [customFamilies, setCustomFamilies] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCustomFamilies().then((families) => {
+      if (!cancelled) setCustomFamilies(families);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Same escaping as the API's generated @font-face rule, so the quoted
+  // name matches the declared one exactly.
+  const customOptions = customFamilies.map((family) => ({
+    label: `${family} (importée)`,
+    value: `"${family.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}", sans-serif`,
+  }));
+  return useStyleSelectItems('fontFamily', [...FONT_FAMILIES, ...customOptions]);
 }
 
 // Passed to <FormattingToolbarController formattingToolbar={...}> in
