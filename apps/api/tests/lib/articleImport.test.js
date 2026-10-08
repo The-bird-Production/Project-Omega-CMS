@@ -1,18 +1,11 @@
-const { parseArgs, cleanLegacyHtml, hoistImages, collectImageSources, replaceImageSources } = await import(
-  "../../scripts/import-articles.mjs"
+import { jest } from "@jest/globals";
+
+jest.unstable_mockModule("@omega/db", () => ({ prisma: {} }));
+jest.unstable_mockModule("@blocknote/server-util", () => ({ ServerBlockNoteEditor: { create: () => ({}) } }));
+
+const { cleanLegacyHtml, hoistImages, collectImageSources, replaceImageSources, normalizeSourceUrl } = await import(
+  "../../lib/articleImport.js"
 );
-
-describe("parseArgs", () => {
-  test("reads every option, ignoring pnpm's -- separator", () => {
-    expect(
-      parseArgs(["--", "--source", "https://old.example", "--author", "a@b.c", "--backend-url", "https://api.example", "--dry-run"])
-    ).toEqual({ source: "https://old.example", author: "a@b.c", backendUrl: "https://api.example", dryRun: true });
-  });
-
-  test("rejects unknown options instead of silently ignoring a typo", () => {
-    expect(() => parseArgs(["--sourc", "x"])).toThrow("Option inconnue");
-  });
-});
 
 describe("cleanLegacyHtml", () => {
   test("drops Office namespaced tags, conditional comments and empty paragraphs", () => {
@@ -48,5 +41,17 @@ describe("image sources", () => {
     expect(replaceImageSources(html, mapping)).toBe(
       '<img src="https://new/image/1.jpg"><p>x</p><img alt="b" src=\'/image/b.png\'><img src="https://new/image/1.jpg">'
     );
+  });
+});
+
+describe("normalizeSourceUrl", () => {
+  test("trims spaces and trailing slashes", () => {
+    expect(normalizeSourceUrl("  https://backend.example.fr/ ")).toBe("https://backend.example.fr");
+  });
+
+  test("rejects anything that isn't an http(s) URL", () => {
+    expect(() => normalizeSourceUrl("file:///etc/passwd")).toThrow();
+    expect(() => normalizeSourceUrl("backend.example.fr")).toThrow();
+    expect(() => normalizeSourceUrl(undefined)).toThrow();
   });
 });
