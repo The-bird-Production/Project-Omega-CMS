@@ -18,6 +18,7 @@
     "test:setup": "dotenv -e .env.test -- pnpm --filter @omega/db run migrate:reset && dotenv -e .env.test -- pnpm --filter @omega/db run db:push",
     "test:watch": "npm run test -- --watch",
     "migrate:content-to-blocks": "node scripts/migrate-content-to-blocks.mjs",
+    "import-articles": "node scripts/import-articles.mjs",
     "manage-users": "tsx scripts/manage-users.mts"
   },
   "dependencies": {

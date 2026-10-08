@@ -3,7 +3,7 @@ import { Link } from "../../../i18n/navigation";
 import Layout from "../../components/layout/MainLayout";
 import ArticleFilters from "../../components/article/ArticleFilters";
 import ArticlePagination from "../../components/article/ArticlePagination";
-import { blocksToPlainText } from "../../../lib/blocks/text";
+import ArticleCard from "../../components/article/ArticleCard";
 
 export async function generateMetadata() {
   const t = await getTranslations("ArticleList");
@@ -25,7 +25,7 @@ async function fetchArticles(searchParams) {
   if (searchParams.category) params.set("category", searchParams.category);
   if (searchParams.tag) params.set("tag", searchParams.tag);
   params.set("page", searchParams.page || "1");
-  params.set("pageSize", "10");
+  params.set("pageSize", "12");
 
   return fetchJson(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/search?${params.toString()}`);
 }
@@ -74,20 +74,9 @@ export default async function ArticleListPage(props) {
         {articles.length === 0 ? (
           <p>{t("noResults")}</p>
         ) : (
-          <div className="list-group mb-4">
+          <div className="omega-article-grid">
             {articles.map((a) => (
-              <Link href={`/article/${a.slug}`} key={a.id} className="list-group-item list-group-item-action">
-                <div className="d-flex w-100 justify-content-between">
-                  <h5 className="mb-1">{a.title}</h5>
-                  <small>{a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : ""}</small>
-                </div>
-                <p className="mb-1">{blocksToPlainText(a.body).slice(0, 200)}{blocksToPlainText(a.body).length > 200 ? "..." : ""}</p>
-                <small>
-                  {t("by")} {a.authorId || 'unknown'}
-                  {a.category ? ` · ${a.category}` : ""}
-                  {a.tags ? ` · ${a.tags}` : ""}
-                </small>
-              </Link>
+              <ArticleCard key={a.id} article={a} href={`/article/${a.slug}`} buttonLabel={t("readMore")} LinkComponent={Link} />
             ))}
           </div>
         )}

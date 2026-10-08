@@ -1,0 +1,66 @@
+/* Article cards — see ArticleCard.jsx. Plain CSS rather than Bootstrap's
+   .card/.row-cols so the grid also looks right inside the admin editor
+   (which doesn't load Bootstrap); the button itself stays a Bootstrap
+   .btn so the active theme styles it like every other button. */
+.omega-article-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--omega-article-columns, 3), minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 991.98px) {
+  .omega-article-grid:not([data-columns='1']) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 575.98px) {
+  .omega-article-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.omega-article-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #212529;
+}
+.omega-article-card-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+.omega-article-card-img-empty {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+}
+.omega-article-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem 1.1rem 1.1rem;
+}
+.omega-article-card-date {
+  color: #6c757d;
+}
+.omega-article-card-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.omega-article-card-excerpt {
+  margin: 0;
+  color: #495057;
+  font-size: 0.95rem;
+}
+.omega-article-card-footer {
+  margin-top: auto;
+  padding-top: 0.6rem;
+}

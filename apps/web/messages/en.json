@@ -16,6 +16,7 @@
   },
   "ArticleList": {
     "title": "Articles",
+    "readMore": "Read article",
     "description": "All published articles.",
     "searchPlaceholder": "Search for an article...",
     "allCategories": "All categories",
