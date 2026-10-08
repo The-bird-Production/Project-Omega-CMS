@@ -17,6 +17,9 @@ export default function Admin() {
           <Link href="/admin/article/drafts" className="btn btn-primary mx-2">
             <i className="bi bi-journal-text"></i> Drafts
           </Link>
+          <Link href="/admin/article/import" className="btn btn-outline-primary">
+            <i className="bi bi-cloud-download"></i> Importer
+          </Link>
         </div>
       </div>
     </>

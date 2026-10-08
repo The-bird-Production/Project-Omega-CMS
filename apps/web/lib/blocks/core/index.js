@@ -6,6 +6,7 @@ import { cover } from './cover.jsx';
 import { spacer } from './spacer.jsx';
 import { embed } from './embed.jsx';
 import { contactForm } from './contactForm.jsx';
+import { articleList } from './articleList.jsx';
 
 // Core "Gutenberg-style" blocks shipped with the CMS itself — always
 // available in the page/article editor regardless of which theme/plugin
@@ -26,4 +27,5 @@ export const coreBlockSpecs = {
   spacer,
   embed,
   contactForm,
+  articleList,
 };

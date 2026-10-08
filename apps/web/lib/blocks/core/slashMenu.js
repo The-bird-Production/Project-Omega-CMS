@@ -97,6 +97,14 @@ export function getCoreSlashMenuItems(editor) {
       onItemClick: () => insertCoreBlock(editor, { type: 'contactForm' }),
     },
     {
+      key: 'articleList',
+      title: "Liste d'articles",
+      subtext: 'Les derniers articles publiés, avec un bouton pour les lire',
+      aliases: ['articles', 'blog', 'actualites', 'news', 'liste'],
+      group: 'Mise en page',
+      onItemClick: () => insertCoreBlock(editor, { type: 'articleList' }),
+    },
+    {
       key: 'gallery',
       title: 'Galerie photo',
       subtext: 'Une grille de plusieurs images',

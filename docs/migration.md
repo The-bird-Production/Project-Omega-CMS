@@ -112,6 +112,52 @@ identité — peut nécessiter d'être mentionné dans votre politique de
 confidentialité ou couvert par un bandeau de consentement ; ce point
 n'est pas traité automatiquement par le CMS.
 
+## 5. Importer les articles d'un ancien site vers une nouvelle installation (optionnel)
+
+Si vous avez installé cette version **à côté** de l'ancien site (nouvelle
+base de données) plutôt que de mettre à jour l'ancien en place, l'import d'articles
+récupère les articles publiés de l'ancien site via son
+API :
+
+- le contenu HTML est converti en blocs (comme au point 1) ;
+- chaque image est téléchargée et ajoutée à la bibliothèque d'images de la
+  nouvelle installation : les articles ne dépendent plus de l'ancien site ;
+- le titre, le slug (donc l'URL `/article/<slug>`) et la date de
+  publication sont conservés.
+
+**Depuis l'administration** (le plus simple) : *Articles → Importer*
+(`/admin/article/import`). Saisissez l'URL de l'**API** de l'ancien site
+(son backend, pas le site public — par exemple
+`https://backend-omega.aupieddumorclan.fr`), cliquez sur **Simuler** pour
+voir ce qui sera importé sans rien enregistrer, puis sur **Importer**. Les
+articles sont attribués au compte administrateur connecté.
+
+**En ligne de commande** (utile pour un très gros site, sans limite de
+durée de requête) :
+
+**Docker :**
+```sh
+docker compose exec omega-server pnpm run import-articles -- --source https://backend-omega.aupieddumorclan.fr --dry-run
+docker compose exec omega-server pnpm run import-articles -- --source https://backend-omega.aupieddumorclan.fr
+```
+
+**Bare-metal :**
+```sh
+cd /opt/project-omega/apps/api   # ou votre WorkingDirectory
+pnpm run import-articles -- --source https://backend-omega.aupieddumorclan.fr --dry-run
+pnpm run import-articles -- --source https://backend-omega.aupieddumorclan.fr
+```
+
+Options de la ligne de commande :
+- `--author <email>` : compte auquel attribuer les articles (par défaut, le
+  plus ancien administrateur) ;
+- `--backend-url <URL>` : URL publique de l'API de la **nouvelle**
+  installation, utilisée dans l'adresse des images importées (par défaut,
+  `BACKEND_URL` de `apps/api/.env`).
+
+L'import est **idempotent** : un article dont le slug ou le titre existe
+déjà est ignoré, vous pouvez donc le relancer sans créer de doublons.
+
 ## Vérifications après migration
 
 - `/admin` : nouveau design clair « Papier Indigo » (sidebar/topbar

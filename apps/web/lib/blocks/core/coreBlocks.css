@@ -609,7 +609,29 @@ body {
   width: 70px;
 }
 
+/* .bn-block-content is display:flex, so without this the wrapper is a
+   shrink-to-fit flex item and the iframe's own percentage width resolves
+   against its intrinsic 300px — the embed ended up a narrow box instead
+   of filling its column/page. Stretch it to the whole available width
+   (same for the article list block's grid). */
+.omega-embed,
+.omega-article-list {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+.omega-embed-height {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #495057;
+  white-space: nowrap;
+}
+.omega-embed-height input {
+  width: 90px;
+}
 .omega-embed-frame {
+  display: block;
   width: 100%;
   border: none;
   border-radius: 0.375rem;
