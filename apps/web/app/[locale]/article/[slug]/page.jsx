@@ -4,9 +4,9 @@ import { getTranslations } from "next-intl/server";
 import BlockContent from "../../../components/BlockContent";
 import { blocksToPlainText } from "../../../../lib/blocks/text";
 
-async function fetchArticle(slug) {
+async function fetchArticle(slug, locale) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/${encodeURIComponent(slug)}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale || "fr")}`, {
       cache: "no-store",
     });
     if (!res.ok) {
@@ -21,10 +21,10 @@ async function fetchArticle(slug) {
 // Génère des métadonnées SEO pour la page d'article (Next.js App Router)
 export async function generateMetadata(props) {
   const params = await props.params;
-  const { slug } = params;
+  const { slug, locale } = params;
   const t = await getTranslations("ArticleDetail");
   try {
-    const article = await fetchArticle(slug);
+    const article = await fetchArticle(slug, locale);
     if (!article || article.error) {
       return {
         title: t("notFound"),
@@ -70,8 +70,8 @@ export async function generateMetadata(props) {
 
 export default async function ArticlePage(props) {
   const params = await props.params;
-  const { slug } = params;
-  const data = await fetchArticle(slug);
+  const { slug, locale } = params;
+  const data = await fetchArticle(slug, locale);
   const t = await getTranslations("ArticleDetail");
 
   if (data && data.error) {

@@ -6,31 +6,31 @@ import { useEffect, useState } from 'react';
 import ArticleCard from '../../../app/components/article/ArticleCard';
 import { routing } from '../../../i18n/routing';
 
-// URL prefix of the locale the visitor is currently browsing, matching
-// next-intl's 'as-needed' routing (see i18n/routing.js): none for the
-// default locale, "/en" for English... This block also renders inside
-// the admin editor (no locale there), hence reading it off the URL
-// rather than from next-intl's context.
-function currentLocalePrefix() {
-  if (typeof window === 'undefined') return '';
+// Locale the visitor is currently browsing, read off the URL as
+// next-intl's 'as-needed' routing writes it (see i18n/routing.js): no
+// prefix for the default locale, "/en/..." for English. This block also
+// renders inside the admin editor (no locale there, so the default one),
+// hence not reading it from next-intl's context.
+function currentLocale() {
+  if (typeof window === 'undefined') return routing.defaultLocale;
   const first = window.location.pathname.split('/')[1];
-  return routing.locales.includes(first) && first !== routing.defaultLocale ? `/${first}` : '';
+  return routing.locales.includes(first) ? first : routing.defaultLocale;
 }
 
-function useLatestArticles(count) {
+function useLatestArticles(count, locale) {
   const [state, setState] = useState({ status: 'loading', articles: [] });
 
   useEffect(() => {
     let cancelled = false;
     setState((s) => ({ ...s, status: 'loading' }));
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/search?page=1&pageSize=${count}`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/article/search?page=1&pageSize=${count}&locale=${locale}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((json) => !cancelled && setState({ status: 'ready', articles: json.data ?? [] }))
       .catch(() => !cancelled && setState({ status: 'error', articles: [] }));
     return () => {
       cancelled = true;
     };
-  }, [count]);
+  }, [count, locale]);
 
   return state;
 }
@@ -38,8 +38,9 @@ function useLatestArticles(count) {
 export default function ArticleListView({ block, editor }) {
   const editable = editor.isEditable;
   const { count, columns, buttonLabel } = block.props;
-  const { status, articles } = useLatestArticles(count);
-  const prefix = currentLocalePrefix();
+  const locale = currentLocale();
+  const { status, articles } = useLatestArticles(count, locale);
+  const prefix = locale === routing.defaultLocale ? '' : `/${locale}`;
 
   let content;
   if (status === 'loading') {

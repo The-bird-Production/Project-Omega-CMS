@@ -19,8 +19,9 @@ async function fetchJson(url) {
   return res.json();
 }
 
-async function fetchArticles(searchParams) {
+async function fetchArticles(searchParams, locale) {
   const params = new URLSearchParams();
+  params.set("locale", locale);
   if (searchParams.q) params.set("q", searchParams.q);
   if (searchParams.category) params.set("category", searchParams.category);
   if (searchParams.tag) params.set("tag", searchParams.tag);
@@ -40,12 +41,13 @@ async function fetchFilterOptions() {
 
 export default async function ArticleListPage(props) {
   const searchParams = await props.searchParams;
+  const { locale } = await props.params;
   const t = await getTranslations("ArticleList");
 
   let result;
   let error;
   try {
-    result = await fetchArticles(searchParams);
+    result = await fetchArticles(searchParams, locale);
   } catch (err) {
     error = err;
   }
