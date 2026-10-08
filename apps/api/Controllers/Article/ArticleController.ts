@@ -1,6 +1,17 @@
 import type { Request, Response } from "express";
 import { prisma } from "@omega/db";
 
+// Since multilingual content, a slug is only unique per locale (the
+// `slug_locale` compound key) — the same slug can have a French and an
+// English article. Callers pass ?locale= (or a `locale` body field);
+// anything that doesn't, like older admin pages or a plugin's code,
+// gets French, the default locale, like the page endpoints do.
+function requestLocale(req: Request): string {
+  const fromQuery = typeof req.query?.locale === "string" ? req.query.locale.trim() : "";
+  const fromBody = typeof req.body?.locale === "string" ? req.body.locale.trim() : "";
+  return fromQuery || fromBody || "fr";
+}
+
 export const createArticle = async (req: Request, res: Response) => {
   try {
     const { title, body, authorId, slug, category, tags } = req.body;
@@ -39,7 +50,7 @@ export const modifyArticle = async (req: Request, res: Response) => {
     }
     // Update article
     const article = await prisma.article.update({
-      where: { slug: slug },
+      where: { slug_locale: { slug, locale: requestLocale(req) } },
       data: {
         title,
         body,
@@ -106,8 +117,10 @@ export const saveDraft = async (req: Request, res: Response) => {
 export const deleteArticle = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
+    // The admin article list deletes by numeric id (unambiguous across
+    // locales); anything else is a slug in the request's locale.
     await prisma.article.delete({
-      where: { slug: slug },
+      where: /^\d+$/.test(slug) ? { id: Number(slug) } : { slug_locale: { slug, locale: requestLocale(req) } },
     });
     res.status(200).json({ message: "Article deleted successfully" });
   } catch (error) {
@@ -184,7 +197,11 @@ export const searchArticles = async (req: Request, res: Response) => {
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize as string, 10) || 10));
 
+    // Optional: without it every locale is listed, as before.
+    const locale = typeof req.query.locale === "string" ? req.query.locale.trim() : "";
+
     const where: Record<string, unknown> = { publishedAt: { lte: currentDate } };
+    if (locale) where.locale = locale;
     if (category) where.category = category;
     if (tag) where.tags = { contains: tag };
     if (q) {
@@ -258,7 +275,7 @@ export const getArticleBySlug = async (req: Request, res: Response) => {
     const { slug } = req.params;
     const article = await prisma.article.findUnique({
       where: {
-        slug,
+        slug_locale: { slug, locale: requestLocale(req) },
         publishedAt: { lte: currentDate },
       },
     });
