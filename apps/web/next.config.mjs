@@ -6,6 +6,12 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.js');
 const nextConfig = {
   async rewrites() {
     return [
+      // The site's favicon (uploaded in the admin, or a neutral default) —
+      // see app/api/favicon/route.js.
+      {
+        source: '/favicon.ico',
+        destination: '/api/favicon',
+      },
       // Proxy pour les fichiers de plugins
       {
         source: '/plugins/:path*',

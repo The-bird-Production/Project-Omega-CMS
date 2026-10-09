@@ -5,10 +5,10 @@ import ClientChrome from './components/layout/ClientChrome';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-// Falls back to Next's own file-convention favicon (app/favicon.ico) when
-// nothing's been uploaded yet — omitting `icons` from the returned
-// metadata entirely (rather than pointing it at a hardcoded default url)
-// is what leaves that convention in effect.
+// The favicon uploaded in the admin, linked straight from the API (its
+// real file name/extension, so a change shows up without waiting on
+// /favicon.ico's cache). Without one, /favicon.ico (app/favicon.ico/
+// route.js) serves a neutral default.
 async function getFaviconUrl() {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!backendUrl) return null;
@@ -42,7 +42,7 @@ export async function generateMetadata() {
       siteName,
       type: "website",
     },
-    ...(faviconUrl ? { icons: { icon: faviconUrl } } : {}),
+    icons: { icon: faviconUrl || '/favicon.ico' },
   };
 }
 
