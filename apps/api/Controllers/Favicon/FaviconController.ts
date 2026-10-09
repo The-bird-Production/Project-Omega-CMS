@@ -15,9 +15,21 @@ function findCurrentFavicon(): string | null {
   return fs.readdirSync(FAVICON_DIR).find((file) => ALLOWED_EXTENSIONS.has(path.extname(file).toLowerCase())) ?? null;
 }
 
+// BACKEND_URL isn't set in every deployment (the official compose file
+// didn't pass it for a long time) — without a fallback this produced
+// "undefined/favicon/favicon.png", a URL that 404s on the site's own
+// origin, so the uploaded favicon never showed. Same fix as
+// CreateArticleImage: fall back to the URL this request came in on, and
+// also return the bare `file` so the web app can build the URL from its
+// own NEXT_PUBLIC_BACKEND_URL (which, unlike this fallback, is right even
+// behind a TLS-terminating proxy).
+function faviconUrl(req: Request, file: string): string {
+  return `${process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`}/favicon/${file}`;
+}
+
 export const GetFavicon = async (req: Request, res: Response) => {
   const file = findCurrentFavicon();
-  res.json({ url: file ? `${process.env.BACKEND_URL}/favicon/${file}` : null });
+  res.json(file ? { url: faviconUrl(req, file), file } : { url: null, file: null });
 };
 
 export const UploadFavicon = async (req: Request, res: Response) => {
@@ -41,7 +53,7 @@ export const UploadFavicon = async (req: Request, res: Response) => {
     }
     const finalPath = path.join(FAVICON_DIR, `favicon${extension}`);
     fs.renameSync(req.file.path, finalPath);
-    res.json({ url: `${process.env.BACKEND_URL}/favicon/favicon${extension}` });
+    res.json({ url: faviconUrl(req, `favicon${extension}`), file: `favicon${extension}` });
   } catch (e) {
     console.error("Erreur UploadFavicon:", e);
     res.status(500).json({ message: "Erreur interne du serveur." });

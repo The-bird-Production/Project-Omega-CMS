@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react';
 // Site-wide, independent of the active theme (unlike its style.css) — see
 // apps/api/Controllers/Favicon/FaviconController.ts, which keeps a single
 // favicon<ext> file on disk rather than one per theme.
+// Built from our own backend URL when the API returns the bare file name
+// (see FaviconController.ts: its own `url` used to be
+// "undefined/favicon/..." when the API's BACKEND_URL wasn't set).
+function faviconUrlFrom(data) {
+  if (data?.file) return `${process.env.NEXT_PUBLIC_BACKEND_URL}/favicon/${data.file}`;
+  return data?.url || null;
+}
+
 export default function FaviconSettings() {
   const [currentUrl, setCurrentUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -13,7 +21,7 @@ export default function FaviconSettings() {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/favicon/current`);
       const data = await res.json();
-      setCurrentUrl(data.url || null);
+      setCurrentUrl(faviconUrlFrom(data));
     } catch {
       setCurrentUrl(null);
     }
@@ -39,7 +47,10 @@ export default function FaviconSettings() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || `Erreur : ${res.statusText}`);
-      setCurrentUrl(data.url);
+      // Same file name as the previous favicon when the extension didn't
+      // change: bust the cache so the preview shows the new one.
+      const url = faviconUrlFrom(data);
+      setCurrentUrl(url ? `${url}?v=${Date.now()}` : null);
     } catch (err) {
       setError(err.message);
     } finally {

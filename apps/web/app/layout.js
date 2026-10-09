@@ -16,6 +16,10 @@ async function getFaviconUrl() {
     const res = await fetch(`${backendUrl}/favicon/current`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const data = await res.json();
+    // Built from our own backend URL when the API gives the bare file
+    // name: the API's own `url` used to come out as
+    // "undefined/favicon/..." when its BACKEND_URL wasn't set.
+    if (data.file) return `${backendUrl}/favicon/${data.file}`;
     return data.url || null;
   } catch {
     return null;
