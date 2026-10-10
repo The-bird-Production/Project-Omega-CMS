@@ -375,6 +375,22 @@ body {
   flex: 1 1 0;
   min-width: 0;
 }
+/* Phones/small tablets: side-by-side columns get too narrow to read
+   (each a few words wide), so stack them, one full-width column above
+   the next, in their editor order — Bootstrap's own md breakpoint, the
+   one the themes' grids switch at too. */
+@media (max-width: 767.98px) {
+  .bn-block:has(> * > [data-content-type='columns']) + .bn-block-group,
+  .bn-block:has(> * > [data-content-type='columns']) > .bn-block-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bn-block:has(> * > [data-content-type='columns']) + .bn-block-group > .bn-block-outer,
+  .bn-block:has(> * > [data-content-type='columns']) > .bn-block-group > .bn-block-outer {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
 
 /* Accordion: a vertical stack of accordionItem blocks. Unlike the first
    version of this block, open/closed is no longer driven by a custom
