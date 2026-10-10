@@ -271,6 +271,9 @@ model AppSettings {
   updateChannel     String    @default("stable")
   lastCheckedAt     DateTime?
   lastVersionSeen   String?
+  // Public name of the site, shown after each page's title in the browser
+  // tab (and as Open Graph site_name). Null = the default ("Omega CMS").
+  siteName          String?   @db.VarChar(120)
   updatedAt         DateTime  @updatedAt
 }
 

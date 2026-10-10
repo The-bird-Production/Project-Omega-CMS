@@ -2,12 +2,16 @@ import { Router } from "express";
 import VerifyPermission from "../../Middleware/VerifyPermissions.js";
 import { getVersion } from "../../Controllers/System/VersionController.js";
 import { triggerCheck, triggerApply, getSettings, updateSettings } from "../../Controllers/System/UpdateController.js";
+import { getSite, updateSite } from "../../Controllers/System/SiteController.js";
 
 const router = Router();
 
 // Public: version info isn't sensitive, and the future update-checker
 // needs to be able to read it without auth.
 router.get("/version", getVersion);
+// Public too: the site's name is shown in every page title.
+router.get("/site", getSite);
+router.patch("/site", VerifyPermission("admin"), updateSite);
 
 // Everything below triggers a live GitHub API call, a filesystem/git
 // operation, or changes this instance's config — admin-only.
