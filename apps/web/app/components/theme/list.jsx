@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { confirmAction } from "../../../lib/confirm";
 import FaviconSettings from "./FaviconSettings";
+import SiteNameSettings from "./SiteNameSettings";
 import FontSettings from "./FontSettings";
 
 const ThemePage = () => {
@@ -134,6 +135,7 @@ const ThemePage = () => {
 
   return (
     <>
+      <SiteNameSettings />
       <FaviconSettings />
       <FontSettings />
       <div className="card card-body bg-secondary">

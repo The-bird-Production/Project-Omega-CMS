@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import Layout from "../components/layout/MainLayout";
 import BlockContent from "../components/BlockContent";
+import { getSiteName } from "../../lib/siteName";
 
 // The home page used to be the one route with no way to edit its content
 // at all — a hardcoded placeholder, unrelated to the `page` table every
@@ -25,6 +26,16 @@ async function fetchHomePage(locale) {
   } catch {
     return null;
   }
+}
+
+// The home page's tab title: its page title followed by the site name, or
+// the site name alone when there's no home page yet or both are the same
+// (a theme typically names its home page after the site).
+export async function generateMetadata(props) {
+  const { locale } = await props.params;
+  const [page, siteName] = await Promise.all([fetchHomePage(locale), getSiteName()]);
+  const title = page?.title && page.title !== siteName ? `${page.title} | ${siteName}` : siteName;
+  return { title: { absolute: title }, openGraph: { title } };
 }
 
 export default async function Home(props) {

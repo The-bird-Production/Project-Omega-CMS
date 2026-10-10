@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import Script from 'next/script';
 import ClientChrome from './components/layout/ClientChrome';
+import { getSiteName } from '../lib/siteName';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -28,8 +29,7 @@ async function getFaviconUrl() {
 
 export async function generateMetadata() {
   const t = await getTranslations('Layout');
-  const siteName = t('siteName');
-  const faviconUrl = await getFaviconUrl();
+  const [siteName, faviconUrl] = await Promise.all([getSiteName(), getFaviconUrl()]);
 
   return {
     ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
