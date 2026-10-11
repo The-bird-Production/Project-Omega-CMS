@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import app from "./app.js"; // ton Express app
-import { app_port } from "./config/server.js";
+import { app_port } from "./lib/serverConfig.js";
 import { startUpdateScheduler } from "./Functions/Updater/scheduler.js";
 import { initSocket } from "./lib/socket.js";
 

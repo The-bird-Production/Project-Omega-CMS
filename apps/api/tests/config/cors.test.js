@@ -5,7 +5,7 @@ import express from "express";
 import cors from "cors";
 import request from "supertest";
 
-const { CORS } = await import("../../config/server.js");
+const { CORS } = await import("../../lib/serverConfig.js");
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROUTES_DIR = path.resolve(__dirname, "../../Routes");
@@ -32,6 +32,25 @@ describe("CORS methods", () => {
     }
     expect(used.size).toBeGreaterThan(0);
     expect([...used].filter((method) => !CORS.methods.includes(method))).toEqual([]);
+  });
+
+  // config/ survives updates (persisted on existing installs), so the app
+  // must never read its settings from there or a fix like the one above
+  // never reaches production.
+  test("no application code imports the persisted config/ directory", () => {
+    const API_DIR = path.resolve(__dirname, "../..");
+    const SKIP = new Set(["node_modules", "tests", "config", "Public", "Plugins", "Themes", "Themes_style", "PluginsClient"]);
+    const files = (function walk(dir) {
+      return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        if (SKIP.has(entry.name)) return [];
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) return walk(full);
+        return /\.(ts|js|mts|mjs)$/.test(entry.name) ? [full] : [];
+      });
+    })(API_DIR);
+    const offenders = files.filter((file) => /from\s+["'][./]*config\/server(\.js)?["']/.test(fs.readFileSync(file, "utf8")));
+    expect(files.length).toBeGreaterThan(10);
+    expect(offenders.map((f) => path.relative(API_DIR, f))).toEqual([]);
   });
 
   test("the preflight for a PATCH from an allowed origin accepts it", async () => {
