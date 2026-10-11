@@ -6,7 +6,10 @@ const allowedOrigins: string[] = (process.env.ALLOWED_ORIGINS || "http://localho
 
 export const CORS = {
   origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  // Every HTTP method a route uses must be listed, or browsers block it at
+  // the CORS preflight (PATCH was missing: saving the site name or update
+  // settings from the admin failed). tests/config/cors.test.js checks this.
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["Content-Disposition"],
