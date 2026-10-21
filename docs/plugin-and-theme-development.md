@@ -392,8 +392,17 @@ Auto-découvert par la seule présence du dossier — aucune entrée dans
 **seulement si aucune page n'existe déjà à ce slug** : une page déjà
 créée, que ce soit par une installation précédente ou modifiée depuis
 par le propriétaire du site, n'est jamais écrasée. Voir
-`apps/api/Functions/InstallTheme.ts`'s `seedThemePages` pour
-l'implémentation exacte.
+`apps/api/Functions/PageImport.ts` pour l'implémentation exacte.
+
+Ces pages peuvent aussi être importées à tout moment depuis l'admin,
+**Pages → Importer** (`/admin/page/import`) : la liste des pages du
+thème actif indique celles qui manquent sur le site, et on choisit
+lesquelles importer, éventuellement en **remplaçant** celles déjà
+présentes (par exemple pour récupérer la nouvelle version d'une page
+après une mise à jour du thème). La même page accepte aussi des
+fichiers `.json` à ce format envoyés depuis l'ordinateur — le nom du
+fichier donne l'adresse de la page, sauf si le JSON contient un champ
+`slug`.
 
 Le menu de navigation, lui, n'est **pas** créé automatiquement — voir la
 section suivante.

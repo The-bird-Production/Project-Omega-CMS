@@ -7,9 +7,14 @@ import CreatePage from "../../Controllers/Pages/CreatePageController.js";
 import DuplicatePage from "../../Controllers/Pages/DuplicatePageController.js";
 import AddLogs from "../../Functions/AddLogs.js";
 import { GetAllPage } from "../../Controllers/Pages/GetAllPageController.js";
+import { listThemePages, importThemePages, importUploadedPages } from "../../Controllers/Pages/ImportPagesController.js";
 const router = express.Router();
 router.get('/get/all', GetAllPage);
 router.get("/get/:slug", GetPage);
+// Import pages in the theme content format (content/pages/<slug>.json).
+router.get("/import/theme", VerifyPermissions("admin"), listThemePages);
+router.post("/import/theme", VerifyPermissions("admin"), AddLogs("Import theme pages", "green"), importThemePages);
+router.post("/import", VerifyPermissions("admin"), AddLogs("Import pages", "green"), importUploadedPages);
 router.delete("/delete/:id",  VerifyPermissions("admin"), AddLogs("Delete Page", "red"), DeletePage);
 router.post("/update/:id",  VerifyPermissions("admin"), AddLogs("Update page", "green"), UpdatePage);
 router.post("/create",  VerifyPermissions("admin"), AddLogs("Create page", "green"), CreatePage);

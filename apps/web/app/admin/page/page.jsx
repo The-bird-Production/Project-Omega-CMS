@@ -14,6 +14,9 @@ export default function Admin() {
           <Link href="/admin/page/new" className="btn btn-primary">
             <i className="bi bi-plus-circle"></i> New
           </Link>
+          <Link href="/admin/page/import" className="btn btn-outline-primary mx-2">
+            <i className="bi bi-box-arrow-in-down"></i> Importer
+          </Link>
         </div>
       </div>
     </>
