@@ -6,6 +6,7 @@ import { assertInside, assertSafeZipEntries, movePath, requestClientRebuild } fr
 import { compileComponentsInPlace } from "./compileComponent.js";
 import { parseRepoInput, fetchLatestRelease, downloadReleaseArchive, unwrapSingleTopLevelDir, repoToLocalId } from "./githubRelease.js";
 import { isRunningInDocker } from "./Updater/gitState.js";
+import { readThemePages, importPages } from "./PageImport.js";
 
 function moveInto(srcDir: string, destDir: string): void {
   if (!fs.existsSync(srcDir)) return;
@@ -39,26 +40,15 @@ function collectComponentFilesToCompile(componentsDir: string): string[] {
 // scratch. Auto-discovered by filesystem existence, no manifest entry
 // needed, same as a theme's blocks.js. Never overwrites: a page already
 // existing at that slug (from a previous install, or the owner's own
-// edit) is left alone — this only ever fills in what's missing.
+// edit) is left alone — this only ever fills in what's missing. The same
+// import, with an "overwrite" option, is available from the admin
+// (Pages → Importer, see Controllers/Pages/ImportPagesController.ts).
 async function seedThemePages(themeDir: string): Promise<void> {
-  const pagesDir = path.join(themeDir, "content", "pages");
-  if (!fs.existsSync(pagesDir)) return;
-
-  for (const file of fs.readdirSync(pagesDir)) {
-    if (!file.endsWith(".json")) continue;
-    const slug = file.slice(0, -".json".length);
-    try {
-      const existing = await prisma.page.findUnique({ where: { slug } });
-      if (existing) continue;
-
-      const { title, body } = JSON.parse(fs.readFileSync(path.join(pagesDir, file), "utf-8"));
-      if (!title || !Array.isArray(body)) continue;
-
-      await prisma.page.create({ data: { slug, title, body: JSON.stringify(body) } });
-    } catch (err) {
-      console.error(`Impossible d'importer la page "${slug}" du thème :`, err);
-    }
+  const pages = readThemePages(themeDir);
+  for (const { slug, error } of pages) {
+    if (error) console.error(`Impossible d'importer la page "${slug}" du thème : ${error}`);
   }
+  await importPages(pages.flatMap(({ page }) => (page ? [page] : [])));
 }
 
 // Only one non-default theme is ever "active" — getCurrentTheme() (see
