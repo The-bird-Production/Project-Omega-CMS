@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "@omega/db";
-import * as config from "../../config/server.js";
+import * as config from "../../lib/serverConfig.js";
 
 const GetFile = async (req: Request, res: Response) => {
     try {

@@ -54,7 +54,6 @@ services:
       - ./apps/api/Themes:/repo/apps/api/Themes
       - ./apps/api/Plugins:/repo/apps/api/Plugins
       - ./apps/api/PluginsClient:/repo/apps/api/PluginsClient
-      - ./apps/api/config:/repo/apps/api/config
       - ./apps/api/Themes_style:/repo/apps/api/Themes_style
     depends_on:
       - omega-db
