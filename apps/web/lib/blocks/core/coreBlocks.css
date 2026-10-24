@@ -404,6 +404,15 @@ body {
   display: flex;
   flex-direction: column;
 }
+/* .bn-block-content is display:flex, so the header shrank to its text and
+   the question's button only covered part of the row — same issue as the
+   embed block above. */
+[data-content-type='accordionItem'] > .accordion-header {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
 .omega-accordion-question-input {
   font: inherit;
   font-weight: inherit;

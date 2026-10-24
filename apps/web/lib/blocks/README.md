@@ -45,9 +45,12 @@ an insertable block in the editor (see
 function is used to produce the block's HTML on the public site.
 
 **How the public site renders it**: a page/article built entirely from
-the built-in block types is rendered to HTML server-side
-(`apps/web/lib/blocks/render.js`, via `@blocknote/server-util`) — good for
-SEO and first paint. One that uses a plugin/theme block like `testimonial`
+the built-in block types — BlockNote's own and the CMS's core blocks
+(`core/`), which have plain-DOM server versions in `serverBlocks.js` — is
+rendered to HTML server-side (`apps/web/lib/blocks/render.js`, via
+`@blocknote/server-util`): its content is in the page search engines
+receive, and it shows immediately. Changing a core block's public markup
+means updating its server version too. One that uses a plugin/theme block like `testimonial`
 falls back to a client-rendered read-only editor view instead
 (`BlockContent.jsx` → `BlockContentBranch.jsx` → `BlockContentClient.jsx`):
 BlockNote's headless HTML export doesn't reliably render React-based

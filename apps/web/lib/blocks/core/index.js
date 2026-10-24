@@ -11,7 +11,8 @@ import { articleList } from './articleList.jsx';
 // Core "Gutenberg-style" blocks shipped with the CMS itself — always
 // available in the page/article editor regardless of which theme/plugin
 // is active, unlike the plugin/theme block-contribution mechanism (see
-// discoverClient.js/discoverServer.js), which is for third-party blocks.
+// discoverClient.js), which is for third-party blocks. Their server-side
+// (HTML export) versions are in ../serverBlocks.js.
 // See slashMenu.js for how these get inserted (registering a block type
 // here doesn't give it a slash-menu entry on its own).
 export const coreBlockSpecs = {
