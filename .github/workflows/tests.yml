@@ -137,7 +137,7 @@ jobs:
       # (the http://backend.invalid placeholder) that broke production once
       # already when it wasn't a syntactically valid URL.
       - name: 🐳 Build ${{ matrix.image }} image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: apps/${{ matrix.image }}/Dockerfile
