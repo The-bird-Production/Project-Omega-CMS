@@ -1,7 +1,7 @@
 import { Server as SocketIOServer, type Socket } from "socket.io";
 import type { Server as HTTPServer } from "http";
 import { auth } from "./auth.js";
-import { CORS } from "../config/server.js";
+import { CORS } from "./serverConfig.js";
 
 let io: SocketIOServer | null = null;
 
