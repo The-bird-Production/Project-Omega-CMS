@@ -2,7 +2,7 @@
 import { getTranslations } from "next-intl/server"
 import Layout from "../../components/layout/MainLayout"
 import BlockContent from "../../components/BlockContent"
-import { blocksToPlainText } from "../../../lib/blocks/text"
+import { blocksToPlainText, firstImageUrl } from "../../../lib/blocks/text"
 import { getPageTemplateComponent } from "../../../lib/pageTemplates/render"
 
 export const revalidate = 60
@@ -32,6 +32,8 @@ export async function generateMetadata(props) {
     // so only a non-default locale needs its prefix added here.
     const localePrefix = params.locale === "fr" ? "" : `/${params.locale}`
     const pageUrl = siteUrl ? `${siteUrl.replace(/\/$/, "")}${localePrefix}/${encodeURIComponent(params.slug)}` : undefined
+    // Shown when the page is shared (social networks, messaging apps).
+    const image = firstImageUrl(page.body)
 
     return {
       title: page.title,
@@ -41,6 +43,7 @@ export async function generateMetadata(props) {
         title: page.title,
         description: description || page.title,
         url: pageUrl,
+        images: image ? [image] : undefined,
       },
     }
   } catch {
@@ -99,7 +102,7 @@ export default async function Page(props) {
 
     return (
       <Layout pathname={pathname}>
-        {CustomTemplate ? <CustomTemplate page={page} /> : <BlockContent as="main" body={page.body} />}
+        {CustomTemplate ? <CustomTemplate page={page} /> : <BlockContent as="main" body={page.body} locale={params.locale} />}
       </Layout>
     )
   } catch (err) {

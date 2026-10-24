@@ -1,5 +1,7 @@
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
+import '../../lib/blocks/core/coreBlocks.css';
+import './article/ArticleCard.css';
 import { prepareBlockContent } from '../../lib/blocks/render';
 import BlockContentBranch from './BlockContentBranch';
 
@@ -9,8 +11,8 @@ import BlockContentBranch from './BlockContentBranch';
 // that uses a plugin/theme custom block. Wrapped in the classes
 // BlockNote's own stylesheet expects either way, so it looks the same as
 // it does in the editor.
-export default async function BlockContent({ body, as: Wrapper = 'div', className = '' }) {
-  const prepared = await prepareBlockContent(body);
+export default async function BlockContent({ body, as: Wrapper = 'div', className = '', locale = 'fr' }) {
+  const prepared = await prepareBlockContent(body, { locale });
   if (prepared.mode === 'empty') return null;
 
   return (

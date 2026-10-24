@@ -35,7 +35,8 @@ export function blocksToPlainText(bodyJson) {
 // URL of the first image block in a stored body (depth-first), or '' —
 // used as a thumbnail for article cards when the article has no cover
 // `image` of its own (the common case: most articles just start with an
-// image block, imported ones included).
+// image block, imported ones included), and as a page's share image
+// (Open Graph). A banner (cover) or gallery photo counts too.
 export function firstImageUrl(bodyJson) {
   if (!bodyJson) return '';
 
@@ -49,7 +50,8 @@ export function firstImageUrl(bodyJson) {
 
   const find = (list) => {
     for (const block of list) {
-      if (block?.type === 'image' && block.props?.url) return block.props.url;
+      if ((block?.type === 'image' || block?.type === 'galleryImage') && block.props?.url) return block.props.url;
+      if (block?.type === 'cover' && block.props?.imageUrl) return block.props.imageUrl;
       if (Array.isArray(block?.children) && block.children.length > 0) {
         const found = find(block.children);
         if (found) return found;

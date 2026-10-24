@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Layout from "../components/layout/MainLayout";
 import BlockContent from "../components/BlockContent";
 import { getSiteName } from "../../lib/siteName";
+import { blocksToPlainText, firstImageUrl } from "../../lib/blocks/text";
 
 // The home page used to be the one route with no way to edit its content
 // at all — a hardcoded placeholder, unrelated to the `page` table every
@@ -30,12 +31,26 @@ async function fetchHomePage(locale) {
 
 // The home page's tab title: its page title followed by the site name, or
 // the site name alone when there's no home page yet or both are the same
-// (a theme typically names its home page after the site).
+// (a theme typically names its home page after the site). Description and
+// share image come from its content, like any other page — search
+// engines otherwise only had the generic "Site propulsé par Omega CMS."
 export async function generateMetadata(props) {
   const { locale } = await props.params;
   const [page, siteName] = await Promise.all([fetchHomePage(locale), getSiteName()]);
   const title = page?.title && page.title !== siteName ? `${page.title} | ${siteName}` : siteName;
-  return { title: { absolute: title }, openGraph: { title } };
+  if (!page) return { title: { absolute: title }, openGraph: { title } };
+
+  const text = blocksToPlainText(page.body);
+  const description = text.length > 160 ? `${text.slice(0, 157)}...` : text || undefined;
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+  const url = siteUrl ? `${siteUrl}${locale === "fr" ? "" : `/${locale}`}/` : undefined;
+  const image = firstImageUrl(page.body);
+  return {
+    title: { absolute: title },
+    description,
+    alternates: url ? { canonical: url } : undefined,
+    openGraph: { title, description, url, images: image ? [image] : undefined },
+  };
 }
 
 export default async function Home(props) {
@@ -57,7 +72,7 @@ export default async function Home(props) {
 
   return (
     <Layout pathname="/">
-      <BlockContent as="main" body={page.body} />
+      <BlockContent as="main" body={page.body} locale={locale} />
     </Layout>
   );
 }

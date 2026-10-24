@@ -13,7 +13,7 @@ async function fetchJson(url) {
 // changed, or the template no longer exists in it (the caller falls back
 // to normal block rendering in that case, see app/[slug]/page.jsx). The
 // import() below uses the same template-literal-with-static-prefix shape
-// as apps/web/lib/blocks/discoverServer.js, for the same reason: it's the
+// as apps/web/lib/blocks/discoverClient.js, for the same reason: it's the
 // only dynamic-import shape Next's bundler can actually resolve here.
 //
 // KNOWN LIMITATION, by design (not an oversight): a theme installed at
