@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import BlockContent from "../../../components/BlockContent";
 import { blocksToPlainText } from "../../../../lib/blocks/text";
+import { fixLegacyUploadUrl } from "../../../../lib/blocks/legacyUrls";
 
 async function fetchArticle(slug, locale) {
   try {
@@ -12,7 +13,8 @@ async function fetchArticle(slug, locale) {
     if (!res.ok) {
       throw new Error(`Article fetch failed: ${res.status}`);
     }
-    return await res.json();
+    const article = await res.json();
+    return article ? { ...article, image: fixLegacyUploadUrl(article.image) } : article;
   } catch (err) {
     return { error: err };
   }

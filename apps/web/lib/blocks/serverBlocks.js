@@ -1,6 +1,6 @@
 import { createBlockSpec } from '@blocknote/core';
 import { blocksToPlainText, firstImageUrl } from './text.js';
-import { fixLegacyUploadUrls } from './legacyUrls.js';
+import { fixLegacyUploadUrl, fixLegacyUploadUrls } from './legacyUrls.js';
 
 // Server-side (HTML export) versions of the core blocks in ./core/.
 //
@@ -193,7 +193,7 @@ const contactForm = spec('contactForm', {}, 'none', () => ({
 
 // Same cards as app/components/article/ArticleCard.jsx.
 function articleCard(article, href, buttonLabel) {
-  const thumbnail = article.image || firstImageUrl(fixLegacyUploadUrls(article.body));
+  const thumbnail = fixLegacyUploadUrl(article.image) || firstImageUrl(fixLegacyUploadUrls(article.body));
   const text = blocksToPlainText(article.body);
   const excerpt = text.length > 160 ? `${text.slice(0, 160).trimEnd()}…` : text;
   const date = article.publishedAt
