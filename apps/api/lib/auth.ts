@@ -4,7 +4,7 @@ import { prisma } from "@omega/db";
 import {admin as adminPlugins}  from "better-auth/plugins"
 import {ac,admin, user} from "./permissions.js"
 
-// ALLOWED_ORIGINS accepts a comma-separated list (same variable used for CORS in config/server.js).
+// ALLOWED_ORIGINS accepts a comma-separated list (same variable used for CORS in lib/serverConfig.ts).
 const trustedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:3000,http://localhost:3001")
   .split(",")
   .map((origin) => origin.trim())

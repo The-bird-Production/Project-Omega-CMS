@@ -16,7 +16,7 @@ qui, toutes les 6 heures par défaut :
    plus bas) et qu'une mise à jour existe, l'applique : sauvegarde la base,
    récupère le nouveau commit dans un `git worktree` séparé, synchronise le
    code par `rsync` en excluant vos données (uploads, plugins/thèmes
-   installés, config, `.env`), réinstalle les dépendances, applique les
+   installés, `.env`), réinstalle les dépendances, applique les
    migrations, puis quitte le processus (code 0) pour que systemd le
    relance avec le nouveau code.
 

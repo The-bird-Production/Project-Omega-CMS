@@ -1,6 +1,6 @@
 import mainRoute from "./Routes/Article/MainRoute.js";
 import express, { json, urlencoded as _urlencoded } from "express";
-import { CORS } from './config/server.js';
+import { CORS } from './lib/serverConfig.js';
 import { toNodeHandler } from 'better-auth/node';
 //Security
 import cors from "cors";

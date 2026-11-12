@@ -90,7 +90,7 @@ Sans Docker, `apps/api` embarque son propre vérificateur/applicateur de mise à
 
 ## 🔧 Configuration
 
-- **Fichiers de configuration** : `apps/api/config/` (paramètres généraux), `.env` (variables sensibles, voir `ALLOWED_ORIGINS`/`APP_URL` pour le CORS et les cookies).
+- **Configuration** : tout passe par `.env` (voir `ALLOWED_ORIGINS`/`APP_URL` pour le CORS et les cookies) ; les réglages serveur qui en découlent sont dans `apps/api/lib/serverConfig.ts`.
 - **Base de données** : le schéma Prisma est centralisé dans `packages/db/prisma/schema.prisma` et partagé par les apps via le package `@omega/db`. Migrations :
   ```sh
   pnpm --filter @omega/db run migrate:dev

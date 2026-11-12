@@ -6,7 +6,7 @@
 # before actually starting the app.
 set -e
 
-for dir in Public Themes Plugins Themes_style config; do
+for dir in Public Themes Plugins Themes_style; do
   if [ -d "$dir" ]; then
     chown -R node:node "$dir" 2>/dev/null || true
   fi

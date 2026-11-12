@@ -9,7 +9,7 @@ const execFileAsync = promisify(execFile);
 const SHA_RE = /^[0-9a-f]{40}$/i;
 
 // Paths holding *this instance's* data — uploads, installed plugins/themes,
-// local config, secrets — never overwritten by an update. This mirrors
+// secrets — never overwritten by an update. This mirrors
 // exactly the boundary docker-compose.yml draws with bind mounts for the
 // Docker deployment (see PRESERVE_PATHS vs. the `volumes:` list there): an
 // update replaces application code, never runtime data.
@@ -18,7 +18,6 @@ const PRESERVE_PATHS = [
   "apps/api/Plugins",
   "apps/api/Themes",
   "apps/api/Themes_style",
-  "apps/api/config",
   "apps/api/backups",
   "apps/api/temp",
   "apps/api/.env",
