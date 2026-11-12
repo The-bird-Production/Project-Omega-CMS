@@ -1,5 +1,5 @@
 import { blocksToPlainText, firstImageUrl } from '../../../lib/blocks/text';
-import { fixLegacyUploadUrls } from '../../../lib/blocks/legacyUrls';
+import { fixLegacyUploadUrl, fixLegacyUploadUrls } from '../../../lib/blocks/legacyUrls';
 import './ArticleCard.css';
 
 const EXCERPT_LENGTH = 160;
@@ -11,7 +11,7 @@ const EXCERPT_LENGTH = 160;
 // next-intl's locale-aware Link while the block (which also renders
 // inside the admin editor, outside any locale) uses a plain <a>.
 export default function ArticleCard({ article, href, buttonLabel, LinkComponent = 'a', onLinkClick }) {
-  const thumbnail = article.image || firstImageUrl(fixLegacyUploadUrls(article.body));
+  const thumbnail = fixLegacyUploadUrl(article.image) || firstImageUrl(fixLegacyUploadUrls(article.body));
   const text = blocksToPlainText(article.body);
   const excerpt = text.length > EXCERPT_LENGTH ? `${text.slice(0, EXCERPT_LENGTH).trimEnd()}…` : text;
   const date = article.publishedAt
